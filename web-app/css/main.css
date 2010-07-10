@@ -1,0 +1,9 @@
+.usertext {
+ color:gray;
+ background-color:#f0f0f0;
+ padding-left:5px;
+ padding-right:5px;
+ display:inline-block;
+}
+
+ul.menu li{display:inline;list-style-image:none;list-style-position:outside;list-style-type:none;margin:0;padding:0 .5em 0 0;}
