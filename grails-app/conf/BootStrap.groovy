@@ -8,6 +8,8 @@ class BootStrap {
 	
      def init = { servletContext ->
      
+		 this.getClass().classLoader.rootLoader.URLs.each { println it }
+		 
 	     switch( Environment.current )
 	     {
 	         case Environment.DEVELOPMENT:

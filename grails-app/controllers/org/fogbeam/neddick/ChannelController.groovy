@@ -80,9 +80,17 @@ class ChannelController {
 			endIndex = Math.min( dataSize -1, endIndex);
 		}        	
     	
-    	List<Tag> subList = allChannels[ beginIndex .. endIndex ];		
 		
+    	List<Tag> subList = null;
 		
+		if( dataSize > 0 )
+		{
+			subList = allChannels[ beginIndex .. endIndex ];		
+		}
+		else
+		{
+			subList = new ArrayList<Channel>();	
+		}
 		
 		[allChannels: subList, currentPageNumber: pageNumber, availablePages: availablePages ];	
 	}

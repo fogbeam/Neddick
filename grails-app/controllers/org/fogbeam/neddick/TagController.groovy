@@ -79,8 +79,17 @@ class TagController {
 			endIndex = Math.min( dataSize -1, endIndex);
 		}        	
     	
-    	List<Tag> subList = allTags[ beginIndex .. endIndex ];		
-
+    	List<Tag> subList = null;
+		
+		if( dataSize > 0 )
+		{
+			subList = allTags[ beginIndex .. endIndex ];		
+		}
+		else
+		{
+			subList = new ArrayList<Tag>();	
+		}
+		
 		[allTags:subList, currentPageNumber: pageNumber, availablePages: availablePages ];
 	}
 	
@@ -108,7 +117,19 @@ class TagController {
 					tag = new Tag( name: tagName );
 				
 					// set creator
-					tag.save();
+					if( !tag.save() )
+					{
+						println( "Creating tag: ${tagName} FAILED");
+						tag.errors.allErrors.each { println it };
+					}
+					else
+					{
+						println "Created tag ${tagName} OK";	
+					}
+				}
+				else
+				{
+					println "Tag: ${tagName} already exists";	
 				}
 			
 				// lookup our entry by the uuid

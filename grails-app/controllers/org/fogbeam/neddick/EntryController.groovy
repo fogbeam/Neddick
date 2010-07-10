@@ -86,9 +86,13 @@ class EntryController {
             def user = User.findByUserId( session.user.userId );
             println "user: ${user}";
             user.addToHiddenEntries( entry );
-            
             userService.updateUser( user );
             
+			// note: have to pass the User object from the session, since the cache
+			// is keyed on the actual objects, which depend on object identity, not
+			// db id equality.
+			entryCacheService.removeEntry( session.user, entry );
+			
             println( "hid Entry for user ${session.user.userId}");
         }
         else

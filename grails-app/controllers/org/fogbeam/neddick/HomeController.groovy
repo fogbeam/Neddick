@@ -89,7 +89,7 @@ class HomeController {
     		entryCache = entryCacheService.getEntryCache();
     	}
     	
-    	SortedSet<String> sortedSet = entryCache.getByCreatedDate();
+    	List<String> sortedSet = entryCache.getByCreatedDate();
     	List<String> filteredByChannel = new ArrayList<String>();
 		sortedSet.each {
 			
@@ -228,7 +228,7 @@ class HomeController {
     		entryCache = entryCacheService.getEntryCache();
     	}
     	
-    	SortedSet<String> sortedSet = entryCache.getByHotness();
+    	List<String> sortedSet = entryCache.getByHotness();
     	List<String> filteredByChannel = new ArrayList<String>();
 		sortedSet.each {
 			
@@ -355,7 +355,7 @@ class HomeController {
     		entryCache = entryCacheService.getEntryCache();
     	}
     	
-    	SortedSet<String> sortedSet = entryCache.getByCreatedDate();
+    	List<String> sortedSet = entryCache.getByCreatedDate();
     	List<String> filteredByChannel = new ArrayList<String>();
 		sortedSet.each {
 			
@@ -483,7 +483,7 @@ class HomeController {
     		entryCache = entryCacheService.getEntryCache();
     	}
     	
-    	SortedSet<String> sortedSet = entryCache.getByScore();
+    	List<String> sortedSet = entryCache.getByScore();
     	List<String> filteredByChannel = new ArrayList<String>();
 		sortedSet.each {
 			
@@ -624,11 +624,22 @@ class HomeController {
     	
 		if( pageNumber == pages )
 		{
-			endIndex = Math.min( dataSize -1, endIndex);
+			if( dataSize >= 1 )
+			{
+				endIndex = Math.min( dataSize -1, endIndex);
+			}
 		}        	
     	
-    	List<Entry> subList = savedEntries[ beginIndex .. endIndex ];
-        
+		List<Entry> subList = null;
+		if( dataSize > 0 )
+		{
+			subList = savedEntries[ beginIndex .. endIndex ];
+		}
+		else
+		{
+			subList = new ArrayList<Entry>();	
+		}
+		
     	def model = [allEntries:subList, currentPageNumber: pageNumber, availablePages: availablePages,
                      requestType:"savedEntries"];
     	
@@ -698,7 +709,7 @@ class HomeController {
     		entryCache = entryCacheService.getEntryCache();
     	}
     	
-    	SortedSet<String> sortedSet = entryCache.getByControversy();
+    	List<String> sortedSet = entryCache.getByControversy();
     	List<String> filteredByChannel = new ArrayList<String>();
 		sortedSet.each {
 			
@@ -848,9 +859,17 @@ class HomeController {
 			endIndex = Math.min( dataSize -1, endIndex);
 		}        	
     	
-    	List<Entry> subList = hiddenEntries[ beginIndex .. endIndex ];
+    	List<Entry> subList = null;
+		if( dataSize > 0 )
+		{
+			subList = hiddenEntries[ beginIndex .. endIndex ];
+		}
+		else
+		{
+			subList = new ArrayList<Entry>();	
+		}
     	
-    	def model = [allEntries:hiddenEntries, currentPageNumber: pageNumber, availablePages: availablePages,
+		def model = [allEntries:hiddenEntries, currentPageNumber: pageNumber, availablePages: availablePages,
                      requestType:"hiddenEntries"];
     	
     	render(view:"index", model:model);

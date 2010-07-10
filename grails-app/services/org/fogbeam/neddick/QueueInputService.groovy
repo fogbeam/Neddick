@@ -274,7 +274,7 @@ class QueueInputService
 				// println("Author: " + metadata.get("Author"));
 				// println("content: " + textHandler.toString());
 				String content = textHandler.toString();
-				doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES, Field.TermVector.YES ) );			
+				doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );			
 			}
 			
 			println "adding document to writer";

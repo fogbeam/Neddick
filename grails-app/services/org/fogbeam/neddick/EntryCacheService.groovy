@@ -54,6 +54,8 @@ class EntryCacheService
 			println "adding entry ${entry.uuid} to defaultCache";
 			currentCache.addEntry( entry );
 		}
+		currentCache.sortViews();
+		
 	}
 
 	public EntryCacheObject getEntryCache( final User user = null )
@@ -103,6 +105,19 @@ class EntryCacheService
 			}
 		}
 	}
+
+	public void removeEntry( final User user, final Entry entry )
+	{
+		println "removing entry from cache: ${user}, ${entry.uuid}";
+		
+		EntryCacheObject cache = userCaches.get( user );
+		if( cache != null )
+		{
+			println "found cache for user ${user}"
+			cache.removeEntry( entry.uuid );
+		}
+	}	
+	
 }
 
 class EntryCacheObject
@@ -114,10 +129,15 @@ class EntryCacheObject
 	Comparator byHotnessComparator = null;
 	Comparator byControversyComparator = null;
 
-	SortedSet<String> byCreatedDate = null;
-	SortedSet<String> byScore = null;
-	SortedSet<String> byHotness = null;
-	SortedSet<String> byControversiality = null;	
+	List<String> byCreatedDate = null;
+	List<String> byScore = null;
+	List<String> byHotness = null;
+	List<String> byControversiality = null;
+	
+	// SortedSet<String> byCreatedDate = null;
+	// SortedSet<String> byScore = null;
+	// SortedSet<String> byHotness = null;
+	// SortedSet<String> byControversiality = null;	
 	
 	public EntryCacheObject()
 	{
@@ -126,10 +146,17 @@ class EntryCacheObject
 		byHotnessComparator = new ByHotnessComparator( cache );
 		byControversyComparator = new ByControversyComparator( cache );	
 	
-		byCreatedDate = new TreeSet<String>( byCreatedDateComparator );
-		byScore = new TreeSet<String>( byScoreComparator );
-		byHotness = new TreeSet<String>( byHotnessComparator );
-		byControversiality = new TreeSet<String>( byControversyComparator );		
+		// byCreatedDate = new TreeSet<String>( byCreatedDateComparator );
+		// byScore = new TreeSet<String>( byScoreComparator );
+		// byHotness = new TreeSet<String>( byHotnessComparator );
+		// byControversiality = new TreeSet<String>( byControversyComparator );		
+	
+		byCreatedDate = new ArrayList<String>();
+		byScore = new ArrayList<String>();
+		byHotness = new ArrayList<String>();
+		byControversiality = new ArrayList<String>();	
+		
+		
 	}
 	
 	public void addEntry( final Entry entry )
@@ -142,22 +169,73 @@ class EntryCacheObject
 		byControversiality.add( entry.uuid );		
 	}
 
-	public SortedSet getByCreatedDate()
+	public void sortViews()
+	{
+		Collections.sort( byCreatedDate, byCreatedDateComparator );
+		Collections.sort( byScore, byScoreComparator );
+		Collections.sort( byHotness, byHotnessComparator );
+		Collections.sort( byControversiality, byControversyComparator );	
+	}
+	
+	public void removeEntry( final String uuid )
+	{
+		println "Removing uuid: ${uuid} from views and cache";
+		
+		if( byCreatedDate.remove( uuid ))
+		{
+			println "removed uuid ${uuid} from byCreatedDate";
+		} 
+		else 
+		{
+			println "failed removing uuid ${uuid} from byCreatedDate";
+		}
+		
+		if( byScore.remove( uuid ) )
+		{
+			println "removed uuid ${uuid} from byScore";
+		}
+		else
+		{
+			println "failed removing uuid ${uuid} from byScore";
+		}
+		
+		if( byHotness.remove(  uuid ) )
+		{
+			println "removed uuid ${uuid} from byHotness";
+		}
+		else
+		{
+			println "failed removing uuid ${uuid} from byHotness";
+		}
+		
+		if( byControversy.remove( uuid ) )
+		{
+			println "removed uuid ${uuid} from byControversy";
+		}
+		else
+		{
+			println "failed removing uuid ${uuid} from byControversy";
+		}
+		
+		cache.remove( uuid );
+	}
+	
+	public List<String> getByCreatedDate()
 	{
 		return byCreatedDate;
 	}
 	
-	public SortedSet getByScore()
+	public List<String> getByScore()
 	{
 		return byScore;
 	}
 
-	public SortedSet getByControversy()
+	public List<String> getByControversy()
 	{
 		return byControversiality;
 	}
 
-	public SortedSet getByHotness()
+	public List<String> getByHotness()
 	{
 		return byHotness;
 	}
@@ -196,7 +274,7 @@ class ByCreatedDateComparator implements Comparator
 		else if( value1.dateCreated.time == value2.dateCreated.time )
 		{
 			// println "returning cheat -1";
-			return 1;
+			return 0;
 		}
 		else if( value1.dateCreated.time < value2.dateCreated.time )
 		{
@@ -228,8 +306,25 @@ class ByScoreComparator implements Comparator
 		}
 		else if( value1.score == value2.score )
 		{
-			// println "returning cheat -1";
-			return 1;
+
+			// score are equal, fall back to sorting by createdDate
+			if( value1.dateCreated.time > value2.dateCreated.time )
+			{
+				// println "returning 1";
+				return -1;
+			}
+			else if( value1.dateCreated.time == value2.dateCreated.time )
+			{
+				// println "returning cheat -1";
+				return 0;
+			}
+			else if( value1.dateCreated.time < value2.dateCreated.time )
+			{
+				// println "returning -1";
+				return 1;
+			}
+			
+			
 		}
 		else if( value1.score < value2.score )
 		{
@@ -261,8 +356,23 @@ class ByHotnessComparator implements Comparator
 		}
 		else if( value1.hotness == value2.hotness )
 		{
-			// println "returning cheat -1";
-			return 1;
+			// hotness is equal, fall back to sort by createdDate
+			
+			if( value1.dateCreated.time > value2.dateCreated.time )
+			{
+				// println "returning 1";
+				return -1;
+			}
+			else if( value1.dateCreated.time == value2.dateCreated.time )
+			{
+				// println "returning cheat -1";
+				return 0;
+			}
+			else if( value1.dateCreated.time < value2.dateCreated.time )
+			{
+				// println "returning -1";
+				return 1;
+			}
 		}
 		else if( value1.hotness < value2.hotness )
 		{
@@ -294,8 +404,22 @@ class ByControversyComparator implements Comparator
 		}
 		else if( value1.controversy == value2.controversy )
 		{
-			// println "returning cheat --1";
-			return 1;
+			// controvery is equal, fall back to sorting by createdDaet
+			if( value1.dateCreated.time > value2.dateCreated.time )
+			{
+				// println "returning 1";
+				return -1;
+			}
+			else if( value1.dateCreated.time == value2.dateCreated.time )
+			{
+				// println "returning cheat -1";
+				return 0;
+			}
+			else if( value1.dateCreated.time < value2.dateCreated.time )
+			{
+				// println "returning -1";
+				return 1;
+			}
 		}
 		else if( value1.controversy < value2.controversy )
 		{
