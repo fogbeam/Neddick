@@ -9,7 +9,7 @@
           <dl>
            <dd><a href="/neddick1/tag/myTags">My Tags</a></dd>
            <dd><a href="/neddick1/home/savedEntries">My Saved Entries</a></dd>
-           <dd><a href="/neddick1/home/savedEntries">My Hidden Entries</a></dd>
+           <dd><a href="/neddick1/home/hiddenEntries">My Hidden Entries</a></dd>
            <dd><a href="/neddick1/user/boostSettings">Amplifiers & Attenuators Settings</a></dd>
           </dl>
           <p />

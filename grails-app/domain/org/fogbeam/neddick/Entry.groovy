@@ -18,6 +18,7 @@ class Entry
     static transients = [ "score", "hotness", "controversy", "age", "siteConfigService" ];
     static mapping = {
 		channel lazy:false // eagerly fetch the channel
+		submitter lazy:false;
 	}
 
 
