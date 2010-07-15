@@ -50,12 +50,12 @@
                                                                  params="[entryId:entry.id]" onComplete="afterHide(e);">hide</g:remoteLink></span>
                                         <span><a href="#" id="showHideTagbox.${entry.id}" onClick="return toggleTagbox(${entry.id});" >Tag</a></span>
                                         <div id="tagbox.${entry.id}" style="display:none;" >
-                                             <g:form>
+                                             <g:formRemote onSuccess="addTag(e, ${entry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
                                                   <g:textField id="tagNameField.${entry.id}" name="tagName" />
                                                   <g:hiddenField name="entryUuid" value="${entry.uuid}" />
                                                   <g:hiddenField name="entryId" value="${entry.id}" />
                                                   <g:submitToRemote controller="tag" onSuccess="addTag(e, ${entry.id})" action="addTag" value="Save" />
-                                             </g:form>
+                                             </g:formRemote>
                                         </div>                          
                                    </dd>
                               </dl>
