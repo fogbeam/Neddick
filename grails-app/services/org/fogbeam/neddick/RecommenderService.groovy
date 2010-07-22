@@ -86,8 +86,10 @@ class RecommenderService
 			String rUuid = recommended.get( "uuid" );
 			println "and uuid: ${rUuid}"
 			Entry recommendedEntry = entryService.findByUuid( rUuid );
-			
-			recommendedEntries.add( recommendedEntry );
+			if( recommendedEntry != null )
+			{
+				recommendedEntries.add( recommendedEntry );
+			}
 		}		
 		
 	
