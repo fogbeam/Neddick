@@ -20,18 +20,20 @@
                                         <div id="upVote.${entry.id}">
                                         <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:entry.id]"
                                         onComplete="afterVote(e);">
-                                        + (up)
+                                        <!--+ (up) -->
+                                        <img src="/neddick1/images/icons/1uparrow.png" />
                                         </g:remoteLink> <br />
                                         </div>
                                         
-                                        <div id="score.${entry.id}">
+                                        <div id="score.${entry.id}" style="padding-left:3px;">
                                              ${entry.score}
                                         </div>
                                         
                                         <div id="downVote.${entry.id}">
                                         <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:entry.id]"
                                         onComplete="afterVote(e);">
-                                        - (down)
+                                        <!-- - (down) -->
+                                        <img src="/neddick1/images/icons/1downarrow.png" />
                                         </g:remoteLink>
                                         </div>                                                
                                    </dd>

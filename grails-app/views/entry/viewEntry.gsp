@@ -15,18 +15,18 @@
                               <div id="upVote.${theEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:theEntry.id]"
                               onComplete="afterVote(e);">
-                              + (up)
+                              <img src="/neddick1/images/icons/1uparrow.png" />
                               </g:remoteLink> <br />
                               </div>
                               
-                              <div id="score.${theEntry.id}">
+                              <div id="score.${theEntry.id}" style="padding-left:3px;">
                                    ${theEntry.score}
                               </div>
                               
                               <div id="downVote.${theEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:theEntry.id]"
                               onComplete="afterVote(e);">
-                              - (down)
+                              <img src="/neddick1/images/icons/1downarrow.png" />
                               </g:remoteLink>
                               </div>                                                
                          </dd>
@@ -51,7 +51,7 @@
                               <span><a href="#" id="showHideTagbox.${theEntry.id}" onClick="return toggleTagbox(${theEntry.id});" >Tag</a></span>
                               <div id="tagbox.${theEntry.id}" style="display:none;" >
                                    
-                                   <g:formRemote onSuccess="addTag(e, ${entry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
+                                   <g:formRemote onSuccess="addTag(e, ${theEntry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
                                         <g:textField id="tagNameField.${theEntry.id}" name="tagName" />
                                         <g:hiddenField name="entryUuid" value="${theEntry.uuid}" />
                                         <g:hiddenField name="entryId" value="${theEntry.id}" />
@@ -88,21 +88,21 @@
                               <div style="float:left;">
                     <dl>
                          <dd>
-                              <div id="upVote.${theEntry.id}">
-                              <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:theEntry.id]"
+                              <div id="upVote.${recommendedEntry.id}">
+                              <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:recommendedEntry.id]"
                               onComplete="afterVote(e);">
-                              + (up)
+                              <img src="/neddick1/images/icons/1uparrow.png" />
                               </g:remoteLink> <br />
                               </div>
                               
-                              <div id="score.${theEntry.id}">
-                                   ${theEntry.score}
+                              <div id="score.${recommendedEntry.id}" style="padding-left:3px;">
+                                   ${recommendedEntry.score}
                               </div>
                               
-                              <div id="downVote.${theEntry.id}">
-                              <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:theEntry.id]"
+                              <div id="downVote.${recommendedEntry.id}">
+                              <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:recommendedEntry.id]"
                               onComplete="afterVote(e);">
-                              - (down)
+                              <img src="/neddick1/images/icons/1downarrow.png" />
                               </g:remoteLink>
                               </div>                                                
                          </dd>
@@ -126,7 +126,7 @@
                                                        params="[entryId:recommendedEntry.id]" onComplete="afterHide(e);">hide</g:remoteLink></span>
                               <span><a href="#" id="showHideTagbox.${recommendedEntry.id}" onClick="return toggleTagbox(${recommendedEntry.id});" >Tag</a></span>
                               <div id="tagbox.${recommendedEntry.id}" style="display:none;" >
-                                   <g:formRemote onSuccess="addTag(e, ${entry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
+                                   <g:formRemote onSuccess="addTag(e, ${recommendedEntry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
                                         <g:textField id="tagNameField.${recommendedEntry.id}" name="tagName" />
                                         <g:hiddenField name="entryUuid" value="${recommendedEntry.uuid}" />
                                         <g:hiddenField name="entryId" value="${recommendedEntry.id}" />
