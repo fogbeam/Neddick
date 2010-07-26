@@ -16,6 +16,8 @@ class EntryCacheService
 	// loop over all the outstanding caches for all users and rebuild each one
 	public synchronized void rebuildAll()
 	{
+		println "EntryCacheService: rebuildAll";
+		
 		Set<User> keys = userCaches.keySet();
 		for( User user : keys )
 		{

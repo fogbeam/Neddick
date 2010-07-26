@@ -10,11 +10,11 @@ class CacheQueueInputService
 	def onMessage(msg)
 	{
 		
-		println "GOT MESSAGE: ${msg}";
+		println "CacheQueueInputService: GOT MESSAGE: ${msg}";
 	
 		if( msg instanceof java.lang.String )
 		{
-			println "Yep, it's a string!"
+			println "CacheQueueInputService: Yep, it's a string!"
 
 			if( ((String)msg).equalsIgnoreCase("REBUILD_CACHE" ))
 			{
