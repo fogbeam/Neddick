@@ -62,6 +62,9 @@ class EntryController {
 	    	
 	    	// TODO: deal with transactionality
 	    	entryService.saveEntry( entry );
+			
+			// TODO: make sure the right cache(s) get updated here...
+			
 			entryCacheService.addEntry(entry);
 			
 	    	// send JMS message saying "new entry submitted"

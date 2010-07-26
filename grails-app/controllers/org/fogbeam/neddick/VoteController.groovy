@@ -18,9 +18,10 @@ class VoteController {
 		{
 			def user = session.user;
 			Vote upVote = new Vote( weight:1, enabled:true);
+			println "submitting upVote for user ${session.user} with weight: ${upVote.weight}";
 			entry = voteService.submitUpVote( entry, upVote, user );
 			
-			
+			println "submitVoteUp, rendering AJAX response.  entryId: ${entryId}, score: ${entry.score}";
 			render( contentType:"application/json" ) {
 				
 				resp( buttonId:"upVote.${entryId}", entryId:"${entryId}", score:"${entry.score}")
