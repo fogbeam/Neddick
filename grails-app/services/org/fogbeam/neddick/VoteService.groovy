@@ -12,13 +12,16 @@ class VoteService {
 	public Entry submitUpVote( Entry entry, Vote upVote, User submitter )
 	{
 		
+		println "Score before doing anything: ${entry.score}";
+		
 		upVote.submitter = submitter;
 
 		boolean disregardThisVote = false;
         println "examining existing votes";
         for( vote in entry.votes )
         {
-        	
+        	println "found ${entry.votes.size()} existing votes";
+			
             // don't acknowledge a second or subsequent upvote from the same user
             if( vote.submitter.userId.equals( submitter.userId ) && vote.weight == 1 && vote.enabled == true )
             {
@@ -38,34 +41,43 @@ class VoteService {
             // disable it
             if( vote.submitter.userId.equals( submitter.userId ) && vote.weight == -1 && vote.enabled == true )
             {
-                println "found an existing upvote, disabling it";
+                println "found an existing downVote, disabling it";
                 vote.enabled = false;
+				vote.save();
+				break;
             }
     	}
     	
         if( !disregardThisVote )
         {
-    	
+			println "NOT disregarding vote, so recalculating score after vote";
         	entry.votes.add( upVote );
         	upVote.entry = entry;
-        
-	          // calculate current score
-            int score = 0;
-            for( vote in entry.votes )
-            {
-            	if( vote.enabled )
-            	{	
-            		score = score + vote.weight;
-            	}
-            }
-            entry.score = score;
         }
         
+		
+		// calculate current score
+		int score = 0;
+		for( vote in entry.votes )
+		{
+			if( vote.enabled )
+			{
+				score = score + vote.weight;
+			}
+		}
+		println "calculated score as ${score}";
+		entry.score = score;
+		
+		println "Score just before saving: ${entry.score}";
 		if( !entry.save() )
 		{
 			println( "Failed to save vote!");
 			entry.errors.allErrors.each { println it };
 		}		
+		else
+		{
+			println "Saved updated Entry with new vote";	
+		}
 		
 		return entry;
 		

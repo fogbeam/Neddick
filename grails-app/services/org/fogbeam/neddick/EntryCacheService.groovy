@@ -13,6 +13,33 @@ class EntryCacheService
 	EntryCacheObject defaultCache = null;
 	Map<User, EntryCacheObject> userCaches = new HashMap<User, EntryCacheObject>();
 	
+	// loop over all the outstanding caches for all users and rebuild each one
+	public synchronized void rebuildAll()
+	{
+		Set<User> keys = userCaches.keySet();
+		for( User user : keys )
+		{
+			List<Entry> allEntries = entryService.getAllNonHiddenEntriesForUser( user );
+			EntryCacheObject userCache = new EntryCacheObject();
+			println "putting cache for user: ${user}, this = ${this}";
+			
+			long now = System.currentTimeMillis();
+			// build cache
+			for( Entry entry in allEntries )
+			{
+				entry.hotness = entryService.calculateHotness( entry, now );
+				entry.controversy = entryService.calculateControversy( entry, now );
+				
+				println "adding entry ${entry.uuid} to defaultCache";
+				userCache.addEntry( entry );
+			}
+			userCache.sortViews();
+		
+			userCaches.put( user, userCache );
+		}
+		
+	}
+	
 	public synchronized void buildCache( final User user = null )
 	{
 	
@@ -102,6 +129,7 @@ class EntryCacheService
 			if( cache != null )
 			{
 				cache.addEntry( entry );
+				cache.sortViews();
 			}
 		}
 	}
