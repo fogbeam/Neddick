@@ -33,7 +33,8 @@ class EntryController {
 		def url = params.url;
     	
 		// check if this channel already has an Entry for this same link
-    	List<Entry> entries = Entry.executeQuery( "select entry from Entry as entry where entry.url = ? and entry.channel = ?", [url, theChannel] );
+    	List<Entry> entries = entryService.findByUrlAndChannel( url, theChannel );
+		// Entry.executeQuery( "select entry from Entry as entry where entry.url = ? and entry.channel = ?", [url, theChannel] );
     	
     	if( entries.size() > 0  )
     	{
@@ -71,7 +72,7 @@ class EntryController {
 	    	def newEntryMessage = [msgType:"NEW_ENTRY", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
 	    
 	    	// send a JMS message to our testQueue
-			sendJMSMessage("testQueue", newEntryMessage );
+			sendJMSMessage("searchQueue", newEntryMessage );
     	}
     	
     	redirect(controller:'home', action: 'index');
@@ -183,7 +184,7 @@ class EntryController {
     	def newEntryMessage = [msgType:"NEW_QUESTION", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
     
     	// send a JMS message to our testQueue
-		sendJMSMessage("testQueue", newEntryMessage );
+		sendJMSMessage("searchQueue", newEntryMessage );
     	
     	redirect(controller:'home', action: 'index');    	
     }

@@ -96,75 +96,15 @@ class ChannelController {
 	}
 	
 	def updateFromDatasource = {
-		
-		User anonymous = User.findByUserId( "anonymous" );
-			
+				
 		// lookup the specified channel
 		String channelName = params.channelName;
 		if( channelName )
 		{
-			Channel theChannel = channelService.findByName( channelName );
-			
-			// if the specified channel has an RssFeed associated with it...
-			Set<RssFeed> feeds = theChannel.feeds;
-			
-			if( feeds != null && feeds.size() > 0 )
-			{
-				for( RssFeed rssFeed in feeds )
-				{
-				
-					// lookup the feed, and get the FeedUrl
-					String url = rssFeed.feedUrl; 
-				
-					// load the feed, and create an Entry for each link in the RssFeed
-					URL feedUrl = new URL(url);
-		        	SyndFeedInput input = new SyndFeedInput();
-		        	SyndFeed feed = null;
-		        	try 
-		        	{
-		        		feed = input.build(new XmlReader(feedUrl));
-		        		println "Feed: ${feed.getTitle()}"
-		        	
-		        		List<SyndEntry> entries = feed.getEntries(); 
-		        		
-		        		for( SyndEntry entry in entries )
-		        		{	
-		        			String linkUrl = entry.getLink();
-		        			String linkTitle = entry.getTitle();
-		        			
-		        			println "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}"
-		        		
-		        			Entry newEntry = new Entry( url: linkUrl, title: linkTitle, channel: theChannel, submitter: anonymous );
-		        	    	
-		        			entryService.saveEntry( newEntry );
-		        			if( newEntry )
-		        			{
-		        	    	
-		        				// send JMS message saying "new entry submitted"
-		        				def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
-		        	    
-		        				// send a JMS message to our testQueue
-		        				sendJMSMessage("testQueue", newEntryMessage );
-		        			}
-		        			else
-		        			{
-		        				// failed to save newEntry
-		        				println "Failed to save newEntry!"
-		        			}
-		        		
-		        		}
-		        	}
-		        	catch( Exception e )
-		        	{
-		        		e.printStackTrace();
-		        	}
-				
-				}
-			}
-			
+			Channel theChannel = channelService.findByName( channelName );	
+			channelService.updateFromDatasource( theChannel );
 		}
 
-			
 		// done... return.
 		System.out.println( "done" );
 		render( "DONE" );

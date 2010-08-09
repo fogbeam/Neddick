@@ -22,6 +22,14 @@ class EntryService {
 		return entry;
 	}
 	
+	public List<Entry> findByUrlAndChannel( final String url, final Channel channel )
+	{
+		// check if this channel already has an Entry for this same link
+		List<Entry> entries = Entry.executeQuery( "select entry from Entry as entry where entry.url = ? and entry.channel = ?", [url, channel] );
+	
+		return entries;	
+	}
+	
 	public void saveEntry( final Entry entry )
 	{
 		if( !entry.save() )

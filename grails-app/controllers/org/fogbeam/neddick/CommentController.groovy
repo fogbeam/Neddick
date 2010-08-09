@@ -35,7 +35,7 @@ class CommentController {
 	    	                       	comment_id:newComment.id, comment_uuid:newComment.uuid, comment_text:newComment.text ];
 	    
 	    	// send a JMS message to our testQueue
-			sendJMSMessage("testQueue", newCommentMessage );			
+			sendJMSMessage("searchQueue", newCommentMessage );			
 			
 			println( "saved Comment for user ${user.userId}, entry ${entry.id}" );
 		}
