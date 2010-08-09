@@ -74,7 +74,7 @@ class SearchController {
 
 	def reindexAll = {
 		
-		sendJMSMessage("testQueue", "REINDEX_ALL" );		
+		sendJMSMessage("searchQueue", "REINDEX_ALL" );		
 		render( "<h1>DONE</h1>" );
 	}
 }
