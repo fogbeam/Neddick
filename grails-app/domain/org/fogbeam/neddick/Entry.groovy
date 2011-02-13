@@ -12,9 +12,9 @@ class Entry
 	
     static constraints = 
     {
-    	url( nullable:true );
+    	url( nullable:true, maxSize:2048 );
     }
-
+	
     static transients = [ "score", "hotness", "controversy", "age", "siteConfigService" ];
     static mapping = {
 		channel lazy:false // eagerly fetch the channel
