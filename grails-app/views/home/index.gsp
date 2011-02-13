@@ -53,7 +53,7 @@
                                         <span><a href="#" onClick="openShareDialog(${entry.id});">share</a></span>
                                         <span><g:remoteLink controller="entry" action="saveEntry" 
                                                                  params="[entryId:entry.id]" onComplete="afterSave(e);">save</g:remoteLink>
-                                        </span> 
+                                        </span>
                                         <span><g:remoteLink controller="entry" action="hideEntry" 
                                                                  params="[entryId:entry.id]" onComplete="afterHide(e);">hide</g:remoteLink></span>
                                         <span><a href="#" id="showHideTagbox.${entry.id}" onClick="return toggleTagbox(${entry.id});" >Tag</a></span>

@@ -23,6 +23,8 @@
 
         <g:javascript>
                
+               
+               
            function addTag(e, id ) {
                toggleTagbox(id);
                clearTagbox(id);
