@@ -22,7 +22,7 @@
                                         onComplete="afterVote(e);">
                                         <!--+ (up) -->
                                         <img src="/neddick1/images/icons/1uparrow.png" />
-                                        </g:remoteLink> <br />
+                                        </g:remoteLink>
                                         </div>
                                         
                                         <div id="score.${entry.id}" style="padding-left:3px;">
