@@ -85,23 +85,45 @@ class SearchQueueInputService
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.LIMITED);
-				writer.setUseCompoundFile(false);
+				
+				try
+				{
+					
+					writer.setUseCompoundFile(false);
 		    
-				Document doc = new Document();    			
+					Document doc = new Document();    			
     			
-				doc.add( new Field( "docType", "docType.comment", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+					doc.add( new Field( "docType", "docType.comment", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
 				
-				doc.add( new Field( "entry_id", Long.toString( msg['entry_id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "entry_uuid", msg['entry_uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "entry_id", Long.toString( msg['entry_id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "entry_uuid", msg['entry_uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 				
-				doc.add( new Field( "id", Long.toString( msg['comment_id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "uuid", msg['comment_uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "content", msg['comment_text'], Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
-				writer.addDocument( doc );		
+					doc.add( new Field( "id", Long.toString( msg['comment_id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "uuid", msg['comment_uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "content", msg['comment_text'], Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+					writer.addDocument( doc );		
 			
-				writer.optimize();
-				writer.close();
-    		
+					writer.optimize();
+				}
+				finally 
+				{
+					try 
+					{
+						writer.close();
+					}
+					catch( Exception e ) {
+						// ignore this for now, but add a log message at least
+					}
+					
+					try 
+					{
+						indexDir.close();
+					}
+					catch( Exception e )
+					{
+						// ignore this for now, but add a log message at least
+					}
+				}
     		}
     		else if( msgType.equals( "NEW_ENTRY" ))
     		{
@@ -110,64 +132,121 @@ class SearchQueueInputService
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.LIMITED);
-				writer.setUseCompoundFile(false);
+				
+				try
+				{
+					writer.setUseCompoundFile(false);
 		    
-				Document doc = new Document();
+					Document doc = new Document();
 				
-				doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-				doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "url", msg['url'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
-				doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
+					doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+					doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "url", msg['url'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+					doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 				
-				/* use HttpClient to load the page, then extract the content and index it.
-				 * We'll assume HTTP only links for now... */
+					/* use HttpClient to load the page, then extract the content and index it.
+						* We'll assume HTTP only links for now... */
 				
 				
-				HttpClient client = new HttpClient();
+					HttpClient client = new HttpClient();
 			 	
-				//establish a connection within 10 seconds
-				client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
-			    String url = msg['url'];
-			    HttpMethod method = new GetMethod(url);
+					//establish a connection within 10 seconds
+					client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
+					String url = msg['url'];
+					HttpMethod method = new GetMethod(url);
 		
-		        String responseBody = null;
-		        try{
-		            client.executeMethod(method);
-		            responseBody = method.getResponseBodyAsString();
-		        } catch (HttpException he) {
-		            System.err.println("Http error connecting to '" + url + "'");
-		            System.err.println(he.getMessage());
-		            // System.exit(-4);
-		        } catch (IOException ioe){
-		            System.err.println("Unable to connect to '" + url + "'");
-		            // System.exit(-3);
-		        }
+					String responseBody = null;
+					try{
+						client.executeMethod(method);
+						responseBody = method.getResponseBodyAsString();
+					} catch (HttpException he) {
+		            	System.err.println("Http error connecting to '" + url + "'");
+						System.err.println(he.getMessage());
+		            	// System.exit(-4);
+						return;
+					} catch (IOException ioe){
+						ioe.printStackTrace();
+		            	System.err.println("Unable to connect to '" + url + "'");
+		            	// System.exit(-3);
+						return;
+					}
 		
-				// println "responseBody: \n ${responseBody}"
+					// println "responseBody: \n ${responseBody}"
 				
-				// method.getResponseBodyAsStream()
+					// method.getResponseBodyAsStream()
 				
-				// extract text with Tika
+					// extract text with Tika
 				 
-				// InputStream input = new FileInputStream(new File(resourceLocation));
-				InputStream input = method.getResponseBodyAsStream();
-				org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
-				Metadata metadata = new Metadata();
-				// PDFParser parser = new PDFParser();
-				Parser parser = new AutoDetectParser();
-				parser.parse(input, textHandler, metadata);
-				input.close();
-				// println("Title: " + metadata.get("title"));
-				// println("Author: " + metadata.get("Author"));
-				// println("content: " + textHandler.toString());
+					// InputStream input = new FileInputStream(new File(resourceLocation));
+					InputStream input = method.getResponseBodyAsStream();
+					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
+					Metadata metadata = new Metadata();
+					// PDFParser parser = new PDFParser();
+					Parser parser = new AutoDetectParser();
+					parser.parse(input, textHandler, metadata);
+					
+					// println("Title: " + metadata.get("title"));
+					// println("Author: " + metadata.get("Author"));
+					// println("content: " + textHandler.toString());
 				
-				doc.add( new Field( "content", textHandler.toString(), Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
-				writer.addDocument( doc );		
-			
-				writer.optimize();
-				writer.close();
+					doc.add( new Field( "content", textHandler.toString(), Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+					writer.addDocument( doc );
+					writer.optimize();
+				}		
+				finally
+				{
+					try 
+					{
+						if( input != null )
+						{
+							input.close();
+						}
+					}
+					catch( Exception e ) 
+					{
+						// ignore this for now, but add a log message at least
+					}
+				
+					try
+					{
+						if( client != null ) 
+						{
+							println "calling connectionManager.shutdown()";
+							client.getConnectionManager().shutdown();
+						}
+					}
+					catch( Exception e ) 
+					{
+						// ignore this for now, but add a log message at least
+					}
+						
+					try
+					{
+						if( writer != null ) 
+						{
+							writer.close();
+						}
+					}
+					catch( Exception e ) 
+					{
+						// ignore this for now, but add a log message at least
+					}
+					
+					try
+					{
+						if( indexDir != null ) 
+						{
+							indexDir.close();
+						}
+					}
+					catch( Exception e )
+					{
+						// ignore this for now, but add a log message at least
+					}
+				}
+
     		}
     		else if( msgType.equals( "NEW_QUESTION" ))
     		{
@@ -176,22 +255,43 @@ class SearchQueueInputService
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.LIMITED);
-				writer.setUseCompoundFile(false);
+				
+				try
+				{
+					writer.setUseCompoundFile(false);
 		    
-				Document doc = new Document();
+					Document doc = new Document();
 				
-				doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-				doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "url", msg['url'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
-				doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
+					doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+					doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "url", msg['url'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+					doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
-				writer.addDocument( doc );		
+					writer.addDocument( doc );		
 				
-				writer.optimize();
-				writer.close();
-				
+					writer.optimize();
+				}
+				finally
+				{
+					try
+					{
+						writer.close();
+					}
+					catch( Exception e ) {
+						// ignore this for now, but add a log message at least
+					}
+					
+					try
+					{
+						indexDir.close();
+					}
+					catch( Exception e )
+					{
+						// ignore this for now, but add a log message at least
+					}
+				}
 				
     		}
 			else 
@@ -220,77 +320,121 @@ class SearchQueueInputService
     		
     		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
     		
-    		Entry entry = entryService.findByUuid( uuid );
-    		Document doc = new Document();
-    		doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-			doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "id", Long.toString(entry.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "url", entry.url, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "title", entry.title, Field.Store.YES, Field.Index.ANALYZED ) );
-	
-			String tagString = "";
-			entry.tags.each { tagString += it.name + " " };
-			doc.add( new Field( "tags", tagString, Field.Store.YES, Field.Index.ANALYZED ) );
-			
-			/* use HttpClient to load the page, then extract the content and index it.
-			 * We'll assume HTTP only links for now... */
-		
-			HttpClient client = new HttpClient();
-		 	println "establishing httpClient object to download content for indexing";
-		 	
-			//establish a connection within 10 seconds
-			client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
-		    String url = entry.url;
-		    HttpMethod method = new GetMethod(url);
-
-	        String responseBody = null;
-	        boolean skipContent = false;
-	        try{
-	            println "executing http request";
-	        	client.executeMethod(method);
-	            responseBody = method.getResponseBodyAsString();
-	        } catch (HttpException he) {
-	            System.err.println("Http error connecting to '" + url + "'");
-	          //   System.err.println(he.getMessage());
-	            skipContent = true;
-	        } catch (IOException ioe){
-	            System.err.println("Unable to connect to '" + url + "'");
-	            skipContent = true;
-	        }
-
-			// println "responseBody: \n ${responseBody}"
-			
-			// extract text with Tika
-			if( !skipContent )
+			try
 			{
-				InputStream input = method.getResponseBodyAsStream();
-				org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
-				Metadata metadata = new Metadata();
-				// PDFParser parser = new PDFParser();
-				Parser parser = new AutoDetectParser();
-				parser.parse(input, textHandler, metadata);
-				input.close();
-				// println("Title: " + metadata.get("title"));
-				// println("Author: " + metadata.get("Author"));
-				// println("content: " + textHandler.toString());
-				String content = textHandler.toString();
-				doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );			
-			}
+				Entry entry = entryService.findByUuid( uuid );
+				Document doc = new Document();
+				doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+				doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "id", Long.toString(entry.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "url", entry.url, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "title", entry.title, Field.Store.YES, Field.Index.ANALYZED ) );
+	
+				String tagString = "";
+				entry.tags.each { tagString += it.name + " " };
+				doc.add( new Field( "tags", tagString, Field.Store.YES, Field.Index.ANALYZED ) );
 			
-			println "adding document to writer";
-			writer.addDocument( doc );		;
-    		writer.optimize();
-    		writer.close();
-    		
+				/* use HttpClient to load the page, then extract the content and index it.
+				* We'll assume HTTP only links for now... */
+		
+				HttpClient client = new HttpClient();
+				println "establishing httpClient object to download content for indexing";
+		 	
+				//establish a connection within 10 seconds
+				client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
+				String url = entry.url;
+				HttpMethod method = new GetMethod(url);
+
+		        String responseBody = null;
+		        boolean skipContent = false;
+		        try{
+		            println "executing http request";
+		        	client.executeMethod(method);
+		            // responseBody = method.getResponseBodyAsString();
+		        } catch (HttpException he) {
+		            System.err.println("Http error connecting to '" + url + "'");
+		          //   System.err.println(he.getMessage());
+		            skipContent = true;
+		        } catch (IOException ioe){
+					ioe.printStackTrace();
+		            System.err.println("Unable to connect to '" + url + "'");
+		            skipContent = true;
+		        }
+	
+				// println "responseBody: \n ${responseBody}"
+				
+				// extract text with Tika
+				if( !skipContent )
+				{
+					InputStream input = method.getResponseBodyAsStream();
+					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
+					Metadata metadata = new Metadata();
+					// PDFParser parser = new PDFParser();
+					Parser parser = new AutoDetectParser();
+					parser.parse(input, textHandler, metadata);
+					// println("Title: " + metadata.get("title"));
+					// println("Author: " + metadata.get("Author"));
+					// println("content: " + textHandler.toString());
+					String content = textHandler.toString();
+					doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );			
+				}
+				
+				println "adding document to writer";
+				writer.addDocument( doc );		;
+	    		writer.optimize();
+			}
+			finally
+			{
+				
+				try
+				{
+					if( input != null )
+					{
+						input.close();
+					}
+				}
+				catch( Exception e )
+				{
+					// ignore this for now, but add a log message at least
+				}
+			
+				try
+				{
+					if( client != null )
+					{
+						println "calling connectionManager.shutdown()";
+						client.getConnectionManager().shutdown();
+					}
+				}
+				catch( Exception e )
+				{
+					// ignore this for now, but add a log message at least
+				}
+				
+				
+				try
+				{
+					writer.close();
+				}
+				catch( Exception e ) {
+					// ignore this for now, but add a log message at least
+				}
+				
+				try
+				{
+					indexDir.close();
+				}
+				catch( Exception e )
+				{
+					// ignore this for now, but add a log message at least
+				}
+			}
     	}
     	else
     	{
     		// no document with that uuid???
     		println( "no document for uuid: ${uuid}" );
     	}
-    	
-    	
-    	
     }
     
     private void rebuildIndex()
@@ -305,100 +449,147 @@ class SearchQueueInputService
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
     	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
-		writer.setUseCompoundFile(false);
-    
-		println "about to process all entries";
-		
-		for( Entry entry : allEntries )
+		try
 		{
-			println "processing entry with id: ${entry.id} and title: ${entry.title} and uuid: ${entry.uuid}";
-			
-
-			println "NOT an instanceof Question!";
-			
-			Document doc = new Document();
+			writer.setUseCompoundFile(false);
+    
+			println "about to process all entries";
 		
-			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-			doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "id", Long.toString(entry.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "url", entry.url, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "title", entry.title, Field.Store.YES, Field.Index.ANALYZED ) );
-			String tagString = "";
-			entry.tags.each { tagString += it.name + " " };
-			doc.add( new Field( "tags", tagString, Field.Store.YES, Field.Index.ANALYZED ) );
-			
-			// comments on the entry
-			entry.comments.each {
-				
-				Document commentDoc = new Document();    			
-    			
-				commentDoc.add( new Field( "docType", "docType.comment", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-				
-				commentDoc.add( new Field( "entry_id", Long.toString( entry.id ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				commentDoc.add( new Field( "entry_uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				
-				commentDoc.add( new Field( "id", Long.toString( it.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				commentDoc.add( new Field( "uuid", it.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				commentDoc.add( new Field( "content", it.text, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
-				writer.addDocument( commentDoc );
-			}
-			
-			
-			/* TODO: use HttpClient to load the page, then extract the content and index it.
-			 * We'll assume HTTP only links for now... */
-
-			if( !(entry instanceof org.fogbeam.neddick.Question) )
+			for( Entry entry : allEntries )
 			{
-			
-				HttpClient client = new HttpClient();
-			 	println "establishing httpClient object to download content for indexing";
-			 	
-				//establish a connection within 10 seconds
-				client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
-			    String url = entry.url;
-			    HttpMethod method = new GetMethod(url);
-	
-		        String responseBody = null;
-		        try{
-		            println "executing http request";
-		        	client.executeMethod(method);
-		            responseBody = method.getResponseBodyAsString();
-		        } catch (HttpException he) {
-		            System.err.println("Http error connecting to '" + url + "'");
-		            System.err.println(he.getMessage());
-		            continue;
-		        } catch (IOException ioe){
-		            System.err.println("Unable to connect to '" + url + "'");
-		            continue;
-		        }
-	
-				// println "responseBody: \n ${responseBody}"
+				println "processing entry with id: ${entry.id} and title: ${entry.title} and uuid: ${entry.uuid}";
 				
-				// extract text with Tika
-				InputStream input = method.getResponseBodyAsStream();
-				org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
-				Metadata metadata = new Metadata();
-				// PDFParser parser = new PDFParser();
-				Parser parser = new AutoDetectParser();
-				parser.parse(input, textHandler, metadata);
-				input.close();
-				// println("Title: " + metadata.get("title"));
-				// println("Author: " + metadata.get("Author"));
-				// println("content: " + textHandler.toString());
-				String content = textHandler.toString();
-				doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );			
+	
+				println "NOT an instanceof Question!";
+				
+				Document doc = new Document();
+			
+				doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+				doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "id", Long.toString(entry.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "url", entry.url, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "title", entry.title, Field.Store.YES, Field.Index.ANALYZED ) );
+				String tagString = "";
+				entry.tags.each { tagString += it.name + " " };
+				doc.add( new Field( "tags", tagString, Field.Store.YES, Field.Index.ANALYZED ) );
+				
+				// comments on the entry
+				entry.comments.each {
+					
+					Document commentDoc = new Document();    			
+	    			
+					commentDoc.add( new Field( "docType", "docType.comment", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+					
+					commentDoc.add( new Field( "entry_id", Long.toString( entry.id ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					commentDoc.add( new Field( "entry_uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					
+					commentDoc.add( new Field( "id", Long.toString( it.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					commentDoc.add( new Field( "uuid", it.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					commentDoc.add( new Field( "content", it.text, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+					writer.addDocument( commentDoc );
+				}
+				
+				
+				/* TODO: use HttpClient to load the page, then extract the content and index it.
+				 * We'll assume HTTP only links for now... */
+	
+				if( !(entry instanceof org.fogbeam.neddick.Question) )
+				{
+				
+					HttpClient client = new HttpClient();
+				 	println "establishing httpClient object to download content for indexing";
+				 	
+					//establish a connection within 10 seconds
+					client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
+				    String url = entry.url;
+				    HttpMethod method = new GetMethod(url);
+		
+			        String responseBody = null;
+			        try{
+			            println "executing http request";
+			        	client.executeMethod(method);
+			            // responseBody = method.getResponseBodyAsString();
+			        } catch (HttpException he) {
+			            System.err.println("Http error connecting to '" + url + "'");
+			            System.err.println(he.getMessage());
+			            continue;
+			        } catch (IOException ioe){
+						ioe.printStackTrace();
+			            System.err.println("Unable to connect to '" + url + "'");
+			            continue;
+			        }
+		
+					// println "responseBody: \n ${responseBody}"
+					
+					// extract text with Tika
+					InputStream input = method.getResponseBodyAsStream();
+					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
+					Metadata metadata = new Metadata();
+					// PDFParser parser = new PDFParser();
+					Parser parser = new AutoDetectParser();
+					parser.parse(input, textHandler, metadata);
+					
+					// println("Title: " + metadata.get("title"));
+					// println("Author: " + metadata.get("Author"));
+					// println("content: " + textHandler.toString());
+					String content = textHandler.toString();
+					doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );			
+				}
+				
+				println "adding document to writer";
+				writer.addDocument( doc );		
+	
+			}
+		
+			println "optimizing index";
+			writer.optimize();
+		}
+		finally
+		{
+			
+			try
+			{
+				if( input != null )
+				{
+					input.close();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+			}
+		
+			try
+			{
+				if( client != null )
+				{
+					println "calling connectionManager.shutdown()";
+					client.getConnectionManager().shutdown();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
 			}
 			
-			println "adding document to writer";
-			writer.addDocument( doc );		
-
+			try
+			{
+				writer.close();
+			}
+			catch( Exception e ) {
+				// ignore this for now, but add a log message at least
+			}
+			
+			try
+			{
+				indexDir.close();
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+			}
 		}
-		
-		println "optimizing index";
-		writer.optimize();
-		
-		println "closing writer"
-		writer.close();	    	
+			    	
     }
     
 }

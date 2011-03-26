@@ -50,11 +50,13 @@ class ChannelService {
 				URL feedUrl = new URL(url);
 				SyndFeedInput input = new SyndFeedInput();
 				SyndFeed feed = null;
+				XmlReader reader = null;
 				try
 				{
-					feed = input.build(new XmlReader(feedUrl));
+					reader = new XmlReader(feedUrl)
+					feed = input.build(reader);
 					println "Feed: ${feed.getTitle()}"
-				
+					
 					List<SyndEntry> entries = feed.getEntries();
 					
 					for( SyndEntry entry in entries )
@@ -95,7 +97,13 @@ class ChannelService {
 				{
 					e.printStackTrace();
 				}
-			
+				finally 
+				{
+					if( reader != null ) 
+					{
+						reader.close();	
+					}	
+				}
 			}
 		}
 	}
