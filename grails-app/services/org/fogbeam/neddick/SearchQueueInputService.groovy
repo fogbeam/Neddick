@@ -89,7 +89,7 @@ class SearchQueueInputService
 				try
 				{
 					
-					writer.setUseCompoundFile(false);
+					writer.setUseCompoundFile(true);
 		    
 					Document doc = new Document();    			
     			
@@ -135,7 +135,7 @@ class SearchQueueInputService
 				
 				try
 				{
-					writer.setUseCompoundFile(false);
+					writer.setUseCompoundFile(true);
 		    
 					Document doc = new Document();
 				
@@ -258,7 +258,7 @@ class SearchQueueInputService
 				
 				try
 				{
-					writer.setUseCompoundFile(false);
+					writer.setUseCompoundFile(true);
 		    
 					Document doc = new Document();
 				
@@ -319,7 +319,7 @@ class SearchQueueInputService
     		indexReader.close();
     		
     		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
-    		
+    		writer.setUseCompoundFile( true );
 			try
 			{
 				Entry entry = entryService.findByUuid( uuid );
@@ -451,7 +451,7 @@ class SearchQueueInputService
 		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
 		try
 		{
-			writer.setUseCompoundFile(false);
+			writer.setUseCompoundFile(true);
     
 			println "about to process all entries";
 		
@@ -574,7 +574,10 @@ class SearchQueueInputService
 			
 			try
 			{
-				writer.close();
+				if( writer != null )
+				{
+					writer.close();
+				}
 			}
 			catch( Exception e ) {
 				// ignore this for now, but add a log message at least
@@ -582,7 +585,10 @@ class SearchQueueInputService
 			
 			try
 			{
-				indexDir.close();
+				if( indexDir != null )
+				{
+					indexDir.close();
+				}
 			}
 			catch( Exception e )
 			{
