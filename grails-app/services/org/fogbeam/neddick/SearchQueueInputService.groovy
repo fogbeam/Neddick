@@ -1,25 +1,23 @@
 package org.fogbeam.neddick
 
-import org.apache.commons.httpclient.HttpClient 
-import org.apache.commons.httpclient.HttpException 
-import org.apache.commons.httpclient.HttpMethod 
-import org.apache.commons.httpclient.methods.GetMethod 
-import org.apache.lucene.analysis.standard.StandardAnalyzer 
-import org.apache.lucene.document.Document 
-import org.apache.lucene.document.Field 
-import org.apache.lucene.index.IndexReader 
-import org.apache.lucene.index.IndexWriter 
-import org.apache.lucene.index.Term 
-import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength 
-import org.apache.lucene.store.Directory 
-import org.apache.lucene.store.NIOFSDirectory 
-import org.apache.lucene.util.Version 
-import org.apache.tika.metadata.Metadata 
-import org.apache.tika.parser.Parser
+import org.apache.commons.httpclient.HttpClient
+import org.apache.commons.httpclient.HttpException
+import org.apache.commons.httpclient.HttpMethod
+import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.lucene.analysis.standard.StandardAnalyzer
+import org.apache.lucene.document.Document
+import org.apache.lucene.document.Field
+import org.apache.lucene.index.IndexReader
+import org.apache.lucene.index.IndexWriter
+import org.apache.lucene.index.Term
+import org.apache.lucene.index.TermDocs
+import org.apache.lucene.store.Directory
+import org.apache.lucene.store.NIOFSDirectory
+import org.apache.lucene.util.Version
+import org.apache.tika.metadata.Metadata
 import org.apache.tika.parser.AutoDetectParser
-import org.apache.tika.sax.BodyContentHandler 
-import org.fogbeam.neddick.Entry;
+import org.apache.tika.parser.Parser
+import org.apache.tika.sax.BodyContentHandler
 
 class SearchQueueInputService
 {
@@ -84,7 +82,7 @@ class SearchQueueInputService
 		    	println "adding document to index"
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.LIMITED);
+				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, IndexWriter.DEFAULT_MAX_FIELD_LENGTH);
 				
 				try
 				{
@@ -131,7 +129,7 @@ class SearchQueueInputService
 		    	println "adding document to index"
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.LIMITED);
+				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, IndexWriter.DEFAULT_MAX_FIELD_LENGTH);
 				
 				try
 				{
@@ -254,7 +252,7 @@ class SearchQueueInputService
 		    	println "adding document to index"
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.LIMITED);
+				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, IndexWriter.DEFAULT_MAX_FIELD_LENGTH);
 				
 				try
 				{
@@ -318,7 +316,7 @@ class SearchQueueInputService
     		indexReader.deleteDocument( docNum );
     		indexReader.close();
     		
-    		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
+    		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, Integer.MAX_VALUE );
     		writer.setUseCompoundFile( true );
 			try
 			{
@@ -448,7 +446,7 @@ class SearchQueueInputService
     	// add document to index
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
     	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
+		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, Integer.MAX_VALUE);
 		try
 		{
 			writer.setUseCompoundFile(true);
