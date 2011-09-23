@@ -43,11 +43,16 @@ environments {
 log4j = {
     // Example of changing the log pattern for the default console
     // appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
+	
+    appenders {
+		console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
+		rollingFile name: "cacheAppender", maxFileSize: 1024, file: "/tmp/logs/neddick_cache_instrumentation.log"
+    }
 		
+	root {
+		warn 'stdout'
+	}
+	
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
 	       'org.codehaus.groovy.grails.web.pages', //  GSP
 	       'org.codehaus.groovy.grails.web.sitemesh', //  layouts
@@ -60,6 +65,9 @@ log4j = {
 	       'org.hibernate'
 
     warn   'org.mortbay.log'
+	
+	info cacheAppender: "logger.special", additivity: false
+	
 }
 
 chat {

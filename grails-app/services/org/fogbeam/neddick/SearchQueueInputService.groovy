@@ -9,6 +9,7 @@ import org.apache.lucene.document.Document
 import org.apache.lucene.document.Field
 import org.apache.lucene.index.IndexReader
 import org.apache.lucene.index.IndexWriter
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.index.Term
 import org.apache.lucene.index.TermDocs
 import org.apache.lucene.store.Directory
@@ -82,7 +83,7 @@ class SearchQueueInputService
 		    	println "adding document to index"
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, IndexWriter.DEFAULT_MAX_FIELD_LENGTH);
+				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, IndexWriter.MaxFieldLength.UNLIMITED);
 				
 				try
 				{

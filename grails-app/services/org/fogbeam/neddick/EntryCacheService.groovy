@@ -1,13 +1,15 @@
 package org.fogbeam.neddick
 
-import java.util.Comparator;
-import java.util.Map;
+import java.util.Comparator
+import java.util.Map
 
-import org.fogbeam.neddick.Entry;
-import org.fogbeam.neddick.User;
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
 
 class EntryCacheService 
 {
+	Log cacheLog = LogFactory.getLog( "logger.special.instrumentation.cache" );
+	
 	def entryService;
 
 	EntryCacheObject defaultCache = null;
@@ -16,14 +18,14 @@ class EntryCacheService
 	// loop over all the outstanding caches for all users and rebuild each one
 	public synchronized void rebuildAll()
 	{
-		println "EntryCacheService: rebuildAll";
+		cacheLog.debug( "EntryCacheService: rebuildAll" );
 		
 		Set<User> keys = userCaches.keySet();
 		for( User user : keys )
 		{
 			List<Entry> allEntries = entryService.getAllNonHiddenEntriesForUser( user );
 			EntryCacheObject userCache = new EntryCacheObject();
-			println "putting cache for user: ${user}, this = ${this}";
+			cacheLog.info( "putting cache for user: ${user}, this = ${this}" );
 			
 			long now = System.currentTimeMillis();
 			// build cache
@@ -32,7 +34,7 @@ class EntryCacheService
 				entry.hotness = entryService.calculateHotness( entry, now );
 				entry.controversy = entryService.calculateControversy( entry, now );
 				
-				println "adding entry ${entry.uuid} to defaultCache";
+				cacheLog.info( "adding entry ${entry.uuid} to defaultCache" );
 				userCache.addEntry( entry );
 			}
 			userCache.sortViews();
@@ -45,7 +47,7 @@ class EntryCacheService
 	public synchronized void buildCache( final User user = null )
 	{
 	
-		println "building cache for user: ${user}";
+		cacheLog.info( "building cache for user: ${user}" );
 		
 		List<Entry> allEntries = null;
 		if( user == null )
@@ -68,7 +70,7 @@ class EntryCacheService
 		else
 		{
 			EntryCacheObject userCache = new EntryCacheObject();
-			println "putting cache for user: ${user}, this = ${this}";
+			cacheLog.info( "putting cache for user: ${user}, this = ${this}");
 			userCaches.put( user, userCache );
 			currentCache = userCache;
 		}		
@@ -80,7 +82,7 @@ class EntryCacheService
 			entry.hotness = entryService.calculateHotness( entry, now );
 			entry.controversy = entryService.calculateControversy( entry, now );
 			
-			println "adding entry ${entry.uuid} to defaultCache";
+			cacheLog.info( "adding entry ${entry.uuid} to defaultCache" );
 			currentCache.addEntry( entry );
 		}
 		currentCache.sortViews();
@@ -95,23 +97,23 @@ class EntryCacheService
 		}
 		else
 		{
-			println "Getting cache for user ${user}, this = ${this}";
-			println userCaches;
-			println "Keys: ${userCaches.keySet()}";
-			println "Values: ${userCaches.values()}";
+			cacheLog.info( "Getting cache for user ${user}, this = ${this}" );
+			// println userCaches;
+			// println "Keys: ${userCaches.keySet()}";
+			// println "Values: ${userCaches.values()}";
 			
 			Set keys = userCaches.keySet();
-			if ( user == keys.toArray()[0] )
-			{
-				println "true";	
-			}
-			else
-			{
-				println "false";	
-			}
+//			if ( user == keys.toArray()[0] )
+//			{
+//				println "true";	
+//			}
+//			else
+//			{
+//				println "false";	
+//			}
 			
 			EntryCacheObject cacheObject = userCaches.get( user );
-			println "cacheObject returned: ${cacheObject}";
+			// println "cacheObject returned: ${cacheObject}";
 			return cacheObject;
 		}
 	}
@@ -123,6 +125,8 @@ class EntryCacheService
 	
 	public void addEntry( final Entry entry )
 	{
+		
+		cacheLog.info( "addEntry called." );
 		defaultCache.addEntry( entry );
 		Set<User> keys = userCaches.keySet();
 		for( User user : keys )
@@ -132,13 +136,16 @@ class EntryCacheService
 			{
 				cache.addEntry( entry );
 				cache.sortViews();
+				
+				cacheLog.info( "Added to cache for user: ${user}, cache size now: ${cache.size()}");
+				
 			}
 		}
 	}
 
 	public void removeEntry( final User user, final Entry entry )
 	{
-		println "removing entry from cache: ${user}, ${entry.uuid}";
+		cacheLog.info( "removing entry from cache: ${user}, ${entry.uuid}");
 		
 		EntryCacheObject cache = userCaches.get( user );
 		if( cache != null )
@@ -152,6 +159,8 @@ class EntryCacheService
 
 class EntryCacheObject
 {
+	Log cacheLog = LogFactory.getLog( "logger.special.instrumentation.cache" );
+	
 	Map<String, Entry> cache = new HashMap<String, Entry>();
 
 	Comparator byCreatedDateComparator = null;
@@ -196,7 +205,10 @@ class EntryCacheObject
 		byCreatedDate.add( entry.uuid );
 		byScore.add( entry.uuid );
 		byHotness.add( entry.uuid );
-		byControversiality.add( entry.uuid );		
+		byControversiality.add( entry.uuid );
+		
+		cacheLog.info( "entry added: cache size now ${cache.size()}");
+				
 	}
 
 	public void sortViews()
@@ -209,42 +221,42 @@ class EntryCacheObject
 	
 	public void removeEntry( final String uuid )
 	{
-		println "Removing uuid: ${uuid} from views and cache";
+		cacheLog.info( "Removing uuid: ${uuid} from views and cache" );
 		
 		if( byCreatedDate.remove( uuid ))
 		{
-			println "removed uuid ${uuid} from byCreatedDate";
+			cacheLog.info( "removed uuid ${uuid} from byCreatedDate" );
 		} 
 		else 
 		{
-			println "failed removing uuid ${uuid} from byCreatedDate";
+			cacheLog.info( "failed removing uuid ${uuid} from byCreatedDate" );
 		}
 		
 		if( byScore.remove( uuid ) )
 		{
-			println "removed uuid ${uuid} from byScore";
+			cacheLog.info( "removed uuid ${uuid} from byScore" );
 		}
 		else
 		{
-			println "failed removing uuid ${uuid} from byScore";
+			cacheLog.info( "failed removing uuid ${uuid} from byScore" );
 		}
 		
 		if( byHotness.remove(  uuid ) )
 		{
-			println "removed uuid ${uuid} from byHotness";
+			cacheLog.info( "removed uuid ${uuid} from byHotness" );
 		}
 		else
 		{
-			println "failed removing uuid ${uuid} from byHotness";
+			cacheLog.info("failed removing uuid ${uuid} from byHotness");
 		}
 		
 		if( byControversy.remove( uuid ) )
 		{
-			println "removed uuid ${uuid} from byControversy";
+			cacheLog.info( "removed uuid ${uuid} from byControversy" );
 		}
 		else
 		{
-			println "failed removing uuid ${uuid} from byControversy";
+			cacheLog.info( "failed removing uuid ${uuid} from byControversy" );
 		}
 		
 		cache.remove( uuid );
