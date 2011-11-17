@@ -59,6 +59,10 @@ class ChannelService {
 					
 					List<SyndEntry> entries = feed.getEntries();
 					
+					println "processing ${entries.size()} entries!";
+					int good = 0;
+					int bad = 0;
+					
 					for( SyndEntry entry in entries )
 					{
 						String linkUrl = entry.getLink();
@@ -78,7 +82,8 @@ class ChannelService {
 						entryService.saveEntry( newEntry );
 						if( newEntry )
 						{
-						
+							good++;
+							println "saved new Entry with id: ${newEntry.id}";
 							// send JMS message saying "new entry submitted"
 							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
 					
@@ -87,11 +92,15 @@ class ChannelService {
 						}
 						else
 						{
+							bad++;
 							// failed to save newEntry
 							println "Failed to save newEntry!"
 						}
 					
 					}
+					
+					println "Good entries: ${good}, bad entries:${bad}";
+					
 				}
 				catch( Exception e )
 				{

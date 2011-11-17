@@ -22,11 +22,6 @@ class BootStrap {
 	             println "No special configuration required";
 	             break;
 	     }
-     
-     
-	     // build Entry cache for default "non user"
-	     entryCacheService.buildCache();
-	     
 	     
      }
      

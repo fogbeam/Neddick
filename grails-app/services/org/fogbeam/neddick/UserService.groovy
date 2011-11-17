@@ -6,8 +6,8 @@ class UserService {
 
 	public User findUserByUserId( final String userId )
 	{
-		def user = User.findByUserId( userId );
-		return user;
+		def user = User.executeQuery( "select user from User as user where user.userId = ?", [userId] );
+		return user.get(0);
 	}
 	
 	public User findUserByUserIdAndPassword( final String userId, final String password )

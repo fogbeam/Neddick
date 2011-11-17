@@ -17,15 +17,10 @@ public class MyHttpListener implements HttpSessionListener, HttpSessionAttribute
 	
 	// ServletContext servletCtx;
 	ApplicationContext ctx; // = org.codehaus.groovy.grails.commons.ApplicationHolder.application.parentContext;  
-	def entryCacheService;
 	
 	public MyHttpListener()
 	{	
 		println( "Listener constructed!" );
-		// servletCtx = ServletContextHolder.getServletContext();
-		// println "servletCtx: ${servletCtx}";
-		// ctx = (ApplicationContext)servletCtx.getAttribute( GrailsApplicationAttributes.APPLICATION_CONTEXT);
-		// entryCacheService = ctx.getBean( "entryCacheService" );
 	}
 	
 	public void sessionCreated(HttpSessionEvent event) 
@@ -53,7 +48,6 @@ public class MyHttpListener implements HttpSessionListener, HttpSessionAttribute
 			
 			User user = (User)event.getValue();
 			println "removing user cache for user: ${user.userId}";
-			entryCacheService.removeCache( user );
 		}
 	}
 	
@@ -69,8 +63,6 @@ public class MyHttpListener implements HttpSessionListener, HttpSessionAttribute
 		if( event.getName().equalsIgnoreCase( GrailsApplicationAttributes.APPLICATION_CONTEXT ))
 		{
 			println "BING!";
-			ctx = event.getValue();
-			entryCacheService = ctx.getBean( "entryCacheService" );
 		}
 		
 	}

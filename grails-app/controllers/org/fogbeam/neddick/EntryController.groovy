@@ -64,15 +64,11 @@ class EntryController {
 	    	// TODO: deal with transactionality
 	    	entryService.saveEntry( entry );
 			
-			// TODO: make sure the right cache(s) get updated here...
-			
-			entryCacheService.addEntry(entry);
-			
 	    	// send JMS message saying "new entry submitted"
 	    	def newEntryMessage = [msgType:"NEW_ENTRY", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
 	    
 	    	// send a JMS message to our testQueue
-			sendJMSMessage("searchQueue", newEntryMessage );
+			sendJMSMessage("entryQueue", newEntryMessage );
     	}
     	
     	redirect(controller:'home', action: 'index');
@@ -184,7 +180,7 @@ class EntryController {
     	def newEntryMessage = [msgType:"NEW_QUESTION", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
     
     	// send a JMS message to our testQueue
-		sendJMSMessage("searchQueue", newEntryMessage );
+		sendJMSMessage("entryQueue", newEntryMessage );
     	
     	redirect(controller:'home', action: 'index');    	
     }

@@ -3,7 +3,6 @@ package org.fogbeam.neddick;
 class LoginController {
 
 	def userService;
-	def entryCacheService;
 	
 	
     def index = { }
@@ -18,8 +17,6 @@ class LoginController {
     	{
     		session.user = user;
     		
-    		entryCacheService.buildCache( user );
-    		
     		redirect( controller:'home', action:'index')
     	}
     	else
@@ -30,7 +27,7 @@ class LoginController {
     }
     
     def logout = {
-    	entryCacheService.removeCache( session.user );
+		
     	session.user = null;
     	session.invalidate();
     	redirect( uri:'/');

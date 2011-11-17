@@ -2,7 +2,7 @@ package org.fogbeam.neddick
 
 class UserController {
 
-    def scaffold = true;
+    def scaffold = false;
     def userService;
     def entryService;
     def tagService;
@@ -30,7 +30,15 @@ class UserController {
     		}
     	}
     }
-
+	
+	def list = 
+	{
+		List<User> allUsers = User.findAll();
+		
+		[allUsers: allUsers]	
+	}
+	
+	
     def viewDetails = {
     	def targetUserName = params.targetUserName
     	println "Viewing details for user: ${targetUserName}";

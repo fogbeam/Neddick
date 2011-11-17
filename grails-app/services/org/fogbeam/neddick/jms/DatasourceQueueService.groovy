@@ -12,24 +12,33 @@ class DatasourceQueueService
 	
 	def onMessage(msg)
 	{
-		// receive message saying to update channel
-		if( msg instanceof String )
+		try
 		{
-			String[] parts = ((String)msg).split(":");
-			switch( parts[0] )
+			// receive message saying to update channel
+			if( msg instanceof String )
 			{
-				case "UPDATE_CHANNEL":
+				String[] parts = ((String)msg).split(":");
+				switch( parts[0] )
+				{
+					case "UPDATE_CHANNEL":
 					
-					String channelName = parts[1];
-					// lookup the Channel object
-					Channel channel = channelService.findByName( channelName );
+						String channelName = parts[1];
+						// lookup the Channel object
+						Channel channel = channelService.findByName( channelName );
 					
-					// use the channelService to update the channel from the datasource
-					channelService.updateFromDatasource( channel );
-					break;	
-			}
+						// use the channelService to update the channel from the datasource
+						channelService.updateFromDatasource( channel );
+						break;	
+				}
 
+			}
 		}
+		catch( Exception e )
+		{
+			e.printStackTrace();	
+		}
+		
+		return null;
 	}
 	
 }

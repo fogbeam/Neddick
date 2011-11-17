@@ -15,7 +15,7 @@ class Entry
     	url( nullable:true, maxSize:2048 );
     }
 	
-    static transients = [ "score", "hotness", "controversy", "age", "siteConfigService" ];
+    static transients = [ "score", "hotness", "controversy", "age", "siteConfigService", "link" ];
     static mapping = {
 		channel lazy:false // eagerly fetch the channel
 		submitter lazy:false;
@@ -34,8 +34,9 @@ class Entry
     SortedSet comments;
     Channel channel;
     User submitter;
+	UserEntryScoreLink link;
     
-    static hasMany = [ votes : Vote, savers: User, hiders: User, comments: Comment, tagEntryLinks:TagEntryLink ];
+    static hasMany = [ votes : Vote, savers: User, hiders: User, comments: Comment, tagEntryLinks:TagEntryLink, userEntryScoreLinks:UserEntryScoreLink  ];
 
     // NOTE: do we really want this?  Should deleting a User remove Entries from the system?
     static belongsTo = [User];

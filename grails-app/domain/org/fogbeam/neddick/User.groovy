@@ -35,7 +35,7 @@ class User {
     	table 'uzer'
     }
 
-    static hasMany = [savedEntries : Entry, hiddenEntries: Entry, childUserLinks:UserToUserLink, parentUserLinks: UserToUserLink];
+    static hasMany = [savedEntries : Entry, hiddenEntries: Entry, childUserLinks:UserToUserLink, parentUserLinks: UserToUserLink, userEntryScoreLinks:UserEntryScoreLink ];
     static mappedBy = [savedEntries : "savers", hiddenEntries:"hiders", userProfile:"owner", childUserLinks:"owner", parentUserLinks:"target"  ];
 
     public void setUuid( String uuid ){
@@ -47,7 +47,7 @@ class User {
     	}
     }
 
-    public List geParents() 	
+    public List getParents() 	
 	{
     	return parentUserLinks.collect{it.owner}
 	}  
@@ -72,13 +72,16 @@ class User {
 
 	List addToChildUserLinks(User user) 
 	{ 
-		TagEntryLink.link(this, user );
+		
+		// NOTE: was this previously a c&p error?!?? Shouldn't this be UserToUserLink, not TagEntryLink, right?
+		UserToUserLink.link(this, user );
 		return children;
 	}
 
 	List removeFromChildUserLinks( User user ) 
 	{ 
-		TagEntryLink.unlink(this, user );
+		// NOTE: was this previously a c&p error?!?? Shouldn't this be UserToUserLink, not TagEntryLink, right?
+		UserToUserLink.unlink(this, user );
 		return children
 	}
 	

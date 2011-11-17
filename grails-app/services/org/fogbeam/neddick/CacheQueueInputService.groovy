@@ -12,17 +12,8 @@ class CacheQueueInputService
 		
 		println "CacheQueueInputService: GOT MESSAGE: ${msg}";
 	
-		if( msg instanceof java.lang.String )
-		{
-			println "CacheQueueInputService: Yep, it's a string!"
-
-			if( ((String)msg).equalsIgnoreCase("REBUILD_CACHE" ))
-			{
-				entryCacheService.rebuildAll();
-			} 
+		return null;	
 			
-		}
-		
 	}
 	
 }

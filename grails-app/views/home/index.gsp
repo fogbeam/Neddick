@@ -26,7 +26,7 @@
                                         </div>
                                         
                                         <div id="score.${entry.id}" style="padding-left:3px;">
-                                             ${entry.score}
+                                             <g:formatNumber number="${entry.link?.entryBaseScore}" format="##0" />
                                         </div>
                                         
                                         <div id="downVote.${entry.id}">
@@ -41,7 +41,7 @@
                          </div>
                          <div style="margin-left:70px;">
                               <dl>
-                                   <dd><a href="${entry.url}">${entry.title}</a></dd>
+                                   <dd><a href="${entry.url}">${entry.title} (${entry.id})</a></dd>
                                    <dd>Submitted <span> <g:dateFromNow date="${entry.dateCreated}"/>
                                         </span> by <a href="/neddick1/user/viewDetails/${entry.submitter.userId}">
                                                        <span>${entry.submitter.userId}</span></a>

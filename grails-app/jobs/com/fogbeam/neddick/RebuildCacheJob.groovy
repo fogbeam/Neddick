@@ -9,7 +9,7 @@ class RebuildCacheJob {
 	def jmsService;
 	
 	static triggers = {
-		simple name: 'mySimpleTrigger', startDelay: 240000, repeatInterval: 240000
+		simple name: 'mySimpleTrigger', startDelay: 300000, repeatInterval: 300000
 	  }
 	
     def execute() 
