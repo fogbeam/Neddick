@@ -13,7 +13,7 @@ class XmppNotificationService {
 
     def sendChat(String to, String msg) {
 
-        // log.debug "Sending notification to: [${to}]"
+        println( "Sending notification to: [${to}] )");
         ConnectionConfiguration cc = new ConnectionConfiguration(
                 ConfigurationHolder.config.chat.host,
                 ConfigurationHolder.config.chat.port,
@@ -37,7 +37,8 @@ class XmppNotificationService {
             msgObj.setBody(msg)
             chat.sendMessage(msgObj)
         } catch (Exception e) {
-            // log.error("Failed to send message")
+			e.printStackTrace();
+            println("Failed to send XMPP message");
         }
 
         // and close down

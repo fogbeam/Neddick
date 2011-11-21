@@ -16,7 +16,7 @@
                               <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:theEntry.id]"
                               onComplete="afterVote(e);">
                               <img src="/neddick1/images/icons/1uparrow.png" />
-                              </g:remoteLink> <br />
+                              </g:remoteLink>
                               </div>
                               
                               <div id="score.${theEntry.id}" style="padding-left:3px;">
@@ -92,7 +92,7 @@
                               <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:recommendedEntry.id]"
                               onComplete="afterVote(e);">
                               <img src="/neddick1/images/icons/1uparrow.png" />
-                              </g:remoteLink> <br />
+                              </g:remoteLink>
                               </div>
                               
                               <div id="score.${recommendedEntry.id}" style="padding-left:3px;">

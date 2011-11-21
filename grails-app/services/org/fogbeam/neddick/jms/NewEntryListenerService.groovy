@@ -12,7 +12,7 @@ public class NewEntryListenerService {
 	def onMessage(msg)
 	{
 		count++;
-		println "received message number: ${count}";
+		println "NewEntryListenerService.onMessage: received message number: ${count}";
 		
 		String msgType = msg['msgType'];
 		def entryId = msg['id'];

@@ -96,7 +96,7 @@ chat {
     serviceName = "gmail.com"
     host = "talk.google.com"
     port = 5222
-    username = "fogbeam@gmail.com"
+    username = "motley.crue.fan@gmail.com"
     password = ""
 }
 

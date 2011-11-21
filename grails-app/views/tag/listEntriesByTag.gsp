@@ -17,7 +17,7 @@
                                              <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:entry.id]"
                                              onComplete="afterVote(e);">
                                              <img src="/neddick1/images/icons/1uparrow.png" />
-                                             </g:remoteLink> <br />
+                                             </g:remoteLink>
                                         </div>
                                         
                                         <div id="score.${entry.id}" style="padding-left:3px;">

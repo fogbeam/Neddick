@@ -1,27 +1,31 @@
 package org.fogbeam.neddick
 
-import org.fogbeam.neddick.Channel;
-import org.fogbeam.neddick.Comment;
-import org.fogbeam.neddick.Entry;
-import org.fogbeam.neddick.User;
-import org.fogbeam.neddick.UserToUserLink;
+import org.apache.commons.logging.Log
+import org.apache.commons.logging.LogFactory
+import org.springframework.transaction.annotation.*
 
 class EntryService {
 	
+	Log cacheLog = LogFactory.getLog( "logger.special.instrumentation.cache" );
+	def sessionFactory;
+	
 	private static final long BEGINNING_OF_TIME = 1230786000000; // 01 01 2009 00:00:00
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Entry findById( final String id )
 	{
 		Entry entry = Entry.findById( id );
 		return entry;		
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Entry findByUuid( final String uuid )
 	{
 		Entry entry = Entry.findByUuid( uuid );
 		return entry;
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> findByUrlAndChannel( final String url, final Channel channel )
 	{
 		// check if this channel already has an Entry for this same link
@@ -30,160 +34,446 @@ class EntryService {
 		return entries;	
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void saveEntry( final Entry entry )
 	{
-		if( !entry.save() )
+		
+		if( !entry.save(validate:false,flush:true) )
 		{
 			println( "Updating entry: ${entry.id} FAILED");
 			entry.errors.allErrors.each { println it };
 		}
+		
 	}
 	
 	// give me everything for this channel, as long this user has not asked to hide it.
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllNonHiddenEntriesForUser( final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, User as user where user.userId = ? and entry not in elements(user.hiddenEntries) order by entry.dateCreated desc", [user.userId] ) );
-		this.calculateScores( entries, user );
+		println( "called getAllNonHiddenEntriesForUser( final User user )");
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by entry.dateCreated desc", [user.userId] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		
 		return entries;
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public long getCountNonHiddenEntriesForUser( final Channel channel, final User user )
+	{
+		long numEntries = 0l;
+		
+		Object[] o = Entry.executeQuery( "select count(entry) from Entry as entry, User as user where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries)", [user.userId, channel] );
+		numEntries = ((Long)o[0]).longValue();
+		
+		return numEntries;	
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, User as user where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries)  order by entry.dateCreated desc", [user.userId, channel] ) );
-		this.calculateScores( entries, user );
+		println( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user )");
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by entry.dateCreated desc", [user.userId, channel] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
 		return entries;
 	}
 
+	// give me everything for this channel, as long this user has not asked to hide it.
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getAllNonHiddenEntriesForUser( final User user, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getAllNonHiddenEntriesForUser( final User user, final int maxResults, final int offset )");
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user order by entry.dateCreated desc", [user.userId], [max:maxResults, offset:offset]);
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		return entries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println(  "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user  order by entry.dateCreated desc", [user.userId, channel], [max:maxResults, offset:offset] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		
+		return entries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllEntries()
 	{
 		List<Entry> entries = new ArrayList<Entry>();
+		println(  "called getAllEntries()" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry order by entry.dateCreated desc") );
-		this.calculateScores( entries );
 		return entries;		
 	}	
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getAllEntries(final Channel channel)");
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ?  order by entry.dateCreated desc", [channel] ) );
-		this.calculateScores( entries );
 		return entries;		
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllEntries( final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.submitter = ? order by entry.dateCreated desc", [user] ) );
-		this.calculateScores( entries );
+		println( "called getAllEntries( final User user )" );
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, UserEntryScoreLink as link where entry.submitter = ?  and link.entry = entry and link.user = ? order by entry.dateCreated desc", [user, user] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		return entries;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public long getCountAllEntries( final Channel channel ) 
+	{
+		long numEntries = 0l;
+		
+		Object o = Entry.executeQuery( "select count(entry) from Entry as entry where entry.channel = ?", [channel] );
+		numEntries = ((Long)o[0]).longValue();
+		return numEntries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getAllEntries( final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getAllEntries( final int maxResults )" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry order by entry.dateCreated desc", [], [max:maxResults, offset:offset]) );
 		return entries;
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getAllEntries(final Channel channel, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getAllEntries(final Channel channel, final int maxResults )" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ?  order by entry.dateCreated desc", [channel], [max:maxResults, offset:offset] ) );
+		return entries;
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getAllEntries( final User user, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getAllEntries( final User user, final int maxResults )" );
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, UserEntryScoreLink as link where entry.submitter = ? and link.entry = entry and link.user = ? order by entry.dateCreated desc", [user, user], [max:maxResults, offset:offset] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		return entries;
+	}
+
+	
+	/* get hot entries */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getHotEntriesForUser( final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, User as user where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) order by entry.dateCreated desc", [user.userId, channel] ) );
-
-		this.calculateScores( entries, user );
-		this.calculateHotness( entries );
-		
+		println( "called getHotEntriesForUser( final Channel channel, final User user )" );
+		List<Object> temp =  Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryHotness desc", [user.userId, channel] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
 		return entries;
 	}
 	
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getHotEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ?  order by entry.dateCreated desc", [channel] ) );
-		this.calculateScores( entries );
-		this.calculateHotness( entries );
-		
-		return entries;		
-	}
-	
-	public List<Entry> getNewEntriesForUser(final Channel channel, final User user ) 
-	{
-		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, User as user where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) order by entry.dateCreated desc", [user.userId, channel] ) );
-		this.calculateScores( entries, user );
-		
-		return entries;
-	}
-	
-	public List<Entry> getNewEntries(final Channel channel)
-	{
-		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ? order by entry.dateCreated desc", [channel] ) );
-		this.calculateScores( entries );
+		println( "getHotEntries(final Channel channel)" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link where entry.channel = ? and link.entry = entry order by link.entryHotness desc", [channel] ) );
 		
 		return entries;		
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getHotEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getHotEntriesForUser( final Channel channel, final User user )" );
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryHotness desc", [user.userId, channel], [max:maxResults, offset:offset] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		return entries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getHotEntries(final Channel channel, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "getHotEntries(final Channel channel)" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link where entry.channel = ?  and link.entry = entry order by link.entryHotness desc", [channel], [max:maxResults, offset:offset] ) );
+		
+		return entries;
+	}
+	
+	
+	/* get new entries */
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getNewEntriesForUser(final Channel channel, final User user ) 
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "getNewEntriesForUser(final Channel channel, final User user )" );
+		List<Object> temp =  Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user order by entry.dateCreated desc", [user.userId, channel] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		return entries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getNewEntries(final Channel channel)
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "getNewEntries(final Channel channel)" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ? order by entry.dateCreated desc", [channel] ) );
+		
+		return entries;		
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getNewEntriesForUser(final Channel channel, final User user, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "getNewEntriesForUser(final Channel channel, final User user )" );
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user  order by entry.dateCreated desc", [user.userId, channel] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		return entries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getNewEntries(final Channel channel, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "getNewEntries(final Channel channel)" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ? order by entry.dateCreated desc", [channel] ) );
+		
+		return entries;
+	}
+
+	
+	/* get top entries */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getTopEntriesForUser(final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, User as user where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) order by entry.dateCreated desc", [user.userId, channel] ) );
-		this.calculateScores( entries, user );
+		println( "getTopEntriesForUser(final Channel channel, final User user )");
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryBaseScore desc", [user.userId, channel] )
+		for( Object o : temp ) 
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;	
+			entries.add( e );
+		}
 	
 		return entries;
 	}
 	
+	// note: get "top" with no user specified basically means that the user defaults to the "anonymous" user.  This way we can still use the
+	// UEL table normally... same for hotness and controversy...
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getTopEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getTopEntries(final Channel channel)");
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ? order by entry.dateCreated desc", [channel] ) );
-		this.calculateScores( entries );
+		
+		return entries;		
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getTopEntriesForUser(final Channel channel, final User user, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "getTopEntriesForUser(final Channel channel, final User user )");
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryBaseScore desc", [user.userId, channel], [max:maxResults, offset:offset] ); 
+		for( Object o : temp )
+		{
+			// object array with Entry and Link?
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		
+	
+		return entries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getTopEntries(final Channel channel, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getTopEntries(final Channel channel)");
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ? order by entry.dateCreated desc", [channel], [max:maxResults, offset:offset] ) );
+		
+		return entries;
+	}
+
+	
+		
+	/* get controversial entries */
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getControversialEntriesForUser( final Channel channel, final User user ) 
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getControversialEntriesForUser( final Channel channel, final User user )" );
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryControversy desc", [user.userId, channel] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+		
+		return entries;
+	}
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getControversialEntries(final Channel channel)
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getControversialEntries(final Channel channel)" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link where entry.channel = ? and link.entry = entry order by link.entryControversy desc", [channel] )  );
 		
 		return entries;		
 	}
 	
-	
-	public List<Entry> getControversialEntriesForUser( final Channel channel, final User user ) 
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getControversialEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, User as user where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) order by entry.dateCreated desc", [user.userId, channel] ) );
-		this.calculateScores( entries, user );
-		this.calculateControversy( entries );
+		println( "called getControversialEntriesForUser( final Channel channel, final User user )" );
+		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryControversy desc", [user.userId, channel], [max:maxResults, offset:offset] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
 				
 		return entries;
 	}
 	
-	public List<Entry> getControversialEntries(final Channel channel)
+	@Transactional(propagation = Propagation.REQUIRED)
+	public List<Entry> getControversialEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		entries.addAll( Entry.executeQuery( "select entry from Entry as entry where entry.channel = ? order by entry.dateCreated desc", [channel] ) );
-		this.calculateScores( entries );
-		this.calculateControversy( entries );
+		println( "called getControversialEntries(final Channel channel)" );
+		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link where entry.channel = ?  and link.entry = entry order by link.entryControversy desc", [channel], [max:maxResults, offset:offset] ) );
 		
-		return entries;		
+		return entries;
 	}
-	
+
+		
+	/* get saved entries */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getSavedEntriesForUser( final User user ) 
 	{
-		println "getSavedEntries";
+		println( "called getSavedEntriesForUser( final User user )" );
 		List<Entry> entries = new ArrayList<Entry>();
 		def theUser = User.findByUserId( user.userId );
 		println "found user: ${theUser}";
 		def tempEntries = theUser.savedEntries;
-		println "found ${tempEntries.size()} savedEntries";
+		// println "found ${tempEntries.size()} savedEntries";
+		
 		entries.addAll( tempEntries );
-		this.calculateScores( entries, user );
 		
 		return entries;
 	}	
 	
+	
+	/* get hidden entries */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getHiddenEntriesForUser( final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
+		println( "called getHiddenEntriesForUser( final User user )" );
 		def theUser = User.findByUserId( user.userId );
         def tempEntries = theUser.hiddenEntries;
 		entries.addAll( tempEntries );
-		this.calculateScores( entries, user );
 		
 		return entries;
 		
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getCommentsForUser( final User user )
 	{
 		List<Comment> comments = new ArrayList<Comment>();
@@ -191,161 +481,5 @@ class EntryService {
 		
 		return comments;
 	}
-	
-	private calculateScores( final List<Entry> entries, final User user = null ) 
-	{
-		entries.each() { 
-			this.calculateScore( it, user );
-		}
-        
-    }
-
-	public calculateScore( final Entry entry, final User user = null )
-	{
-    	// calculate the score for this Entry
-		def votes = entry.votes;
-    	int score = 0;
-    	for( vote in votes )
-    	{
-    		if( vote.enabled ) 
-    		{
-    			score = score + vote.weight;
-    		
-    			User submitter = vote.submitter;
-    			
-	    		/* adjust score for personalization by user */
-	    		if( user )
-	    		{
-	    			Set<UserToUserLink> childLinks = user.childUserLinks;
-	    			if( childLinks )
-	    			{
-	    				for( UserToUserLink link in childLinks )
-	    				{
-	    					if( submitter.userId.equals( link.target.userId ))
-	    					{
-	    						// adjust the current score based on the relationship between the
-	    						// current user and the voter.
-	    						if( vote.weight > 0 )
-	    						{
-	    							// if the vote was an "up vote" adding the "boost"
-	    							// gives the right effect whether the boost value is positive
-	    							// or negative.
-	    							score += link.boost;	
-	    						}
-	    						else 
-	    						{
-	    							// conversely, if the vote was a down vote, subtracting the
-	    							// boost value gives us the right effect.  
-	    							score -= link.boost;
-	    						}
-	    						
-	    					}
-	    				}
-	    			}
-	    		}
-    		}
-    	}
-        	
-    	// println "Calculated score for entry ${it.id} as ${score}";
-    	entry.score = score;		
-	}
-	
-	private calculateHotness( final List<Entry> entries ) 
-	{
-		
-		long now = System.currentTimeMillis();
-		for( Entry entry in entries )
-		{ 
-			entry.hotness = this.calculateHotness( entry, now );
-		} 
-	}
-	
-	public double calculateHotness( final Entry entry, final long now )
-	{
-		// make "hotness" the same as the raw score initially
-		long hotness = entry.score * 10;
-		println "set initial \"hotness\" as ${hotness}";
-		
-		long age = ( now - BEGINNING_OF_TIME ) - (entry.dateCreated.time - BEGINNING_OF_TIME );
-		age = age / (1000*60);
-		
-		println "age in milliseconds: ${age}";
-		
-		entry.age = age;
-		
-		def decayForAge = Math.log( age );
-		println "decayForAge: ${decayForAge}";
-		
-		double finalHotness =  hotness - decayForAge;
-		println "final \"hotness\" score: ${finalHotness}";
-		return finalHotness;
-	}
-	
-	private calculateControversy( final List<Entry> entries ) 
-	{
-	
-		long now = System.currentTimeMillis();
-        for( Entry entry in entries )
-        {
-        	entry.controversy = this.calculateControversy( entry, now );
-        }
-	
-	}
-
-	public double calculateControversy( final Entry entry, final long now )
-	{
-        def votes = entry.votes;
-        // int score = 0;
-        int totalVotes = 0;
-        int upVotes = 0;
-        int downVotes = 0;
-        for( vote in votes )
-        {
-            if( vote.enabled )
-            {
-                // score = score + vote.weight;
-                totalVotes++;
-            
-                if( vote.weight > 0 )
-                {
-                	upVotes++;
-                }
-                else if( vote.weight < 0 )
-                {
-                	downVotes++;
-                }
-                else
-                {
-                	// a vote with a weight of 0 is nonsensical
-                }
-            }
-        }
-        
-        // println "\n\nCalculated score for entry ${entry.id} as ${score}";
-        // entry.score = score;
-        
-        long age = ( now - BEGINNING_OF_TIME ) - (entry.dateCreated.time - BEGINNING_OF_TIME );
-        age = age / (1000*60);
-        
-        println "age in milliseconds: ${age}";
-        
-        entry.age = age;
-        
-        def decayForAge = Math.log( age );
-        
-        double ratio = 0.0;
-        if( upVotes != 0 && downVotes != 0 )
-        {
-        	Math.min( upVotes, downVotes ) / Math.max(upVotes, downVotes)
-        }
-        
-        println "totalVotes: ${totalVotes}, upVotes: ${upVotes}, downVotes: ${downVotes}, ratio: ${ratio}, decayForAge: ${decayForAge}";
-        
-        double finalControversy = ( totalVotes * ratio ) - decayForAge;
-        println "final \"controversy\" score: ${finalControversy}";
-        
-        return finalControversy;
-	}
-	
 	
 }

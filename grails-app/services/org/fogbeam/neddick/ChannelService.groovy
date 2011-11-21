@@ -88,7 +88,7 @@ class ChannelService {
 							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
 					
 							// send a JMS message to our testQueue
-							sendJMSMessage("searchQueue", newEntryMessage );
+							sendJMSMessage("entryQueue", newEntryMessage );
 						}
 						else
 						{
