@@ -1,11 +1,20 @@
-import grails.util.Environment;
-import org.fogbeam.neddick.Channel 
-import org.fogbeam.neddick.User 
+import grails.util.Environment
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer
+import org.apache.lucene.document.Document
+import org.apache.lucene.index.IndexWriter
+import org.apache.lucene.index.IndexWriter.MaxFieldLength
+import org.apache.lucene.store.Directory
+import org.apache.lucene.store.NIOFSDirectory
+import org.apache.lucene.util.Version
+import org.fogbeam.neddick.Channel
+import org.fogbeam.neddick.User
 
 class BootStrap {
 
 	 def entryCacheService;
-	
+	 def siteConfigService;
+	 
      def init = { servletContext ->
      
 		 this.getClass().classLoader.rootLoader.URLs.each { println it }
@@ -22,7 +31,32 @@ class BootStrap {
 	             println "No special configuration required";
 	             break;
 	     }
-	     
+	
+		 
+		 String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		 println "indexDirLocation: ${indexDirLocation}";
+		 if( indexDirLocation )
+		 {
+			 File indexFile = new java.io.File( indexDirLocation );
+			 String[] indexFileChildren = indexFile.list();
+			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
+			 if( ! indexIsInitialized )
+			 {
+				 println "Index not previously initialized, creating empty index";
+				 /* initialize empty index */
+				 Directory indexDir = new NIOFSDirectory( indexFile );
+				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
+				 Document doc = new Document();
+				 writer.addDocument(doc);
+				 writer.close();
+			}
+			else
+			{
+				
+				println "Index already initialized, skipping...";	
+			}
+		 }
+		      
      }
      
      
