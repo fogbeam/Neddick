@@ -23,3 +23,11 @@
           <a href="/neddick1/user/create">Register</a>
      </div>
 </g:else>
+<g:if test="${session.user}">
+     <div style="padding-top:25px;">               
+          <a href="/neddick1/channel/create">Create New Channel</a>
+     </div>                         
+     <div style="padding-top:25px;">               
+          <a href="/neddick1/channel/edit/${channelName}">Edit Channel Properties</a>
+     </div> 
+</g:if>

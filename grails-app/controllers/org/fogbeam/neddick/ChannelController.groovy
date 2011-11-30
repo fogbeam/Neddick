@@ -1,9 +1,5 @@
 package org.fogbeam.neddick
 
-import com.sun.syndication.feed.synd.SyndEntry 
-import com.sun.syndication.feed.synd.SyndFeed 
-import com.sun.syndication.io.SyndFeedInput 
-import com.sun.syndication.io.XmlReader 
 
 class ChannelController {
 
@@ -108,5 +104,48 @@ class ChannelController {
 		// done... return.
 		System.out.println( "done" );
 		render( "DONE" );
+	}
+	
+	def create = {
+		List<RssFeed> availableFeeds = RssFeed.list();
+		
+		[availableFeeds:availableFeeds];
+	}
+	
+	def save = {
+		
+		println "Channel.save()";
+		println params;
+		println "";
+		// [feeds:16723, channelName:groovy, channelDescription:Groovy Stuff, Save:Save, action:save, controller:channel]
+ 
+		Channel channel = new Channel();
+		channel.name = params.channelName;
+		channel.description = params.channelDescription;
+		List<RssFeed> feeds = new ArrayList<RssFeed>();
+		String[] feedsToAdd = params.feeds;
+		for( String feedToAdd : feedsToAdd ) 
+		{
+			println "adding feed: ${feedToAdd}";
+			RssFeed theFeed = RssFeed.findById( feedToAdd );
+			feeds.add( theFeed );	
+		}
+		
+		channel.feeds = feeds;
+		
+		if( channel.save() )
+		{
+			
+		}
+		else
+		{
+			flash.message = "Failed to save Channel!";	
+		}
+		
+		redirect(controller:"channel", action:"list");
+	}
+	
+	def edit_temp = {
+		
 	}
 }

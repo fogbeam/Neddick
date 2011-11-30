@@ -3,6 +3,7 @@ package org.fogbeam.neddick
 class Channel implements Comparable {
 
 	String name;
+	String description;
 	Date dateCreated;
 
 	static hasMany = [ feeds : RssFeed];
