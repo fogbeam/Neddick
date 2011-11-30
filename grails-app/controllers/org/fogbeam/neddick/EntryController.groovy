@@ -62,13 +62,19 @@ class EntryController {
 	    	}
 	    	
 	    	// TODO: deal with transactionality
-	    	entryService.saveEntry( entry );
+	    	if( entryService.saveEntry( entry ) )
+			{
 			
-	    	// send JMS message saying "new entry submitted"
-	    	def newEntryMessage = [msgType:"NEW_ENTRY", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
+				// send JMS message saying "new entry submitted"
+				def newEntryMessage = [msgType:"NEW_ENTRY", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
 	    
-	    	// send a JMS message to our testQueue
-			sendJMSMessage("entryQueue", newEntryMessage );
+				// send a JMS message to our entryQueue
+				sendJMSMessage("entryQueue", newEntryMessage );
+				
+				// send a JMS message to our searchQueue
+				sendJMSMessage("searchQueue", newEntryMessage );
+			}
+				
     	}
     	
     	redirect(controller:'home', action: 'index');
@@ -174,15 +180,20 @@ class EntryController {
 		String url = urlBase + "/entry/e/" + entry.uuid;
     	entry.url = url;
     	
-    	entryService.saveEntry( entry );
+    	if( entryService.saveEntry( entry ) )
+		{
     	
-    	// send JMS message saying "new entry submitted"
-    	def newEntryMessage = [msgType:"NEW_QUESTION", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
-    
-    	// send a JMS message to our testQueue
-		sendJMSMessage("entryQueue", newEntryMessage );
-    	
+			// send JMS message saying "new entry submitted"
+			def newEntryMessage = [msgType:"NEW_QUESTION", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
+		
+			// send a JMS message to our entryQueue
+			sendJMSMessage("entryQueue", newEntryMessage );
+			
+			// send a JMS message to our searchQueue
+			sendJMSMessage("searchQueue", newEntryMessage );
+		}
+		
     	redirect(controller:'home', action: 'index');    	
-    }
+	}
     
 }

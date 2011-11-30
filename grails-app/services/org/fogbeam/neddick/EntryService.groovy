@@ -450,11 +450,18 @@ class EntryService {
 		List<Entry> entries = new ArrayList<Entry>();
 		def theUser = User.findByUserId( user.userId );
 		println "found user: ${theUser}";
-		def tempEntries = theUser.savedEntries;
+		// def tempEntries = theUser.savedEntries;
 		// println "found ${tempEntries.size()} savedEntries";
-		
-		entries.addAll( tempEntries );
-		
+		List<Object> temp = Entry.executeQuery( "select  entry, link from User as user inner join user.savedEntries as entry, UserEntryScoreLink as link where user = ? and entry = link.entry and link.user = ?", [user, user] );
+		for( Object o : temp )
+		{
+			// object array with Entry and Link
+			Entry e = o[0];
+			UserEntryScoreLink link = o[1];
+			e.link = link;
+			entries.add( e );
+		}
+				
 		return entries;
 	}	
 	

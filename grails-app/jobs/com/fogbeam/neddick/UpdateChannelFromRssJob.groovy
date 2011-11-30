@@ -9,7 +9,7 @@ class UpdateChannelFromRssJob
 	def channelService;
 	
 	static triggers = {
-		simple name: 'myOtherTrigger', startDelay: 500, repeatInterval: 135000
+		simple name: 'myOtherTrigger', startDelay: 12000, repeatInterval: 360000
 	  }
 	
 	def execute()

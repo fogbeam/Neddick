@@ -22,6 +22,7 @@ public class NewEntryListenerService {
 		
 		if( msgType.equals("NEW_ENTRY"))
 		{
+			println "processing NEW_ENTRY message";
 			// a new Entry was added to the system.  Populate the user_entry_score_link
 			// table with initial default values
 			def hibSession = sessionFactory.openSession();

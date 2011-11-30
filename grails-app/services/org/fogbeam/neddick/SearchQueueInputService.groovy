@@ -20,7 +20,7 @@ import org.apache.tika.parser.AutoDetectParser
 import org.apache.tika.parser.Parser
 import org.apache.tika.sax.BodyContentHandler
 
-class SearchQueueInputService
+public class SearchQueueInputService
 {
 	
 	def siteConfigService;
@@ -83,7 +83,21 @@ class SearchQueueInputService
 		    	println "adding document to index"
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED);
+				IndexWriter writer = null;
+				
+				// TODO: fix this so it will eventually give up, to deal with the pathological case
+				// where we never do get the required lock.
+				while( writer == null )
+				{
+					try
+					{
+						writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
+					}
+					catch( org.apache.lucene.store.LockObtainFailedException lfe )
+					{
+						Thread.sleep( 1200 );
+					}
+				}
 				
 				try
 				{
@@ -127,11 +141,32 @@ class SearchQueueInputService
     		else if( msgType.equals( "NEW_ENTRY" ))
     		{
 		    	// add document to index
-		    	println "adding document to index"
+		    	println "adding document to index: ${msg['uuid']}";
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
+				IndexWriter writer = null;
 				
+				// TODO: fix this so it will eventually give up, to deal with the pathological case
+				// where we never do get the required lock.
+				int count = 0;
+				while( writer == null )
+				{
+					count++;
+					if( count > 3 ) {
+						println "tried to obtain Lucene lock 3 times, giving up...";
+						return;	
+					}
+					try
+					{
+						writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
+					}
+					catch( org.apache.lucene.store.LockObtainFailedException lfe )
+					{
+						Thread.sleep( 1200 );
+					}
+				}
+				
+				InputStream input = null;
 				try
 				{
 					writer.setUseCompoundFile(true);
@@ -179,7 +214,7 @@ class SearchQueueInputService
 					// extract text with Tika
 				 
 					// InputStream input = new FileInputStream(new File(resourceLocation));
-					InputStream input = method.getResponseBodyAsStream();
+					input = method.getResponseBodyAsStream();
 					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
 					Metadata metadata = new Metadata();
 					// PDFParser parser = new PDFParser();
@@ -206,19 +241,21 @@ class SearchQueueInputService
 					catch( Exception e ) 
 					{
 						// ignore this for now, but add a log message at least
+						e.printStackTrace();
 					}
 				
 					try
 					{
-						if( client != null ) 
+						if( method != null ) 
 						{
-							println "calling connectionManager.shutdown()";
-							client.getConnectionManager().shutdown();
+							println "calling method.releaseConnection()";
+							method.releaseConnection();
 						}
 					}
 					catch( Exception e ) 
 					{
 						// ignore this for now, but add a log message at least
+						e.printStackTrace();
 					}
 						
 					try
@@ -231,6 +268,7 @@ class SearchQueueInputService
 					catch( Exception e ) 
 					{
 						// ignore this for now, but add a log message at least
+						e.printStackTrace();
 					}
 					
 					try
@@ -243,6 +281,7 @@ class SearchQueueInputService
 					catch( Exception e )
 					{
 						// ignore this for now, but add a log message at least
+						e.printStackTrace();
 					}
 				}
 
@@ -253,7 +292,21 @@ class SearchQueueInputService
 		    	println "adding document to index"
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED);
+				IndexWriter writer = null;
+				
+				// TODO: fix this so it will eventually give up, to deal with the pathological case
+				// where we never do get the required lock.
+				while( writer == null )
+				{
+					try
+					{
+						writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
+					}
+					catch( org.apache.lucene.store.LockObtainFailedException lfe )
+					{
+						Thread.sleep( 1200 );
+					}
+				}
 				
 				try
 				{
@@ -317,8 +370,24 @@ class SearchQueueInputService
     		indexReader.deleteDocument( docNum );
     		indexReader.close();
     		
-    		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
-    		writer.setUseCompoundFile( true );
+    		IndexWriter writer = null;
+			
+			// TODO: fix this so it will eventually give up, to deal with the pathological case
+			// where we never do get the required lock.
+			while( writer == null )
+			{
+				try
+				{
+					writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
+				}
+				catch( org.apache.lucene.store.LockObtainFailedException lfe )
+				{
+					Thread.sleep( 1200 );
+				}
+			}
+			
+	   		writer.setUseCompoundFile( true );
+			
 			try
 			{
 				Entry entry = entryService.findByUuid( uuid );
@@ -447,7 +516,22 @@ class SearchQueueInputService
     	// add document to index
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
     	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-		IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
+		IndexWriter writer = null;
+		
+		// TODO: fix this so it will eventually give up, to deal with the pathological case
+		// where we never do get the required lock.
+		while( writer == null )
+		{
+			try
+			{
+				writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED );
+			}
+			catch( org.apache.lucene.store.LockObtainFailedException lfe )
+			{
+				Thread.sleep( 1200 );
+			}
+		}
+		
 		try
 		{
 			writer.setUseCompoundFile(true);

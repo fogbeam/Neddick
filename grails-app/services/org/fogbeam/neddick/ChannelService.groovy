@@ -87,8 +87,14 @@ class ChannelService {
 							// send JMS message saying "new entry submitted"
 							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
 					
-							// send a JMS message to our testQueue
+							println "sending new entry message to JMS entryQueue";
+							// send a JMS message to our entryQueue
 							sendJMSMessage("entryQueue", newEntryMessage );
+							
+							println "sending new entry message to JMS searchQueue";
+							// send a JMS message to our searchQueue
+							sendJMSMessage("searchQueue", newEntryMessage );
+
 						}
 						else
 						{
