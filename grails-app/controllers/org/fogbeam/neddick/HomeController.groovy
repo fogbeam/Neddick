@@ -138,7 +138,7 @@ class HomeController {
 		
 		def sortedEntries = entries.sort { it.dateCreated }.reverse();
 		def model = [allEntries: sortedEntries,
-					 channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
+					 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
 					 requestType:"index"];
 
 		render(view:"index", model:model);

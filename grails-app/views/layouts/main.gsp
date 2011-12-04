@@ -16,10 +16,16 @@
         <link rel="stylesheet" type="text/css" href="/neddick1/css/fonts-min.css">             
         <link rel="stylesheet" type="text/css" href="/neddick1/css/grids-min.css">
         
+        
+        <g:javascript library="jquery-1.4" />
+        <g:javascript library="jquery.timers-1.2" />
+        <g:javascript>
+          var $j = jQuery.noConflict();
+        </g:javascript>
+
         <g:javascript library="prototype" /> 
         <g:javascript library="scriptaculous" />
         <g:javascript library="application" />
-        
 
         <g:javascript>
                

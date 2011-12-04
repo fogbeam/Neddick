@@ -7,6 +7,7 @@ class ChannelController {
 	def channelService;
 	def entryService;
 	def siteConfigService;
+	def sessionFactory;
 	
 	int itemsPerPage = -1;
 	
@@ -145,7 +146,74 @@ class ChannelController {
 		redirect(controller:"channel", action:"list");
 	}
 	
-	def edit_temp = {
+	def edit = {
+		// lookup the specified channel
+		String channelName = params.id;
+		Channel theChannel = null;
+		if( channelName )
+		{
+			theChannel = channelService.findByName( channelName );
+		}
+
+		
+		List<RssFeed> availableFeeds = RssFeed.executeQuery( "select feed from RssFeed as feed, Channel as channel where channel = ? and feed not in elements(channel.feeds)", [theChannel] );
+				
+		[channel: theChannel,availableFeeds:availableFeeds];
 		
 	}
+	
+	def update = {
+		
+		println "Update Channel Properties: ${params.channelId}";
+		println "feedsToAdd: ${params.feedsToAdd}";
+		println "feedsToRemove: ${params.feedsToRemove}";
+		println "Params:\n ${params}";
+		
+		Channel theChannel = Channel.findById( params.channelId );
+		theChannel.description = params.channelDescription;
+				
+		def feedsToRemove = params.list('feedsToRemove');
+		for( String feedToRemove : feedsToRemove )
+		{
+			
+			println "removing feed: ${feedToRemove}";
+			// RssFeed feed = RssFeed.findById( feedToRemove );
+			RssFeed feed = theChannel.feeds.find { it.id == Integer.parseInt(feedToRemove) }
+			if( feed )
+			{
+				println "calling removeFromFeeds using feed: ${feed}";
+				theChannel.removeFromFeeds( feed );
+			}
+			else
+			{
+				println "problem finding feed instance for ${feedToRemove}";	
+			}
+		
+			println "about to save()";
+			if( !theChannel.save(flush:true, validate:true) )
+			{
+				theChannel.errors.allErrors.each { println it };
+			}			
+				
+		}
+	
+	
+		println "dealing with feeds to add";
+		def feedsToAdd = params.list( 'feedsToAdd');
+		for( String feedToAdd : feedsToAdd ) 
+		{	
+			println "adding feed: ${feedToAdd}";
+			RssFeed feed = RssFeed.findById( feedToAdd );
+			theChannel.addToFeeds( feed );
+		}
+	
+		if( !theChannel.save() )
+		{
+			theChannel.errors.allErrors.each { println it };
+		}
+		
+		println "done";
+		redirect(controller:"channel", action:"list");
+	}
+	
 }

@@ -8,6 +8,11 @@ class Channel implements Comparable {
 
 	static hasMany = [ feeds : RssFeed];
 
+	static constraints =
+	{
+		description( nullable:true, maxSize:2048 );
+	}
+	
    	@Override
 	public int compareTo(Object o) 
    	{
