@@ -8,7 +8,10 @@
            <div style="padding-top:20px">                         
                Hello, Welcome to the ADMIN page!
                <p />
-               <a href="/neddick1/channel/index">Manage Channels</a>
+               <ul>
+                    <li><a href="/neddick1/channel/index">Manage Channels</a></li>
+                    <li><a href="/neddick1/rssFeed/list">Manage Feeds</a></li>
+               </ul>
        
           </div>
     </body>
