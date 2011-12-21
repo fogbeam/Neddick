@@ -1,18 +1,21 @@
 package com.fogbeam.neddick
 
-import java.text.SimpleDateFormat 
-import org.fogbeam.neddick.Channel 
+import java.text.SimpleDateFormat
+
+import org.fogbeam.neddick.Channel
 
 class UpdateChannelFromRssJob 
 {
 	def jmsService;
 	def channelService;
 	
-	static triggers = {
-		simple name: 'myOtherTrigger', startDelay: 12000, repeatInterval: 360000
-	  }
+	def group = "MyGroup";
+	def volatility = false;
 	
-	def execute()
+	static triggers = {
+	}
+	
+	def execute(context)
 	{
 		println "Updating Channels from RSS";
 		Date now = new Date();

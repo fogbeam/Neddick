@@ -8,9 +8,11 @@ class RebuildCacheJob {
 
 	def jmsService;
 	
+	def group = "MyGroup";
+	def volatility = false;
+	
 	static triggers = {
-		simple name: 'mySimpleTrigger', startDelay: 300000, repeatInterval: 300000
-	  }
+	}
 	
     def execute() 
 	{

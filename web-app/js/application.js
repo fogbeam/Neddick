@@ -21,6 +21,6 @@
 
                
             function openShareDialog(entryId) {
-               window.open( "share/index/?entryId=" + entryId, "Neddick - Share", 
+               window.open( "/neddick1/share/index/?entryId=" + entryId, "Neddick - Share", 
                     "status = 1, height = 300, width = 300, resizable = 0"  )
             }

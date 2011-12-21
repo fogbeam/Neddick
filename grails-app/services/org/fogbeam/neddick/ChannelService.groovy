@@ -71,7 +71,7 @@ class ChannelService {
 						List<Entry> testForExisting = entryService.findByUrlAndChannel( linkUrl, channel );
 						if( testForExisting != null && testForExisting.size() > 0 )
 						{
-							println "An Entry for this link already exists. Skipping";
+							// println "An Entry for this link already exists. Skipping";
 							continue;
 						}
 						

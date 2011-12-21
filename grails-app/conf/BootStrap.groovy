@@ -32,7 +32,13 @@ class BootStrap {
 	             break;
 	     }
 	
+
+		 /* TODO: Hook into install / upgrade steps here.  Setup default values for siteConfig
+		  * options, etc.  We'll use a "class per version" and a value in the DB that maintains
+		  * the "current version" to manage upgrades.
+		  */
 		 
+		 		 
 		 String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		 println "indexDirLocation: ${indexDirLocation}";
 		 if( indexDirLocation )
