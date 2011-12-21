@@ -9,9 +9,10 @@
                Hello, Welcome to the ADMIN page!
                <p />
                <ul>
-                    <li><a href="/neddick1/channel/index">Manage Channels</a></li>
-                    <li><a href="/neddick1/rssFeed/list">Manage Feeds</a></li>
+                    <li><g:link controller="channel" action="index">Manage Channels</g:link></li>
+                    <li><g:link controller="rssFeed" action="list">Manage Feeds</g:link></li>
                     <li><g:link controller="schedule" action="index">Manage Jobs</g:link></li>
+                    <li><g:link controller="siteConfigEntry" action="index">Manage Site Configuration</g:link></li>
                </ul>
        
           </div>
