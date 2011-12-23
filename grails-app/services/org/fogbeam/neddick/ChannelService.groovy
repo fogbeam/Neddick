@@ -78,12 +78,11 @@ class ChannelService {
 							continue;
 						}
 						else
-						{
-							
+						{	
 							
 							// does this link exist elsewhere in the system (eg, linked to another channel)?
-							List<Entry> e2 = entryService.findByUrl( url );
-							if( e2.size() > 0 )
+							List<Entry> e2 = entryService.findByUrl( linkUrl );
+							if( e2 != null && e2.size() > 0 )
 							{
 								// we already have this Entry, so instead of creating a new Entry object, we just
 								// need to link this one to this Channel.

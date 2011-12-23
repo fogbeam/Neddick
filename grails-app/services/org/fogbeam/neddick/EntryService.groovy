@@ -30,7 +30,7 @@ class EntryService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> findByUrl( final String url )
 	{
-		// check if this channel already has an Entry for this same link
+		// check if we already have an Entry for this same link
 		List<Entry> entries = Entry.executeQuery( "select entry from Entry as entry where entry.url = ?", [url] );
 	
 		return entries;
