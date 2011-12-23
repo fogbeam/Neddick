@@ -11,10 +11,11 @@
         <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.0r4/build/fonts/fonts-min.css">             
         <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.0r4/build/grids/grids-min.css">
         -->
-        <link rel="stylesheet" type="text/css" href="/neddick1/css/main.css">
-        <link rel="stylesheet" type="text/css" href="/neddick1/css/reset-min.css">
-        <link rel="stylesheet" type="text/css" href="/neddick1/css/fonts-min.css">             
-        <link rel="stylesheet" type="text/css" href="/neddick1/css/grids-min.css">
+        
+        <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'main.css')}" />
+        <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'reset-min.css')}" />
+        <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'fonts-min.css')}" />             
+        <link rel="stylesheet" type="text/css" href="${resource(dir: 'css', file: 'grids-min.css')}" />
         
         
         <g:javascript library="jquery-1.4" />
@@ -85,45 +86,47 @@
                                    <li class="navigation_active navigation_first">
                                         
                                         <g:if test="${channelName == null }">
-                                             <a href="/neddick1/">New</a>
+                                             
+                                            <a href="${resource(dir:'', file:'')}">New</a>
                                         </g:if>
                                         <g:else>
-                                             <a href="/neddick1/r/${channelName}/">New</a>                                  
+                                             
+                                             <a href="${resource(dir:'r', file:channelName)}" >New</a>                                  
                                         </g:else>
                                    </li>
                                    <li class="navigation_active">
                                         <g:if test="${channelName == null }">
-                                             <a href="/neddick1/home/hotEntries">Hot</a>
+                                             <a href="${resource(dir:'home', file:'hotEntries')}">Hot</a>
                                         </g:if>
                                         <g:else>
-                                             <a href="/neddick1/r/${channelName}/hotEntries">Hot</a>                                  
+                                             <a href="${resource(dir:'r/'+channelName, file:'hotEntries')}">Hot</a>                                  
                                         </g:else>
                                    
                                    </li>
                                    <li class="navigation_active">
                                    <g:if test="${channelName == null }">
-                                        <a href="/neddick1/home/topEntries">Top</a>
+                                       <a href="${resource(dir:'home', file:'topEntries')}">Top</a>
                                    </g:if>
                                    <g:else>
-                                        <a href="/neddick1/r/${channelName}/topEntries">Top</a>                                  
+                                        <a href="${resource(dir:'r/'+channelName, file:'topEntries')}">Top</a>                                  
                                    </g:else>
                                         
                                    </li>
                                    <li class="navigation_active">
                                         <g:if test="${channelName == null }">
-                                             <a href="/neddick1/home/controversialEntries">Controversial</a>
+                                          <a href="${resource(dir:'home', file:'controversialEntries')}">Controversial</a>   
                                         </g:if>
                                         <g:else>
-                                             <a href="/neddick1/r/${channelName}/controversialEntries">Controversial</a>                                  
+                                             <a href="${resource(dir:'r/'+channelName, file:'controversialEntries')}">Controversial</a>                                  
                                         </g:else>
                                    </li>
-                                   <li class="navigation_active"><a href="/neddick1/home/savedEntries">Saved</a></li>
-                                   <li class="navigation_active"><a href="/neddick1/tag/list">Tags</a></li>
-                                   <li class="navigation_active"><a href="/neddick1/channel/list">Channels</a></li>
-                                   <li class="navigation_active"><a href="/neddick1/admin/index">Admin</a></li>
+                                   <li class="navigation_active"><a href="${resource(dir:'home', file:'savedEntries')}">Saved</a></li>
+                                   <li class="navigation_active"><g:link controller="tag" action="list">Tags</g:link></li>
+                                   <li class="navigation_active"><g:link controller="channel" action="list">Channels</g:link></li>
+                                   <li class="navigation_active"><g:link controller="admin" action="index">Admin</g:link></li>
                                    <li style="float:right;margin-right:100px;">
                                         <g:if test="${session.user}">
-                                         <a href="/neddick1/userHome/index/${session.user.userId}">${session.user.userId}</a>
+                                         <g:link controller="userHome" action="index" id="${session.user.userId}">${session.user.userId}</g:link>
                                         </g:if>
                                    </li>
                               </ul>

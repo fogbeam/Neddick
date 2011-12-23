@@ -11,7 +11,7 @@
                          <div style="margin-left:70px;float:left;">
                               <dl>
                                    <dd>
-                                        <a href="/neddick1/tags/${tag.name}">${tag.name}</a>
+                                        <g:link controller="tags" action="${tag.name}">${tag.name}</g:link>
                                    </dd>
                               </dl>
                          </div>

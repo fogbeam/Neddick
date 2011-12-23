@@ -12,7 +12,7 @@
           </g:if>
           
        <div class="nav" style="margin-top:15px;margin-left:100px;">  
-            <span class="menuButton"><a href="/neddick1/siteConfigEntry/create" class="create">New Entry</a></span> 
+            <span class="menuButton"><g:link controller="siteConfigEntry" action="create" class="create">New Entry</g:link></span> 
         </div> 
         <div class="body" style="margin-left:100px;"> 
             

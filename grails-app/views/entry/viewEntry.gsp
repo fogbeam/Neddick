@@ -15,7 +15,7 @@
                               <div id="upVote.${theEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:theEntry.id]"
                               onComplete="afterVote(e);">
-                              <img src="/neddick1/images/icons/1uparrow.png" />
+                              <img src="${resource(dir:'images/icons',file:'1uparrow.png')}" />
                               </g:remoteLink>
                               </div>
                               
@@ -26,7 +26,7 @@
                               <div id="downVote.${theEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:theEntry.id]"
                               onComplete="afterVote(e);">
-                              <img src="/neddick1/images/icons/1downarrow.png" />
+                              <img src="${resource(dir:'images/icons',file:'1downarrow.png')}" />
                               </g:remoteLink>
                               </div>                                                
                          </dd>
@@ -40,7 +40,7 @@
                          </dd>
                          <dd>
                            <span>
-                              <a href="/neddick1/entry/e/${theEntry.uuid}">comment</a>
+                              <g:link controller="entry" action="e" id="${theEntry.uuid}" >comment</g:link>
                               </span> 
                               <span><a href="#" onClick="openShareDialog(${theEntry.id});">share</a></span>
                               <span><g:remoteLink controller="entry" action="saveEntry" 
@@ -91,7 +91,7 @@
                               <div id="upVote.${recommendedEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:recommendedEntry.id]"
                               onComplete="afterVote(e);">
-                              <img src="/neddick1/images/icons/1uparrow.png" />
+                              <img src="${resource(dir:'images/icons',file:'1uparrow.png')}" />
                               </g:remoteLink>
                               </div>
                               
@@ -102,7 +102,7 @@
                               <div id="downVote.${recommendedEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:recommendedEntry.id]"
                               onComplete="afterVote(e);">
-                              <img src="/neddick1/images/icons/1downarrow.png" />
+                              <img src="${resource(dir:'images/icons',file:'1downarrow.png')}" />
                               </g:remoteLink>
                               </div>                                                
                          </dd>
@@ -116,7 +116,7 @@
                          </dd>
                          <dd>
                            <span>
-                              <a href="/neddick1/entry/e/${recommendedEntry.uuid}">comment</a>
+                              <g:link controller="entry" action="e" id="${recommendedEntry.uuid}">comment</g:link>
                               </span> 
                               <span><a href="#" onClick="openShareDialog(${recommendedEntry.id});">share</a></span>
                               <span><g:remoteLink controller="entry" action="saveEntry" 

@@ -5,29 +5,29 @@
      </g:form>
 </div>
 <div style="padding-top:25px;">
-     <a href="/neddick1/entry/create">Submit a Link</a>
+     <g:link controller="entry" action="create">Submit a Link</g:link>
 </div>
 <div style="padding-top:25px;">
-     <a href="/neddick1/entry/createQuestion">Ask a Question</a>
+     <g:link controller="entry" action="createQuestion">Ask a Question</g:link>
 </div>
 <g:if test="${session.user}">
-     <div style="padding-top:25px;">               
-          <a href="/neddick1/login/logout">Logout</a>
+     <div style="padding-top:25px;">
+          <g:link controller="login" action="logout">Logout</g:link>               
      </div>                         
 </g:if>
 <g:else>
-     <div style="padding-top:25px;">               
-          <a href="/neddick1/login">Login</a>
+     <div style="padding-top:25px;">
+          <g:link controller="login" action="index">Login</g:link>
      </div>
      <div style="padding-top:25px;">               
-          <a href="/neddick1/user/create">Register</a>
+          <g:link controller="user" action="create">Register</g:link>
      </div>
 </g:else>
 <g:if test="${session.user}">
      <div style="padding-top:25px;">               
-          <a href="/neddick1/channel/create">Create New Channel</a>
+          <g:link controller="channel" action="create">Create New Channel</g:link>
      </div>                         
      <div style="padding-top:25px;">               
-          <a href="/neddick1/channel/edit/${channelName}">Edit Channel Properties</a>
+          <g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
      </div> 
 </g:if>

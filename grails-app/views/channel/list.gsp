@@ -17,7 +17,7 @@
                          <div style="margin-left:70px;float:left;">
                               <dl>
                                    <dd>
-                                        <a href="/neddick1/r/${channel.name}">${channel.name}</a>
+                                        <g:link controller="r" action="${channel.name}">${channel.name}</g:link>
                                    </dd>
                               </dl>
                          </div>
@@ -27,14 +27,12 @@
           <div style="padding-top:10px;">
                <!-- Display Pager -->
                <g:if test="${currentPageNumber > 1}">
-                    <a href="/neddick1/channel/list?pageNumber=${currentPageNumber -1}">Prev</a>
+                    <g:link controller="channel" action="list" params='[pageNumber:"${currentPageNumber -1}"]'>Prev</g:link>
                </g:if>
                
                <g:if test="${currentPageNumber < availablePages}">
-                    <a href="/neddick1/channel/list?pageNumber=${currentPageNumber +1}">Next</a>
+                    <g:link controller="channel" action="list" params='[pageNumber:"${currentPageNumber +1}"]'>Next</g:link>
                </g:if>
           </div>
-          
-          
     </body>
 </html>

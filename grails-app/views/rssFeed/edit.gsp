@@ -13,7 +13,7 @@
           
           <div class="body" style="margin-left:100px;margin-top:25px;"> 
             
-            <form action="/neddick1/rssFeed/update" method="post" > 
+            <g:form controller="rssFeed" action="update" method="post" > 
                 <input type="hidden" name="id" value="${theFeed.id}" id="id" /> 
                 <!-- <input type="hidden" name="version" value="0" id="version" /> --> 
                 <div class="dialog"> 
@@ -58,8 +58,7 @@
                     <span><input type="submit" name="_action_update" class="save" value="Save" /></span> 
                     <span style="padding-left:7px;"><input type="submit" name="_action_delete" value="Delete" class="delete" onclick="return confirm('Are you sure?');" /></span> 
                 </div> 
-            </form> 
-            
+            </g:form> 
           </div> 
                     
      </body>

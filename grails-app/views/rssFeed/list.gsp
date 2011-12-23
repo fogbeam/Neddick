@@ -12,7 +12,7 @@
           </g:if>
           
        <div class="nav" style="margin-top:15px;margin-left:100px;">  
-            <span class="menuButton"><a href="/neddick1/rssFeed/create" class="create">New Feed</a></span> 
+            <span class="menuButton"><g:link controller="rssFeed" action="create" class="create">New Feed</g:link></span> 
         </div> 
         <div class="body" style="margin-left:100px;"> 
             

@@ -17,7 +17,7 @@
                          <div style="margin-left:70px;float:left;">
                               <dl>
                                    <dd>
-                                        <a href="/neddick1/tags/${tag.name}">${tag.name}</a>
+                                        <a href="${resource(dir: 'tags', file: tag.name)}">${tag.name}</a>
                                    </dd>
                               </dl>
                          </div>
@@ -28,11 +28,10 @@
           <div style="padding-top:10px;">
                <!-- Display Pager -->
                <g:if test="${currentPageNumber > 1}">
-                    <a href="/neddick1/tag/list?pageNumber=${currentPageNumber -1}">Prev</a>
+                    <g:list controller="tag" action="list" params='[pageNumber:"${currentPageNumber -1}"]'>Prev</g:list>
                </g:if>
-               
                <g:if test="${currentPageNumber < availablePages}">
-                    <a href="/neddick1/tag/list?pageNumber=${currentPageNumber +1}">Next</a>
+                    <g:list controller="tag" action="list" params='[pageNumber:"${currentPageNumber +1}"]'>Next</g:list>
                </g:if>
           </div>
     </body>

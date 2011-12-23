@@ -13,7 +13,7 @@
           
           <div class="body" style="margin-left:100px;margin-top:25px;"> 
             
-            <form action="/neddick1/rssFeed/save" method="post" > 
+            <g:form controller="rssFeed" action="save" method="post" > 
                 <div class="dialog"> 
                     <table> 
                         <tbody> 
@@ -42,7 +42,7 @@
                          <input type="submit" name="_action_save" class="save" value="Save" />
                     </span> 
                 </div> 
-            </form> 
+            </g:form> 
          </div>
     </body>
 </html>

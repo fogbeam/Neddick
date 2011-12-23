@@ -11,25 +11,25 @@
                     <ul class="menu" id="tablist">
                          <li class="">
                               <span class="">
-                                   <a href="/neddick1/user/viewSubmissions/${targetUserName}">Submissions</a>
+                                   <g:link controller="user" action="viewSubmissions" id="${targetUserName}">Submissions</g:link>
                               </span>
                          </li>
 
                          <li>
                               <span>
-                                   <a href="/neddick1/user/viewComments/${targetUserName}">Comments</a>
+                              <g:link controller="user" action="viewComments" id="${targetUserName}">Comments</g:link>
                               </span>
                          </li>
                          
                          <li>
                               <span>
-                                   <a href="/neddick1/user/viewBookmarks/${targetUserName}">Bookmarks</a>
+                              <g:link controller="user" action="viewBookmarks" id="${targetUserName}">Bookmarks</g:link>
                               </span>
                          </li>
                          
                          <li>
                               <span>
-                                   <a href="/neddick1/user/viewTags/${targetUserName}">Tags</a>
+                              <g:link controller="user" action="viewTags" id="${targetUserName}">Tags</g:link>
                               </span>
                          </li>
                          
@@ -37,7 +37,7 @@
                          <g:if test="${false}">
                               <li>
                                    <span>
-                                        <a href="/neddick1/user/viewFriendsActivity/${targetUserName}">Friends' Activity</a>
+                                   <g:link controller="user" action="viewFriendsActivity" id="${targetUserName}">Friends' Activity</g:link>
                                    </span>
                               </li>                         
                          </g:if>
@@ -47,7 +47,7 @@
                          -->
                          <li>
                               <span>
-                                   <a href="/neddick1/user/relate/${targetUserName}">Manage Connection</a>
+                                   <g:link controller="user" action="relate" id="${targetUserName}">Manage Connection</g:link>
                               </span>
                          </li> 
                          
@@ -60,7 +60,7 @@
                               <div style="margin-left:70px;float:left;">
                                    <dl>
                                         <dd>
-                                             <a href="/neddick1/tags/${tag.name}">${tag.name}</a>
+                                            <g:link controller="tags" action="${tag.name}" >${tag.name}</g:link>
                                         </dd>
                                    </dl>
                               </div>

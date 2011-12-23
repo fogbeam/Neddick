@@ -11,25 +11,25 @@
                     <ul class="menu" id="tablist">
                          <li class="">
                               <span class="">
-                                   <a href="/neddick1/user/viewSubmissions/${targetUserName}">Submissions</a>
+                                   <g:link controller="user" action="viewSubmissions" id="${targetUserName}">Submissions</g:link>
                               </span>
                          </li>
 
                          <li>
                               <span>
-                                   <a href="/neddick1/user/viewComments/${targetUserName}">Comments</a>
+                              <g:link controller="user" action="viewComments" id="${targetUserName}">Comments</g:link>
                               </span>
                          </li>
                          
                          <li>
                               <span>
-                                   <a href="/neddick1/user/viewBookmarks/${targetUserName}">Bookmarks</a>
+                                   <g:link controller="user" action="viewBookmarks" id="${targetUserName}">Bookmarks</g:link>
                               </span>
                          </li>
                          
                          <li>
                               <span>
-                                   <a href="/neddick1/user/viewTags/${targetUserName}">Tags</a>
+                                   <g:link controller="user" action="viewTags" id="${targetUserName}">Tags</g:link>
                               </span>
                          </li>
                          
@@ -37,7 +37,7 @@
                          <g:if test="${false}">
                               <li>
                                    <span>
-                                        <a href="/neddick1/user/viewFriendsActivity/${targetUserName}">Friends' Activity</a>
+                                        <g:link controller="user" action="viewFriendsActivity" id="${targetUserName}">Friends' Activity</g:link>
                                    </span>
                               </li>                         
                          </g:if>
@@ -47,7 +47,7 @@
                          -->
                          <li>
                               <span>
-                                   <a href="/neddick1/user/relate/${targetUserName}">Manage Connection</a>
+                                   <g:link controller="user" action="relate" id="${targetUserName}">Manage Connection</g:link>
                               </span>
                          </li> 
                          
@@ -63,7 +63,7 @@
                                         <div id="upVote.${entry.id}">
                                         <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:entry.id]"
                                         onComplete="afterVote(e);">
-                                        <img src="/neddick1/images/icons/1uparrow.png" />
+                                        <img src="${resource(dir:'images/icons',file:'1uparrow.png')}" />
                                         </g:remoteLink>
                                         </div>
                                         
@@ -74,7 +74,7 @@
                                         <div id="downVote.${entry.id}">
                                         <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:entry.id]"
                                         onComplete="afterVote(e);">
-                                        <img src="/neddick1/images/icons/1downarrow.png" />
+                                            <img src="${resource(dir:'images/icons',file:'1downarrow.png')}" />narrow.png" />
                                         </g:remoteLink>
                                         </div>                                                
                                         </dd>
@@ -84,12 +84,12 @@
                                    <dl>
                                         <dd><a href="${entry.url}">${entry.title}</a></dd>
                                         <dd>Submitted <span> <g:dateFromNow date="${entry.dateCreated}"/>
-                                             </span> by <a href="/neddick1/user/viewDetails/${entry.submitter.userId}">
-                                                       <span>${entry.submitter.userId}</span></a>
+                                             </span> by <g:link controller="user" action="viewDetails" id="${entry.submitter.userId}">
+                                                       <span>${entry.submitter.userId}</span></g:link>
                                         </dd>
                                         <dd>
                                           <span>
-                                             <a href="/neddick1/entry/e/${entry.uuid}">comment</a>
+                                             <g:link controller="entry" action="e" id="${entry.uuid}">comment</g:link>
                                              </span> 
                                              <span><a href="#" onClick="openShareDialog(${entry.id});">share</a></span>
                                              <span><g:remoteLink controller="entry" action="saveEntry" 
