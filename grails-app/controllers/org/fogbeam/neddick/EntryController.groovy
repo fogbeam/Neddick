@@ -32,10 +32,11 @@ class EntryController {
 		println "url submitted as: ${params.url}";
 		def url = params.url;
     	
+		
+		/* @@checkforexisting@@ */
 		// check if this channel already has an Entry for this same link
     	List<Entry> entries = entryService.findByUrlAndChannel( url, theChannel );
-		// Entry.executeQuery( "select entry from Entry as entry where entry.url = ? and entry.channel = ?", [url, theChannel] );
-    	
+		    	
     	if( entries.size() > 0  )
     	{
     		flash.message = "An Entry for this link already exists";
@@ -45,34 +46,51 @@ class EntryController {
     	else 
     	{
     	
-	    	def entry = new Entry(params);
-	    	
-	   
-	    	
-	    	entry.setChannel( theChannel );
-	    	
-	    	if( session.user )
-	    	{
-	    		entry.submitter = session.user;
-	    	}
-	    	else
-	    	{
-	    		def anonymous = User.findByUserId( "anonymous" );
-	    		entry.submitter = anonymous;
-	    	}
-	    	
-	    	// TODO: deal with transactionality
-	    	if( entryService.saveEntry( entry ) )
+			// does this link exist elsewhere in the system (eg, linked to another channel)?
+			List<Entry> e2 = entryService.findByUrl( url );
+			if( e2.size() > 0 )
+			{
+				// we already have this Entry, so instead of creating a new Entry object, we just
+				// need to link this one to this Channel.	
+				Entry existingEntry = e2.get(0);
+				existingEntry.addToChannels( theChannel );
+				existingEntry.save();
+			}
+			else
 			{
 			
-				// send JMS message saying "new entry submitted"
-				def newEntryMessage = [msgType:"NEW_ENTRY", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
-	    
-				// send a JMS message to our entryQueue
-				sendJMSMessage("entryQueue", newEntryMessage );
+		    	def entry = new Entry(params);
+		    	
+		    	if( session.user )
+		    	{
+		    		entry.submitter = session.user;
+		    	}
+		    	else
+		    	{
+		    		def anonymous = User.findByUserId( "anonymous" );
+		    		entry.submitter = anonymous;
+		    	}
+		    	
+		    	// TODO: deal with transactionality
+		    	if( entryService.saveEntry( entry ) )
+				{
 				
-				// send a JMS message to our searchQueue
-				sendJMSMessage("searchQueue", newEntryMessage );
+					println "Saved Entry: ${entry.url}";
+					entry.addToChannels( theChannel );
+					
+					// send JMS message saying "new entry submitted"
+					def newEntryMessage = [msgType:"NEW_ENTRY", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
+		    
+					// send a JMS message to our entryQueue
+					sendJMSMessage("entryQueue", newEntryMessage );
+					
+					// send a JMS message to our searchQueue
+					sendJMSMessage("searchQueue", newEntryMessage );
+				}
+				else
+				{
+					println "Could not save Entry: ${entry.url}";
+				}
 			}
 				
     	}
@@ -164,7 +182,7 @@ class EntryController {
     	
     	Channel theChannel = channelService.findByName( channelName );    
     	
-    	entry.setChannel( theChannel );
+    	entry.addToChannels( theChannel );
     	
     	if( session.user )
     	{

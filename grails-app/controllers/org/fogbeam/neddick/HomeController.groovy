@@ -298,7 +298,6 @@ class HomeController {
     	
     	Channel theChannel = channelService.findByName( channelName );
     	
-    	// EntryCacheObject entryCache = null;
 		User user = null;
     	if( session.user ) 
         {
@@ -404,7 +403,6 @@ class HomeController {
     	
     	Channel theChannel = channelService.findByName( channelName );
     	
-    	// EntryCacheObject entryCache = null;
 		User user = null;
 		if( session.user ) 
         {

@@ -118,8 +118,7 @@ class ChannelController {
 		println "Channel.save()";
 		println params;
 		println "";
-		// [feeds:16723, channelName:groovy, channelDescription:Groovy Stuff, Save:Save, action:save, controller:channel]
- 
+		
 		Channel channel = new Channel();
 		channel.name = params.channelName;
 		channel.description = params.channelDescription;

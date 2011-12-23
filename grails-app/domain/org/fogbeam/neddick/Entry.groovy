@@ -32,11 +32,11 @@ class Entry
     double controversy = 0.0;
     long age;
     SortedSet comments;
-    Channel channel;
+    // Channel channel;
     User submitter;
 	UserEntryScoreLink link;
     
-    static hasMany = [ votes : Vote, savers: User, hiders: User, comments: Comment, tagEntryLinks:TagEntryLink, userEntryScoreLinks:UserEntryScoreLink  ];
+    static hasMany = [ votes : Vote, savers: User, hiders: User, comments: Comment, channelEntryLinks: ChannelEntryLink, tagEntryLinks:TagEntryLink, userEntryScoreLinks:UserEntryScoreLink  ];
 
     // NOTE: do we really want this?  Should deleting a User remove Entries from the system?
     static belongsTo = [User];
@@ -56,5 +56,24 @@ class Entry
 	{ 
 		TagEntryLink.unlink(tag, this, user );
 		return tags;
-	}     	
+	}
+	
+	public List getChannels()
+	{
+		return channelEntryLinks.collect{it.channel};
+	}
+	
+	List addToChannels(Channel channel)
+	{
+		ChannelEntryLink.link(this, channel );
+		return channels;
+	}
+
+	List removeFromEntries(Channel channel )
+	{
+		ChannelEntryLink.unlink(this, entry, user );
+		return entries;
+	}
+	
+	     	
 }

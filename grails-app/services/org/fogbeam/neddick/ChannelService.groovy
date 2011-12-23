@@ -68,41 +68,62 @@ class ChannelService {
 						String linkUrl = entry.getLink();
 						String linkTitle = entry.getTitle();
 						
+						/* @@checkforexisting@@ */
+						
 						List<Entry> testForExisting = entryService.findByUrlAndChannel( linkUrl, channel );
 						if( testForExisting != null && testForExisting.size() > 0 )
 						{
 							// println "An Entry for this link already exists. Skipping";
-							continue;
-						}
-						
-						println "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}"
-					
-						Entry newEntry = new Entry( url: linkUrl, title: linkTitle, channel: channel, submitter: anonymous );
-						
-						entryService.saveEntry( newEntry );
-						if( newEntry )
-						{
-							good++;
-							println "saved new Entry with id: ${newEntry.id}";
-							// send JMS message saying "new entry submitted"
-							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
-					
-							println "sending new entry message to JMS entryQueue";
-							// send a JMS message to our entryQueue
-							sendJMSMessage("entryQueue", newEntryMessage );
 							
-							println "sending new entry message to JMS searchQueue";
-							// send a JMS message to our searchQueue
-							sendJMSMessage("searchQueue", newEntryMessage );
-
+							continue;
 						}
 						else
 						{
-							bad++;
-							// failed to save newEntry
-							println "Failed to save newEntry!"
-						}
+							
+							
+							// does this link exist elsewhere in the system (eg, linked to another channel)?
+							List<Entry> e2 = entryService.findByUrl( url );
+							if( e2.size() > 0 )
+							{
+								// we already have this Entry, so instead of creating a new Entry object, we just
+								// need to link this one to this Channel.
+								Entry existingEntry = e2.get(0);
+								existingEntry.addToChannels( theChannel );
+								existingEntry.save();
+							}
+							else
+							{
+							
+								println "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}"
 					
+								Entry newEntry = new Entry( url: linkUrl, title: linkTitle, submitter: anonymous );
+								entryService.saveEntry( newEntry );
+								newEntry.addToChannels( channel );
+								
+								if( newEntry )
+								{
+									good++;
+									println "saved new Entry with id: ${newEntry.id}";
+									// send JMS message saying "new entry submitted"
+									def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
+					
+									println "sending new entry message to JMS entryQueue";
+									// send a JMS message to our entryQueue
+									sendJMSMessage("entryQueue", newEntryMessage );
+							
+									println "sending new entry message to JMS searchQueue";
+									// send a JMS message to our searchQueue
+									sendJMSMessage("searchQueue", newEntryMessage );
+								
+								}
+								else
+								{
+									bad++;
+									// failed to save newEntry
+									println "Failed to save newEntry!"
+								}
+							}
+						}
 					}
 					
 					println "Good entries: ${good}, bad entries:${bad}";
