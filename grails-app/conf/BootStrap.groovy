@@ -25,6 +25,7 @@ class BootStrap {
 	        	 createDefaultChannel();
 	        	 createAdminUser();
 	             createSomeUsers();
+				 createSomeChannels();
 	             createAnonymousUser();
 	             break;
 	         case Environment.PRODUCTION:
@@ -87,6 +88,28 @@ class BootStrap {
     	 }
      }
      
+	 void createSomeChannels()
+	 {
+		 for( int i = 0; i < 40; i++ )
+		 {
+			 if( !Channel.findByName( "channel${i}" ))
+			 {
+				 println "Fresh Database, creating channel${i} channel";
+				 def channel = new Channel( name: "channel${i}", description:"Channel${i}" );
+				 
+				 if( !channel.save() )
+				 {
+					 println( "Saving channel${i} channel failed!");
+				 }
+				 
+			 }
+			 else
+			 {
+				 println "Existing channel${i} channel, skipping...";
+			 }
+		 }
+	}
+	 
      void createSomeUsers()
      {
          if( !User.findByUserId( "prhodes" ))
@@ -106,7 +129,7 @@ class BootStrap {
              println "Existing PRHODES user, skipping...";
          }     	 
      
-         for( int i = 0; i < 20; i++ )
+         for( int i = 0; i < 40; i++ )
          {
              if( !User.findByUserId( "testuser${i}" ))
              {
