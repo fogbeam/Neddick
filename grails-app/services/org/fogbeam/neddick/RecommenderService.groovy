@@ -22,7 +22,7 @@ class RecommenderService
 	
 	public List<Entry> getRecommendedEntries( Entry entry )
 	{
-		println "getRecommendedEntries called"
+		log.debug( "getRecommendedEntries called" );
 		
 		String entryUuid = entry.uuid;
 	
@@ -43,7 +43,7 @@ class RecommenderService
 
 		TopDocs hits = searcher.search(query, 1);
 		ScoreDoc[] scoreDocs = hits.scoreDocs;
-		println "searching for doc with uuid: ${entryUuid}"
+		log.debug( "searching for doc with uuid: ${entryUuid}" );
 		int docNum = -1;
 		for( ScoreDoc scoreDoc : scoreDocs )
 		{
@@ -52,11 +52,11 @@ class RecommenderService
 		
 		if( docNum == -1 )
 		{
-			println "did not find entry with uuid: ${entryUuid}"
+			log.debug( "did not find entry with uuid: ${entryUuid}" );
 		}
 		else
 		{
-			println "DID find entry for uuid: ${entryUuid}"
+			log.debug( "DID find entry for uuid: ${entryUuid}" );
 		}
 		
 		ScoreDoc[] mltDocs = null;
@@ -76,15 +76,15 @@ class RecommenderService
 			e.printStackTrace();
 		}
 		
-		println "found ${mltDocs?.length} recommended entries"
+		log.debug( "found ${mltDocs?.length} recommended entries" );
 		
 		List<Entry> recommendedEntries = new ArrayList<Entry>();
 		for( ScoreDoc mltDoc : mltDocs )
 		{
-			println "found recommended entry with docId: ${mltDoc.doc}"
+			log.debug( "found recommended entry with docId: ${mltDoc.doc}" );
 			Document recommended = searcher.doc( mltDoc.doc );
 			String rUuid = recommended.get( "uuid" );
-			println "and uuid: ${rUuid}"
+			log.debug( "and uuid: ${rUuid}" );
 			Entry recommendedEntry = entryService.findByUuid( rUuid );
 			if( recommendedEntry != null )
 			{
@@ -92,8 +92,6 @@ class RecommenderService
 			}
 		}		
 		
-	
 		return( recommendedEntries );
 	}
-	
 }

@@ -21,12 +21,12 @@ class UpdateHotnessJob
 	
 	def execute(context)
 	{
-		println "Executing UpdateHotnessJob";	
+		log.debug( "Executing UpdateHotnessJob" );	
 		
 		Connection conn = dataSource.getConnection();
 		try
 		{
-			File hotnessLog = new File ("/tmp/hotness.log");
+			// File hotnessLog = new File ("/tmp/hotness.log");
 			
 			// get all the votes (note: will we want to retrieve only the ones after the
 			// last update? Or somehow mark the ones that have been processed, so we
@@ -48,7 +48,6 @@ class UpdateHotnessJob
 				
 				double baseScore = getUESLinksRs.getDouble( "entry_base_score" );
 				double hotness = baseScore * 10.0;
-				// println "set initial \"hotness\" as ${hotness}";
 				
 				getEntrySt.setInt( 1, entryId );
 				ResultSet getEntryRs = getEntrySt.executeQuery();
@@ -59,27 +58,18 @@ class UpdateHotnessJob
 				}
 				else
 				{
-					println "ENTRY LOCATION FAILED!!!!";
+					log.error( "ENTRY LOCATION FAILED!!!!" );
 					continue;	
 				}
-				
-				hotnessLog.append( "date_created: ${dateCreated.time}\n" );
 							
 				double age = ( now - BEGINNING_OF_TIME ) - (dateCreated.time - BEGINNING_OF_TIME );
-				hotnessLog.append( "age: ${age}\n" );
-				age = age / (1000*60);
-				hotnessLog.append( "age / (1000*60) = " + age + "\n" );
+								age = age / (1000*60);
 				
-				
-				// println "age in milliseconds: ${age}";
 				
 				double decayForAge = Math.log( age );
-				hotnessLog.append( "decayForAge: ${decayForAge}\n" );
-				
+								
 				double finalHotness =  hotness - decayForAge;
-				hotnessLog.append( "final \"hotness\" score: ${finalHotness}\n");
-				hotnessLog.append( "entry: ${entryId}\n" );
-				
+								
 				updateHotnessSt.setDouble( 1, finalHotness );
 				updateHotnessSt.setInt( 2, uelId );
 				updateHotnessSt.executeUpdate();

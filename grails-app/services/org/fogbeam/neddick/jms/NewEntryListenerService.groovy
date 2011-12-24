@@ -12,17 +12,17 @@ public class NewEntryListenerService {
 	def onMessage(msg)
 	{
 		count++;
-		println "NewEntryListenerService.onMessage: received message number: ${count}";
+		log.debug( "NewEntryListenerService.onMessage: received message number: ${count}" );
 		
 		String msgType = msg['msgType'];
 		def entryId = msg['id'];
 		
-		println "got msg as ${msg}";
-		println "entryId: ${entryId}";
+		log.debug( "got msg as ${msg}" );
+		log.debug( "entryId: ${entryId}" );
 		
 		if( msgType.equals("NEW_ENTRY"))
 		{
-			println "processing NEW_ENTRY message";
+			log.debug( "processing NEW_ENTRY message" );
 			// a new Entry was added to the system.  Populate the user_entry_score_link
 			// table with initial default values
 			def hibSession = sessionFactory.openSession();
@@ -60,6 +60,5 @@ public class NewEntryListenerService {
 		}
  	
 		return null;	
-	}
-	
+	}	
 }

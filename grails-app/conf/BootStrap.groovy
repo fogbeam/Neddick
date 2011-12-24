@@ -17,7 +17,7 @@ class BootStrap {
 	 
      def init = { servletContext ->
      
-		 this.getClass().classLoader.rootLoader.URLs.each { println it }
+		 // this.getClass().classLoader.rootLoader.URLs.each { p rintln it }
 		 
 	     switch( Environment.current )
 	     {
@@ -29,7 +29,7 @@ class BootStrap {
 	             createAnonymousUser();
 	             break;
 	         case Environment.PRODUCTION:
-	             println "No special configuration required";
+	             log.info( "No special configuration required" );
 	             break;
 	     }
 	
@@ -41,7 +41,7 @@ class BootStrap {
 		 
 		 		 
 		 String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
-		 println "indexDirLocation: ${indexDirLocation}";
+		 log.debug( "indexDirLocation: ${indexDirLocation}" );
 		 if( indexDirLocation )
 		 {
 			 File indexFile = new java.io.File( indexDirLocation );
@@ -49,7 +49,7 @@ class BootStrap {
 			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
 			 if( ! indexIsInitialized )
 			 {
-				 println "Index not previously initialized, creating empty index";
+				 log.debug( "Index not previously initialized, creating empty index" );
 				 /* initialize empty index */
 				 Directory indexDir = new NIOFSDirectory( indexFile );
 				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
@@ -60,7 +60,7 @@ class BootStrap {
 			else
 			{
 				
-				println "Index already initialized, skipping...";	
+				log.info( "Index already initialized, skipping..." );	
 			}
 		 }
 		      
@@ -75,16 +75,16 @@ class BootStrap {
      {
     	 if( !Channel.findByName( "default" ) )
     	 {
-    		 println "Fresh Database, creating DEFAULT channel";
+    		 log.info( "Fresh Database, creating DEFAULT channel" );
     		 def channel = new Channel(name:"default");
     		 if( !channel.save() )
     		 {
-    			 println( "Saving DEFAULT channel failed!" );
+    			 log.error( "Saving DEFAULT channel failed!" );
     		 }
     	 }
     	 else
     	 {
-    		 println "Existing DEFAULT channel, skipping...";
+    		 log.info( "Existing DEFAULT channel, skipping..." );
     	 }
      }
      
@@ -94,18 +94,18 @@ class BootStrap {
 		 {
 			 if( !Channel.findByName( "channel${i}" ))
 			 {
-				 println "Fresh Database, creating channel${i} channel";
+				 log.info( "Fresh Database, creating channel${i} channel" );
 				 def channel = new Channel( name: "channel${i}", description:"Channel${i}" );
 				 
 				 if( !channel.save() )
 				 {
-					 println( "Saving channel${i} channel failed!");
+					 log.error( "Saving channel${i} channel failed!");
 				 }
 				 
 			 }
 			 else
 			 {
-				 println "Existing channel${i} channel, skipping...";
+				 log.info( "Existing channel${i} channel, skipping..." );
 			 }
 		 }
 	}
@@ -114,38 +114,38 @@ class BootStrap {
      {
          if( !User.findByUserId( "prhodes" ))
          {
-             println "Fresh Database, creating PRHODES user";
+             log.info( "Fresh Database, creating PRHODES user" );
              def user = new User( userId: "prhodes", password: "secret",
                      fullName: "Phillip Rhodes", email: "prhodes@example.com", bio:"" );
              
              if( !user.save() )
              {
-                 println( "Saving PRHODES user failed!");
+                 log.error( "Saving PRHODES user failed!");
              }
              
          }
          else
          {
-             println "Existing PRHODES user, skipping...";
+             log.info( "Existing PRHODES user, skipping..." );
          }     	 
      
          for( int i = 0; i < 40; i++ )
          {
              if( !User.findByUserId( "testuser${i}" ))
              {
-                 println "Fresh Database, creating TESTUSER ${i} user";
+                 log.info( "Fresh Database, creating TESTUSER ${i} user" );
                  def user = new User( userId: "testuser${i}", password: "secret",
                          fullName: "Test User ${i}", email: "testuser${i}@example.com", bio:"" );
                  
                  if( !user.save() )
                  {
-                     println( "Saving TESTUSER ${i} user failed!");
+                     log.error( "Saving TESTUSER ${i} user failed!");
                  }
                  
              }
              else
              {
-                 println "Existing TESTUSER ${i} user, skipping...";
+                 log.info( "Existing TESTUSER ${i} user, skipping..." );
              }         	 
          }
      }
@@ -154,19 +154,19 @@ class BootStrap {
      {
          if( !User.findByUserId( "anonymous" ))
          {
-             println "Fresh Database, creating ANONYMOUS user";
+             log.info( "Fresh Database, creating ANONYMOUS user" );
              def user = new User( userId: "anonymous", password: "secret",
                      fullName: "Anonymous User", email: "anonymous@yourhost.com", bio:"" );
              
              if( !user.save() )
              {
-                 println( "Saving ANONYMOUS user failed!");
+                 log.error( "Saving ANONYMOUS user failed!");
              }
              
          }
          else
          {
-             println "Existing ANONYMOUS user, skipping...";
+             log.info( "Existing ANONYMOUS user, skipping..." );
          }    	 
      }
      
@@ -174,21 +174,19 @@ class BootStrap {
      {
          if( !User.findByUserId( "admin" ))
          {
-             println "Fresh Database, creating ADMIN user";
+             log.info( "Fresh Database, creating ADMIN user" );
              def user = new User( userId: "admin", password: "secret",
             		 fullName: "Site Administrator", email: "admin@yourhost.com", bio:"" );
              if( !user.save() )
              {
-            	 println( "Saving ADMIN user failed!");
+            	 log.error( "Saving ADMIN user failed!");
              }
              
          }
          else
          {
-             println "Existing ADMIN user, skipping...";
+             log.info( "Existing ADMIN user, skipping..." );
          }
          
      }     
-     
-     
 } 

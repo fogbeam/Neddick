@@ -37,11 +37,11 @@ public class SearchQueueInputService
     	 * now we just assume we are the "indexer" job.
     	 */
     	
-    	println "GOT MESSAGE: ${msg}"; 
+    	log.debug( "GOT MESSAGE: ${msg}" ); 
     
     	if( msg instanceof java.lang.String )
     	{
-    		println "Yep, it's a string!"
+    		log.debug( "Yep, it's a string!" );
     		
     		
     		if( msg.equals( "REINDEX_ALL" ))
@@ -51,36 +51,34 @@ public class SearchQueueInputService
     		}
     		else if( msg.startsWith( "ADDTAG" ))
     		{
-    			println "proceeding to addTag";
+    			log.debug( "proceeding to addTag" );
     			// parse out the tagname and the uuid
     			String[] msgParts = msg.split( "\\|" );
     			
-    			println msgParts;
+    			log.debug( msgParts );
     			
     			// add tag
     			String uuid = msgParts[1];
-    			println "uuid: ${uuid}";
+    			log.debug( "uuid: ${uuid}" );
     			String tagName = msgParts[2];
-    			println "tagName: ${tagName}";
+    			log.debug( "tagName: ${tagName}" );
     			addTag( uuid, tagName );
     			return;
     		}
     		else
     		{
-    			println "BAD STRING";
+    			log.debug( "BAD STRING" );
     			return;
     		}
-    	
     	}
     	else
     	{
-    	
     		String msgType = msg['msgType'];
     		
     		if( msgType.equals( "NEW_COMMENT" ))
     		{
     			
-		    	println "adding document to index"
+		    	log.debug( "adding document to index" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = null;
@@ -141,7 +139,7 @@ public class SearchQueueInputService
     		else if( msgType.equals( "NEW_ENTRY" ))
     		{
 		    	// add document to index
-		    	println "adding document to index: ${msg['uuid']}";
+		    	log.debug( "adding document to index: ${msg['uuid']}" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = null;
@@ -153,7 +151,7 @@ public class SearchQueueInputService
 				{
 					count++;
 					if( count > 3 ) {
-						println "tried to obtain Lucene lock 3 times, giving up...";
+						log.debug( "tried to obtain Lucene lock 3 times, giving up..." );
 						return;	
 					}
 					try
@@ -196,35 +194,24 @@ public class SearchQueueInputService
 						client.executeMethod(method);
 						responseBody = method.getResponseBodyAsString();
 					} catch (HttpException he) {
-		            	System.err.println("Http error connecting to '" + url + "'");
-						System.err.println(he.getMessage());
-		            	// System.exit(-4);
+		            	log.error("Http error connecting to '" + url + "'");
+						log.error(he.getMessage());
 						return;
 					} catch (IOException ioe){
-						ioe.printStackTrace();
-		            	System.err.println("Unable to connect to '" + url + "'");
-		            	// System.exit(-3);
+						// ioe.printStackTrace();
+		            	log.error("Unable to connect to '" + url + "'");
+		            	log.error( ioe );
 						return;
 					}
-		
-					// println "responseBody: \n ${responseBody}"
-				
-					// method.getResponseBodyAsStream()
 				
 					// extract text with Tika
-				 
-					// InputStream input = new FileInputStream(new File(resourceLocation));
+					
 					input = method.getResponseBodyAsStream();
 					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
 					Metadata metadata = new Metadata();
-					// PDFParser parser = new PDFParser();
 					Parser parser = new AutoDetectParser();
 					parser.parse(input, textHandler, metadata);
-					
-					// println("Title: " + metadata.get("title"));
-					// println("Author: " + metadata.get("Author"));
-					// println("content: " + textHandler.toString());
-				
+									
 					doc.add( new Field( "content", textHandler.toString(), Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 					writer.addDocument( doc );
 					writer.optimize();
@@ -248,7 +235,7 @@ public class SearchQueueInputService
 					{
 						if( method != null ) 
 						{
-							println "calling method.releaseConnection()";
+							log.debug( "calling method.releaseConnection()" );
 							method.releaseConnection();
 						}
 					}
@@ -289,7 +276,7 @@ public class SearchQueueInputService
     		else if( msgType.equals( "NEW_QUESTION" ))
     		{
 		    	// add document to index
-		    	println "adding document to index"
+		    	log.debug( "adding document to index" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = null;
@@ -348,14 +335,14 @@ public class SearchQueueInputService
     		}
 			else 
     		{
-    			println "Bad message type: ${msgType}";
+    			log.debug( "Bad message type: ${msgType}" );
     		}
     	}
     }
 
     private void addTag( final String uuid, final String tagName )
     {
-    	println "addTag called with uuid: ${uuid} and tagName: ${tagName}";
+    	log.debug( "addTag called with uuid: ${uuid} and tagName: ${tagName}" );
     	
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
     	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
@@ -406,7 +393,7 @@ public class SearchQueueInputService
 				* We'll assume HTTP only links for now... */
 		
 				HttpClient client = new HttpClient();
-				println "establishing httpClient object to download content for indexing";
+				log.debug("establishing httpClient object to download content for indexing" );
 		 	
 				//establish a connection within 10 seconds
 				client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
@@ -416,38 +403,31 @@ public class SearchQueueInputService
 		        String responseBody = null;
 		        boolean skipContent = false;
 		        try{
-		            println "executing http request";
+		            log.debug( "executing http request" );
 		        	client.executeMethod(method);
-		            // responseBody = method.getResponseBodyAsString();
 		        } catch (HttpException he) {
-		            System.err.println("Http error connecting to '" + url + "'");
-		          //   System.err.println(he.getMessage());
+		            log.error("Http error connecting to '" + url + "'");
 		            skipContent = true;
 		        } catch (IOException ioe){
 					ioe.printStackTrace();
-		            System.err.println("Unable to connect to '" + url + "'");
+		            log.error("Unable to connect to '" + url + "'");
 		            skipContent = true;
 		        }
 	
-				// println "responseBody: \n ${responseBody}"
-				
 				// extract text with Tika
+
 				if( !skipContent )
 				{
 					InputStream input = method.getResponseBodyAsStream();
 					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
 					Metadata metadata = new Metadata();
-					// PDFParser parser = new PDFParser();
 					Parser parser = new AutoDetectParser();
 					parser.parse(input, textHandler, metadata);
-					// println("Title: " + metadata.get("title"));
-					// println("Author: " + metadata.get("Author"));
-					// println("content: " + textHandler.toString());
 					String content = textHandler.toString();
 					doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );			
 				}
 				
-				println "adding document to writer";
+				log.debug( "adding document to writer" );
 				writer.addDocument( doc );		;
 	    		writer.optimize();
 			}
@@ -470,7 +450,7 @@ public class SearchQueueInputService
 				{
 					if( client != null )
 					{
-						println "calling connectionManager.shutdown()";
+						log.debug( "calling connectionManager.shutdown()" );
 						client.getConnectionManager().shutdown();
 					}
 				}
@@ -501,17 +481,15 @@ public class SearchQueueInputService
     	else
     	{
     		// no document with that uuid???
-    		println( "no document for uuid: ${uuid}" );
+    		log.debug( "no document for uuid: ${uuid}" );
     	}
     }
     
     private void rebuildIndex()
     {
     	
-    	println "doing rebuildIndex";
+    	log.debug( "doing rebuildIndex" );
     	List<Entry> allEntries = entryService.getAllEntries();
-    	
-    	
     	
     	// add document to index
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
@@ -536,14 +514,13 @@ public class SearchQueueInputService
 		{
 			writer.setUseCompoundFile(true);
     
-			println "about to process all entries";
+			log.debug( "about to process all entries" );
 		
 			for( Entry entry : allEntries )
 			{
-				println "processing entry with id: ${entry.id} and title: ${entry.title} and uuid: ${entry.uuid}";
+				log.debug( "processing entry with id: ${entry.id} and title: ${entry.title} and uuid: ${entry.uuid}" );
 				
-	
-				println "NOT an instanceof Question!";
+				log.debug( "NOT an instanceof Question!" );
 				
 				Document doc = new Document();
 			
@@ -580,7 +557,7 @@ public class SearchQueueInputService
 				{
 				
 					HttpClient client = new HttpClient();
-				 	println "establishing httpClient object to download content for indexing";
+				 	log.debug( "establishing httpClient object to download content for indexing" );
 				 	
 					//establish a connection within 10 seconds
 					client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
@@ -588,43 +565,41 @@ public class SearchQueueInputService
 				    HttpMethod method = new GetMethod(url);
 		
 			        String responseBody = null;
-			        try{
-			            println "executing http request";
+			        try 
+					{
+			            log.debug( "executing http request" );
 			        	client.executeMethod(method);
-			            // responseBody = method.getResponseBodyAsString();
-			        } catch (HttpException he) {
-			            System.err.println("Http error connecting to '" + url + "'");
-			            System.err.println(he.getMessage());
+			        } 
+					catch (HttpException he) 
+					{
+			            log.error("Http error connecting to '" + url + "'");
+			            log.error(he.getMessage());
 			            continue;
-			        } catch (IOException ioe){
-						ioe.printStackTrace();
-			            System.err.println("Unable to connect to '" + url + "'");
+			        } 
+					catch (IOException ioe)
+					{
+			            log.error( "Unable to connect to '" + url + "'" );
 			            continue;
 			        }
 		
-					// println "responseBody: \n ${responseBody}"
-					
 					// extract text with Tika
 					InputStream input = method.getResponseBodyAsStream();
 					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
 					Metadata metadata = new Metadata();
-					// PDFParser parser = new PDFParser();
+
 					Parser parser = new AutoDetectParser();
 					parser.parse(input, textHandler, metadata);
 					
-					// println("Title: " + metadata.get("title"));
-					// println("Author: " + metadata.get("Author"));
-					// println("content: " + textHandler.toString());
 					String content = textHandler.toString();
 					doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );			
 				}
 				
-				println "adding document to writer";
+				log.debug( "adding document to writer" );
 				writer.addDocument( doc );		
 	
 			}
 		
-			println "optimizing index";
+			log.debug( "optimizing index" );
 			writer.optimize();
 		}
 		finally
@@ -646,7 +621,7 @@ public class SearchQueueInputService
 			{
 				if( client != null )
 				{
-					println "calling connectionManager.shutdown()";
+					log.debug( "calling connectionManager.shutdown()" );
 					client.getConnectionManager().shutdown();
 				}
 			}
@@ -680,5 +655,4 @@ public class SearchQueueInputService
 		}
 			    	
     }
-    
 }

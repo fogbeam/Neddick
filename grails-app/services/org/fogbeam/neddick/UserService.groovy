@@ -20,8 +20,8 @@ class UserService {
 	{
 		if( !user.save() )
 		{
-			println( "Updating user: ${user.userId} FAILED");
-			user.errors.allErrors.each { println it };
+			log.error( "Updating user: ${user.userId} FAILED");
+			// user.errors.allErrors.each { p rintln it };
 		}
 	}
 	

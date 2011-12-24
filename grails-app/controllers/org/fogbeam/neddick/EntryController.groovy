@@ -20,20 +20,19 @@ class EntryController {
     		
     	// see what channel we're submitting to
     	String channelName = params.channelName;
-    	println "channelName submitted as: ${channelName}"
+    	log.debug( "channelName submitted as: ${channelName}" );
     	if( channelName == null || channelName.isEmpty()) 
     	{  		
     		channelName = ConfigurationHolder.config.channel.defaultChannel;
-    		println "defaulting channelName to: ${channelName}"
+    		log.debug( "defaulting channelName to: ${channelName}" );
     	}
     	
     	Channel theChannel = channelService.findByName( channelName );     		
     
-		println "url submitted as: ${params.url}";
+		log.debug( "url submitted as: ${params.url}" );
 		def url = params.url;
     	
 		
-		/* @@checkforexisting@@ */
 		// check if this channel already has an Entry for this same link
     	List<Entry> entries = entryService.findByUrlAndChannel( url, theChannel );
 		    	
@@ -75,7 +74,7 @@ class EntryController {
 		    	if( entryService.saveEntry( entry ) )
 				{
 				
-					println "Saved Entry: ${entry.url}";
+					log.debug( "Saved Entry: ${entry.url}");
 					entry.addToChannels( theChannel );
 					
 					// send JMS message saying "new entry submitted"
@@ -89,7 +88,7 @@ class EntryController {
 				}
 				else
 				{
-					println "Could not save Entry: ${entry.url}";
+					log.error( "Could not save Entry: ${entry.url}" );
 				}
 			}
 				
@@ -104,11 +103,11 @@ class EntryController {
         {
             // lookup the Entry by id
             // add it to the User's hidden list
-            println "entryId: ${params.entryId}";
+            log.debug( "entryId: ${params.entryId}" );
             Entry entry = Entry.findById(params.entryId);
-            println "entry: ${entry}";
+            log.debug( "entry: ${entry}" );
             def user = User.findByUserId( session.user.userId );
-            println "user: ${user}";
+            log.debug( "user: ${user}" );
             user.addToHiddenEntries( entry );
             userService.updateUser( user );
             
@@ -117,12 +116,12 @@ class EntryController {
 			// db id equality.
 			entryCacheService.removeEntry( session.user, entry );
 			
-            println( "hid Entry for user ${session.user.userId}");
+            log.debug( "hid Entry for user ${session.user.userId}");
         }
         else
         {
             // do nothing, hidng an Entry is meaningless if you're not logged in.
-            println( "doing nothing, not logged in!" );
+            log.info( "doing nothing, not logged in!" );
         }
     		
     }
@@ -133,21 +132,21 @@ class EntryController {
 		{
 			// lookup the Entry by id
 			// add it to the User's saved list
-			println "entryId: ${params.entryId}";
+			log.debug( "entryId: ${params.entryId}" );
 			Entry entry = Entry.findById(params.entryId);
-			println "entry: ${entry}";
+			log.debug( "entry: ${entry}" );
 			def user = User.findByUserId( session.user.userId );
-			println "user: ${user}";
+			log.debug( "user: ${user}" );
 			user.addToSavedEntries( entry );
 			
 			userService.updateUser( user );
 			
-			println( "saved Entry for user ${session.user.userId}");
+			log.debug( "saved Entry for user ${session.user.userId}");
 		}
 		else
 		{
 			// do nothing, saving an Entry is meaningless if you're not logged in.
-			println( "doing nothing, not logged in!" );
+			log.info( "doing nothing, not logged in!" );
 		}
     }
 
@@ -173,11 +172,11 @@ class EntryController {
     	
     	// see what channel we're submitting to
     	String channelName = params.channelName;
-    	println "channelName submitted as: ${channelName}"
+    	log.debug( "channelName submitted as: ${channelName}" );
     	if( channelName == null || channelName.isEmpty()) 
     	{  		
     		channelName = ConfigurationHolder.config.channel.defaultChannel;
-    		println "defaulting channelName to: ${channelName}"
+    		log.debug( "defaulting channelName to: ${channelName}" );
     	}
     	
     	Channel theChannel = channelService.findByName( channelName );    

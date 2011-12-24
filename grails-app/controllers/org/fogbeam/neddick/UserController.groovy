@@ -41,7 +41,7 @@ class UserController {
 	
     def viewDetails = {
     	def targetUserName = params.targetUserName
-    	println "Viewing details for user: ${targetUserName}";
+    	log.debug( "Viewing details for user: ${targetUserName}" );
 
     	User user = userService.findUserByUserId( targetUserName );
     	
@@ -53,7 +53,7 @@ class UserController {
     
     def viewBookmarks = {
         def targetUserName = params.targetUserName
-        println "Viewing bookmarks for user: ${targetUserName}";    
+        log.debug( "Viewing bookmarks for user: ${targetUserName}" );    
         
         User user = userService.findUserByUserId( targetUserName );
     	def allEntries = entryService.getSavedEntriesForUser( user );    
@@ -64,7 +64,7 @@ class UserController {
     
     def viewComments = {
         def targetUserName = params.targetUserName
-        println "Viewing comments for user: ${targetUserName}";    
+        log.debug( "Viewing comments for user: ${targetUserName}" );    
         
     	User user = userService.findUserByUserId( targetUserName );
     	
@@ -75,7 +75,7 @@ class UserController {
     
     def viewTags = {
         def targetUserName = params.targetUserName
-        println "Viewing tags for user: ${targetUserName}";    
+        log.debug( "Viewing tags for user: ${targetUserName}" );    
         
     	User user = userService.findUserByUserId( targetUserName );    
     	
@@ -89,7 +89,7 @@ class UserController {
     
     def viewFriendsActivity = {
         def targetUserName = params.targetUserName
-        println "Viewing friend activity for user: ${targetUserName}";    
+        log.debug( "Viewing friend activity for user: ${targetUserName}" );    
         
     	User user = userService.findUserByUserId( targetUserName );    
     	[targetUserName:targetUserName]
@@ -134,7 +134,7 @@ class UserController {
     		def targetUserId = params.targetUserId;
     		
     		// create user_user relationship...
-    		println "User: ${session.user.userId}, applyBoost: ${params.boostScore} for target user: ${targetUserId}";
+    		log.debug( "User: ${session.user.userId}, applyBoost: ${params.boostScore} for target user: ${targetUserId}" );
     		
 			// find the logged in user...
 			def loggedInUser = userService.findUserByUserId( session.user.userId );

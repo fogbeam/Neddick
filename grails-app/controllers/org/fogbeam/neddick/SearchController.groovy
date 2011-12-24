@@ -21,7 +21,7 @@ class SearchController {
 			
 		
 		String queryString = params.queryString;
-		println "searching Users, queryString: ${queryString}";
+		log.debug( "searching Users, queryString: ${queryString}" );
 		
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		File indexDir = new File( indexDirLocation );
@@ -46,7 +46,7 @@ class SearchController {
 			{
 			
 				String id = result.get("id")
-				println( id + " " + result.get("title"));
+				log.debug( id + " " + result.get("title"));
 		
 				entries.add( entryService.findById(id));
 			}
@@ -60,13 +60,13 @@ class SearchController {
 			else
 			{
 				
-				println "bad docType: ${docType}"
+				log.warn( "bad docType: ${docType}" );
 				continue;
 			}
 		
 		}
 		
-		println "found some entries: ${entries.size()}";
+		log.debug( "found some entries: ${entries.size()}");
 		
 		
 		render( view:'displaySearchResults', model:[searchResults:entries]);
@@ -74,7 +74,7 @@ class SearchController {
 
 	def reindexAll = {
 		
-		println( "SearchController: Sending reindexAll message to searchQueue" );
+		log.debug( "SearchController: Sending reindexAll message to searchQueue" );
 		sendJMSMessage("searchQueue", "REINDEX_ALL" );		
 		render( "<h1>DONE</h1>" );
 	}

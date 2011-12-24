@@ -19,7 +19,7 @@ class UpdateRawScoresFromVotesJob
 	
 	def execute(context)
 	{
-		println "Executing UpdateRawScoresFromVotesJob";	
+		log.debug( "Executing UpdateRawScoresFromVotesJob" );	
 		
 		Connection conn = dataSource.getConnection();
 		
@@ -36,7 +36,6 @@ class UpdateRawScoresFromVotesJob
 			Integer entryId = getVotesRs.getInt( "entry_id" );
 			Integer weight = getVotesRs.getInt( "weight" );
 			Integer submitterId = getVotesRs.getInt( "submitter_id" );
-			// println( "voteId: ${voteId}, entryId: ${entryId}");
 			def map= ['voteId':voteId, 'entryId':entryId, 'weight':weight, 'submitterId':submitterId];
 			votes.add( map );
 		}
@@ -54,7 +53,7 @@ class UpdateRawScoresFromVotesJob
 			// entry, reflecting the boost amount.
 			updateScoresForEntrySt.setInt(1, vote.weight );
 			updateScoresForEntrySt.setInt(2, vote.entryId );
-			println "updating entry ${vote.entryId}, adding ${vote.weight} to score";
+			log.debug( "updating entry ${vote.entryId}, adding ${vote.weight} to score" );
 			
 			updateScoresForEntrySt.executeUpdate();
 			
@@ -91,7 +90,7 @@ class UpdateRawScoresFromVotesJob
 					boost = 0 - boost;
 				}
 				
-				println "submitter_id: ${vote.submitterId}, boost: ${boost}, vote_id: ${vote.voteId}, entry_id: ${vote.entryId}, owner_id: ${owner_id}";
+				log.debug( "submitter_id: ${vote.submitterId}, boost: ${boost}, vote_id: ${vote.voteId}, entry_id: ${vote.entryId}, owner_id: ${owner_id}" );
 				
 				
 				updateScoresForEntryAndUserSt.setDouble( 1 , boost );
@@ -102,8 +101,5 @@ class UpdateRawScoresFromVotesJob
 			}
 			
 		}
-		
-		println "done";
-		
 	}
 }

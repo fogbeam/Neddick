@@ -10,7 +10,7 @@ class CacheQueueInputService
 	def onMessage(msg)
 	{
 		
-		println "CacheQueueInputService: GOT MESSAGE: ${msg}";
+		log.debug( "CacheQueueInputService: GOT MESSAGE: ${msg}" );
 	
 		return null;	
 			

@@ -127,12 +127,12 @@ class HomeController {
 		List<Entry> entries = null;
 		if( user != null ) 
 		{
-			println "calling getAllNonHiddenEntriesForUser"
+			log.debug( "calling getAllNonHiddenEntriesForUser" );
 			entries = entryService.getAllNonHiddenEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 		}
 		else 
 		{
-			println "calling getAllEntries";
+			log.debug( "calling getAllEntries" );
 			entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 		}
 		
@@ -153,7 +153,7 @@ class HomeController {
 	    
     def hotEntries = 
     {
-    	println "hotEntries";	
+    	log.debug( "hotEntries" );	
     	
     	if( itemsPerPage == -1 )
     	{
@@ -176,7 +176,7 @@ class HomeController {
     		}    	
     	}
     	
-    	println "requested pageNumber: ${pageNumber}";    	
+    	log.debug( "requested pageNumber: ${pageNumber}" );    	
     	
     	// see what channel we're looking at
     	boolean defaultChannel = false;
@@ -256,7 +256,7 @@ class HomeController {
 	
     def newEntries = 
     { 
-    	println "newEntries";
+    	log.debug( "newEntries" );
     	if( itemsPerPage == -1 )
     	{
     		itemsPerPage = Integer.parseInt( siteConfigService.getSiteConfigEntry( "itemsPerPage" ));
@@ -278,7 +278,7 @@ class HomeController {
     		}
     	}
     	
-    	println "requested pageNumber: ${pageNumber}";
+    	log.debug( "requested pageNumber: ${pageNumber}" );
     	
         // lookup the Entries and store them in a variable to be rendered by
         // the GSP page
@@ -360,7 +360,7 @@ class HomeController {
 	
 	def topEntries = 
     {       
-    	println "topEntries";
+    	log.debug( "topEntries" );
     	
     	if( itemsPerPage == -1 )
     	{
@@ -383,7 +383,7 @@ class HomeController {
     		}
     	}
     	
-    	println "requested pageNumber: ${pageNumber}";
+    	log.debug( "requested pageNumber: ${pageNumber}" );
     	
         // lookup the Entries and store them in a variable to be rendered by
         // the GSP page
@@ -467,7 +467,7 @@ class HomeController {
     	
 	def controversialEntries =
 	{
-		println "controversialEntries";
+		log.debug( "controversialEntries" );
 		
 		if( itemsPerPage == -1 )
 		{
@@ -490,7 +490,7 @@ class HomeController {
 			}
 		}
 		
-		println "requested pageNumber: ${pageNumber}";
+		log.debug( "requested pageNumber: ${pageNumber}" );
 		
 		// lookup the Entries and store them in a variable to be rendered by
 		// the GSP page
@@ -577,7 +577,7 @@ class HomeController {
 	
     def savedEntries = 
     {	
-    	println "savedEntries";
+    	log.debug( "savedEntries" );
     	
     	if( itemsPerPage == -1 )
     	{
@@ -600,7 +600,7 @@ class HomeController {
     		}
     	}
     	
-    	println "requested pageNumber: ${pageNumber}";
+    	log.debug( "requested pageNumber: ${pageNumber}" );
     	
     	
     	def savedEntries = null;
@@ -615,12 +615,12 @@ class HomeController {
     	}
     	
     	int dataSize = savedEntries.size();
-    	println "dataSize: ${dataSize}";
+    	log.debug( "dataSize: ${dataSize}" );
     	int pages = dataSize / itemsPerPage;
-		println "dataSize / itemsPerPage = ${pages}"
+		log.debug( "dataSize / itemsPerPage = ${pages}" );
     	pages = Math.max( pages, 1 );
 		
-		println "pages: ${pages}";
+		log.debug( "pages: ${pages}" );
 		
 		if( dataSize > (pages*itemsPerPage) )
 		{
@@ -628,7 +628,7 @@ class HomeController {
 		}
 		
 		availablePages = pages;
-    	println "availablePages: ${availablePages}";
+    	log.debug( "availablePages: ${availablePages}" );
     	
     	if( pageNumber < 1 )
     	{
@@ -666,16 +666,14 @@ class HomeController {
 		
     	def model = [allEntries:subList, currentPageNumber: pageNumber, availablePages: availablePages,
                      requestType:"savedEntries"];
-    	
-    	println "model: ${model}";
-    	
+    	    	
     	render(view:"index", model:model);
     }
    
     
     def hiddenEntries = 
     {
-    	println "hiddenEntries";
+    	log.debug( "hiddenEntries" );
 
     	if( itemsPerPage == -1 )
     	{
@@ -698,7 +696,7 @@ class HomeController {
     		}
     	}
     	
-    	println "requested pageNumber: ${pageNumber}";
+    	log.debug( "requested pageNumber: ${pageNumber}" );
     	
     	
     	def hiddenEntries = null;
@@ -711,18 +709,18 @@ class HomeController {
     	}
     	else
     	{
-    		println "not logged in";
+			log.debug( "not logged in" );
     		hiddenEntries = new ArrayList();
     	}
    
     	
     	int dataSize = hiddenEntries.size();
-    	println "dataSize: ${dataSize}";
+    	log.debug( "dataSize: ${dataSize}" );
     	int pages = dataSize / itemsPerPage;
-		println "dataSize / itemsPerPage = ${pages}"
+		log.debug( "dataSize / itemsPerPage = ${pages}" );
     	pages = Math.max( pages, 1 );
 		
-		println "pages: ${pages}";
+		log.debug( "pages: ${pages}");
 		
 		if( dataSize > (pages*itemsPerPage))
 		{
@@ -730,7 +728,7 @@ class HomeController {
 		}
 		
 		availablePages = pages;
-    	println "availablePages: ${availablePages}";
+    	log.debug( "availablePages: ${availablePages}" );
     	
     	if( pageNumber < 1 )
     	{
@@ -773,7 +771,7 @@ class HomeController {
     /* TODO: limit returned results here */
     def renderRss = 
     {
-    	println "renderRss";
+    	log.debug( "renderRss" );
     	
     	// see what channel we're looking at
     	String channelName = params.channelName;
@@ -783,7 +781,7 @@ class HomeController {
     	}
     	
     	Channel theChannel = channelService.findByName( channelName );    
-    	println "rendering rss for channel: ${channelName}";
+    	log.debug( "rendering rss for channel: ${channelName}" );
     	
     	/* 
          * filter out the hidden entries for the current user, at least
@@ -793,23 +791,23 @@ class HomeController {
          switch( params.name ) {
          	
          	case "newEntries":
-         		println "rendering Rss for newEntries";
+         		log.debug( "rendering Rss for newEntries" );
          		entries = entryService.getNewEntries(theChannel);
          		break;
          	case "hotEntries":
-         		println "rendering Rss for hotEntries";
+         		log.debug( "rendering Rss for hotEntries" );
          		entries = entryService.getHotEntries(theChannel);
          		break;
          	case "topEntries":
-         		println "rendering Rss for topEntries";
+         		log.debug( "rendering Rss for topEntries" );
          		entries = entryService.getTopEntries(theChannel);
          		break;
          	case "controversialEntries":
-         		println "rendering Rss for controversialEntries";
+         		log.debug( "rendering Rss for controversialEntries" );
          		entries = entryService.getControversialEntries(theChannel);
          		break;
          	default:
-         		// TOODO: make one of the listings the "default" and return it 
+         		// TODO: make one of the listings the "default" and return it 
          		// in this case???
          		entries = new ArrayList();
          		break;

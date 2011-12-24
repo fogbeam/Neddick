@@ -36,19 +36,19 @@ class TagController {
     		}
     	}
     	
-    	println "requested pageNumber: ${pageNumber}";	
+    	log.debug( "requested pageNumber: ${pageNumber}" );	
 			
 			
 		List<Tag> allTags = new ArrayList<Tag>();	
 		allTags.addAll( tagService.getAllTags());
 		
     	int dataSize = allTags.size();
-    	println "dataSize: ${dataSize}";
+    	log.debug( "dataSize: ${dataSize}" );
     	int pages = dataSize / itemsPerPage;
-		println "dataSize / itemsPerPage = ${pages}"
+		log.debug( "dataSize / itemsPerPage = ${pages}" );
     	pages = Math.max( pages, 1 );
 		
-		println "pages: ${pages}";
+		log.debug( "pages: ${pages}" );
 		
 		if( dataSize > (pages*itemsPerPage) )
 		{
@@ -56,7 +56,7 @@ class TagController {
 		}
 		
 		availablePages = pages;
-    	println "availablePages: ${availablePages}";
+    	log.debug( "availablePages: ${availablePages}" );
     	
     	if( pageNumber < 1 )
     	{
@@ -95,13 +95,11 @@ class TagController {
 	
 	def addTag = {
 			
-		println "addTag called with tagName: ${params.tagName}, uuid: ${params.entryUuid}";
+		log.debug( "addTag called with tagName: ${params.tagName}, uuid: ${params.entryUuid}" );
 		
 		// check for logged in user
 		if( null != session.user )
 		{
-		
-			
 			User user = userService.findUserByUserId( session.user.userId );
 			
 			String tagName = params.tagName;
@@ -119,17 +117,17 @@ class TagController {
 					// set creator
 					if( !tag.save() )
 					{
-						println( "Creating tag: ${tagName} FAILED");
-						tag.errors.allErrors.each { println it };
+						log.error( "Creating tag: ${tagName} FAILED");
+						// tag.errors.allErrors.each { p rintln it };
 					}
 					else
 					{
-						println "Created tag ${tagName} OK";	
+						log.debug( "Created tag ${tagName} OK" );	
 					}
 				}
 				else
 				{
-					println "Tag: ${tagName} already exists";	
+					log.debug( "Tag: ${tagName} already exists" );	
 				}
 			
 				// lookup our entry by the uuid
@@ -181,19 +179,19 @@ class TagController {
 
 	def myTags = {
 		
-		println "myTags called";	
+		log.debug( "myTags called" );	
 			
 		def tagList = new ArrayList();
 		if( session.user ) 
 		{
-			println "found user, getting taglist";
+			log.debug( "found user, getting taglist" );
 			
 			User user = userService.findUserByUserId( session.user.userId );
 			// get a list of the distinct tags that I have used
 			tagList = tagService.getTagListForUser( user );
 		}
 	
-		println "found ${tagList.size()} tags for user ${session.user.userId}";
+		log.debug( "found ${tagList.size()} tags for user ${session.user.userId}" );
 		
 		[tagList: tagList];
 	}

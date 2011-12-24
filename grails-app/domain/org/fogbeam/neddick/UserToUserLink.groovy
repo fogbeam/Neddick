@@ -1,10 +1,14 @@
 package org.fogbeam.neddick
 
-import java.util.Date;
+import java.util.Date
+
+import org.apache.commons.logging.LogFactory
 
 class UserToUserLink 
 {
-
+	
+	private static final log = LogFactory.getLog(this);
+	 
 	// the two classes we are linking...
 	User owner;
 	User target;
@@ -35,7 +39,7 @@ class UserToUserLink
 			}
 			
 			aLink = links.get(0);
-			println "found existing link, current boost is ${aLink.boost},  setting boost to ${boost}"
+			log.debug( "found existing link, current boost is ${aLink.boost},  setting boost to ${boost}" );
 			aLink.boost = boost;
 			aLink.save();
 		}

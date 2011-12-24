@@ -28,7 +28,7 @@ class RssFeedController {
 	
 	def delete =
 	{
-		println "_action_delete: ${params._action_delete}";
+		log.debug( "_action_delete: ${params._action_delete}" );
 		
 		RssFeed theFeed = RssFeed.findById( params.id );
 				
@@ -47,12 +47,13 @@ class RssFeedController {
 			}
 			
 			// now we can delete the feed
-			println "Deleting feed: ${params.id}";
+			log.debug( "Deleting feed: ${params.id}" );
 			theFeed.delete();
 		}
 		else
 		{
-			println "Huh, WTF?!????";
+			// TODO: fix this
+			log.debug( "Huh, WTF?!????" );
 		}
 		
 		redirect( controller:"rssFeed", action:"list" );
@@ -60,24 +61,26 @@ class RssFeedController {
 	
 	def update = 
 	{	
-		println "RssFeed update!";
+		log.debug( "RssFeed update!" );
 		RssFeed theFeed = RssFeed.findById( params.id );
 
 		if( params._action_update )
 		{
-			println "Updating feed: ${params.id}";
+			log.debug( "Updating feed: ${params.id}" );
 		
 			theFeed.feedUrl = params.feedUrl;
 			theFeed.description = params.feedDescription;
 		
 			if( !theFeed.save(flush:true, validate:true) )
 			{
-				theFeed.errors.allErrors.each { println it };
+				log.error( "Error saving Feed" );
+				// theFeed.errors.allErrors.each { p rintln it };
 			}
 		}
 		else
 		{
-			println "Huh, WTF?!????";	
+			// TODO: fix this
+			log.debug( "Huh, WTF?!????" );	
 		}
 		
 		redirect( controller:"rssFeed", action:"list" );
@@ -96,10 +99,10 @@ class RssFeedController {
 		
 		if( !newFeed.save(flush:true, validate:true) )
 		{
-			newFeed.errors.allErrors.each { println it };
+			log.error( "Error saving Feed" );
+			// newFeed.errors.allErrors.each { p rintln it };
 		}
 		
 		redirect( controller:"rssFeed", action:"list" );
 	}
-	
 }

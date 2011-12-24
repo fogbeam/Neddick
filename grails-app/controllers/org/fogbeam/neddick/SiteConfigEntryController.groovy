@@ -37,24 +37,24 @@ class SiteConfigEntryController {
 		if( !theEntry.save())
 		{
 			flash.message = "Failed to save entry!";
-			theEntry.errors.allErrors.each { println it };
+			log.error( "Failed to save entry" );
+			// theEntry.errors.allErrors.each { p rintln it };
 		}
 		
 		redirect( controller:"siteConfigEntry", action:"list" );
 	}
 			
 	def update =
-	{
-		println params;
-		
+	{	
 		SiteConfigEntry theEntry = SiteConfigEntry.findById( params.entryId );
 		theEntry.name = params.entryName;
 		theEntry.value = params.entryValue;
 		
 		if( !theEntry.save())
 		{
-			flash.message = "Failed to save entry!";	
-			theEntry.errors.allErrors.each { println it };
+			flash.message = "Failed to save entry!";
+			log.error( "Failed to save entry" );	
+			// theEntry.errors.allErrors.each { p rintln it };
 		}
 
 		redirect( controller:"siteConfigEntry", action:"list" );	

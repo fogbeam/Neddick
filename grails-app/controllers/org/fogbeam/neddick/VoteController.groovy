@@ -8,7 +8,7 @@ class VoteController {
 	
 	def submitVoteUp = {
 		
-		println "submitVoteUp";
+		log.debug( "submitVoteUp" );
 			
 		// submit a new UP...
 		def entryId = params.entryId;
@@ -18,10 +18,10 @@ class VoteController {
 		{
 			def user = session.user;
 			Vote upVote = new Vote( weight:1, enabled:true);
-			println "submitting upVote for user ${session.user} with weight: ${upVote.weight}";
+			log.debug( "submitting upVote for user ${session.user} with weight: ${upVote.weight}" );
 			entry = voteService.submitUpVote( entry, upVote, user );
 			
-			println "submitVoteUp, rendering AJAX response.  entryId: ${entryId}, score: ${entry.score}";
+			log.debug( "submitVoteUp, rendering AJAX response.  entryId: ${entryId}, score: ${entry.score}" );
 			render( contentType:"application/json" ) {
 				
 				resp( buttonId:"upVote.${entryId}", entryId:"${entryId}", score:"${entry.score}")
@@ -30,13 +30,13 @@ class VoteController {
 		}
 		else
 		{
-			println "Must be logged in to vote!";
+			log.info( "Must be logged in to vote!" );
 		}
 	}
 	
 	def submitVoteDown = {
 		
-		println "submitVoteDown";	
+		log.debug( "submitVoteDown" );	
 		
 		// submit a new vote DOWN...
         def entryId = params.entryId;
@@ -56,8 +56,7 @@ class VoteController {
         }
         else
         {
-            println "Must be logged in to vote!";	        	
+            log.info( "Must be logged in to vote!" );	        	
         }
 	}
-	
 }

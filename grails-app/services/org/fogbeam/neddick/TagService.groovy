@@ -22,7 +22,7 @@ class TagService {
 	{
 		List<Tag> tags = TagEntryLink.executeQuery( "select distinct tel.tag from TagEntryLink as tel where tel.creator = ?", [user] );
 	
-		println "tags: ${tags?.size()}";
+		log.debug( "tags: ${tags?.size()}" );
 		
 		return tags;
 	}

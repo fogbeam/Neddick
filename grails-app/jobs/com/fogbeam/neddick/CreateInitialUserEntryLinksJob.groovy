@@ -21,7 +21,7 @@ class CreateInitialUserEntryLinksJob
 	 */
 	def execute(context)
 	{
-		println "Executing CreateInitialUserEntryLinksJob";
+		log.debug( "Executing CreateInitialUserEntryLinksJob" );
 		
 		// Connection conn = DriverManager.getConnection(url, username, password);
 		Connection conn = dataSource.getConnection();
@@ -30,9 +30,6 @@ class CreateInitialUserEntryLinksJob
 		
 		
 		st.executeUpdate();
-		
-		println "done";
-		
 		
 	}
 }

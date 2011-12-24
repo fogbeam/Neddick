@@ -12,7 +12,7 @@ class ShareController
 	
 	def index = {
 		
-		println "user: ${session.user?.userId} sharing entry with id: ${params.entryId}";
+		log.debug( "user: ${session.user?.userId} sharing entry with id: ${params.entryId}" );
 	
 		[entryId: params.entryId];
 	}
@@ -30,7 +30,7 @@ class ShareController
 		
 		for( String address in addresses ) 
 		{
-			println( "Sharing to address: ${address}");
+			log.debug( "Sharing to address: ${address}");
 			
 			if( address.startsWith( "xmpp:"))
 			{
@@ -44,7 +44,7 @@ class ShareController
 				SimpleMailMessage message = new SimpleMailMessage(mailMessage);
 				String[] to = [address];
 				message.to = to;
-				println "\n\n" + message.to + "\n\n"
+				log.debug( "\n\n" + message.to + "\n\n" );
 			
 				message.text = messageText;
 				message.subject = messageSubject; 

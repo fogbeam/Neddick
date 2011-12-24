@@ -19,31 +19,14 @@ class ScheduleController {
 		
 		
 		ArtefactHandler[] handlers = grailsApplication.getArtefactHandlers();
-		/* for( ArtefactHandler handler : handlers )
-		{
-			println "Handler: ${handler.pluginName} - ${handler.type}";
-		}
-		*/
-		
-		
 		
 		Class[] artefacts2 = grailsApplication.getAllArtefacts();
-		// println "Here we are2";
 		
 		for( Class clazz : artefacts2 )
 		{
-			// println "Artefact: ${clazz.toString()}";
 			ArtefactHandler h = grailsApplication.getArtefactType( clazz );
-			// println h;
 		}
-		
-		/*
-		for( GrailsClass clazz : artefacts )
-		{
-			println "GrailsClass: Name: ${clazz.name} - ${clazz.shortName} - ${clazz.fullName}";
-		}
-		*/
-		
+				
 		
 		[artefacts:artefacts];
 			
@@ -51,7 +34,7 @@ class ScheduleController {
 
 	def editSchedule =
 	{
-		println "received id: ${params.id}";
+		log.debug( "received id: ${params.id}" );
 	
 		List<String> jobGroups = jobManagerService.quartzScheduler.getJobGroupNames();
 		def triggers = null;
@@ -60,22 +43,12 @@ class ScheduleController {
 		def jobFullName = null;
 		for( String aJobGroup : jobGroups )
 		{
-			// println "jobGroup: ${jobGroup}";
 			for(String aJobName : jobManagerService.quartzScheduler.getJobNames(aJobGroup))
 			{
-				// System.out.println("Found job identified by: " + aJobName);
-
 				JobDetail detail = jobManagerService.quartzScheduler.getJobDetail(aJobName, aJobGroup);
-				/* println "The whole thing: ${detail}";
-				println "full name: ${detail.fullName}";
-				println "Class: ${detail.jobClass.name}";
-				println "\n"; */
 				
 				if( detail.fullName.contains( params.id ))
-				{
-					// println "found jobDetail for job class: ${params.id}";
-					// println "get any associated triggers...";
-						
+				{			
 					triggers = jobManagerService.quartzScheduler.getTriggersOfJob(aJobName, aJobGroup);
 					jobName = aJobName;
 					jobGroup = aJobGroup;
@@ -90,8 +63,7 @@ class ScheduleController {
 	
 	def createTrigger =
 	{
-		// println "createTrigger:";
-		// println "params.id: ${params.id}";
+		log.debug( "createTrigger:" );
 		
 		List<String> jobGroups = jobManagerService.quartzScheduler.getJobGroupNames();
 		def triggers = null;
@@ -100,30 +72,20 @@ class ScheduleController {
 		def jobFullName = null;
 		for( String aJobGroup : jobGroups )
 		{
-			// println "jobGroup: ${jobGroup}";
 			for(String aJobName : jobManagerService.quartzScheduler.getJobNames(aJobGroup))
 			{
-				// System.out.println("jobName: " + aJobName);
 
 				JobDetail detail = jobManagerService.quartzScheduler.getJobDetail(aJobName, aJobGroup);
-				/* println "The whole thing: ${detail}";
-				println "full name: ${detail.fullName}";
-				println "Class: ${detail.jobClass.name}";
-				println "\n";
-				*/
-				
+					
 				if( detail?.fullName?.contains( params.id ))
-				{
-					// println "found jobDetail for job class: ${params.id}";
-					// println "get any associated triggers...";
-						
+				{						
 					triggers = jobManagerService.quartzScheduler.getTriggersOfJob(aJobName, aJobGroup);
 					jobName = aJobName;
 					jobGroup = aJobGroup;
 					jobFullName = detail.fullName;
 				}
 				else {
-					// println "no job detail or no fullname found!";
+					log.debug( "no job detail or no fullname found!" );
 				}
 			}
 		}
@@ -138,14 +100,13 @@ class ScheduleController {
 		String jobName = params.jobName;
 		String recurrenceInterval = params.recurrenceInterval;
 		
-		// println "adding Trigger for jobName: ${jobName}";
-		// println "recurrenceInterval: ${recurrenceInterval}";
+		log.debug( "adding Trigger for jobName: ${jobName}" );
 		
 		GrailsClass jobClass = grailsApplication.getArtefact( "Job", jobName );
 		
 		if( jobClass == null )
 		{
-			println "Could not load GrailsClass for ${jobName}";
+			log.error( "Could not load GrailsClass for ${jobName}" );
 		}
 		else
 		{
@@ -169,7 +130,7 @@ class ScheduleController {
 	
 	def editTrigger =
 	{
-		println "Edit Trigger, params: ${params}";
+		log.debug( "Edit Trigger, params: ${params}" );
 		
 		Trigger theTrigger = jobManagerService.quartzScheduler.getTrigger(params.triggerName, params.triggerGroup);
 		[trigger: theTrigger];

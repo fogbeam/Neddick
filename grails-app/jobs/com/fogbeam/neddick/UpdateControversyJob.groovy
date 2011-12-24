@@ -23,7 +23,7 @@ class UpdateControversyJob
 	
 	def execute(context)
 	{
-		println "Executing UpdateControversyJob";	
+		log.debug( "Executing UpdateControversyJob" );	
 		
 		// Connection conn = DriverManager.getConnection(url, username, password);
 		Connection conn = dataSource.getConnection();
@@ -58,7 +58,6 @@ class UpdateControversyJob
 					boolean voteEnabled = getVotesRs.getBoolean( "enabled" );
 					int voteWeight = getVotesRs.getInt( "weight" );
 					
-					
 					if( voteEnabled )
 					{
 						// score = score + vote.weight;
@@ -79,8 +78,6 @@ class UpdateControversyJob
 					}
 				}
 				
-				// println "\n\nCalculated score for entry ${entry.id} as ${score}";
-				// entry.score = score;
 				Date dNow = new Date();
 				long now = dNow.getTime();
 				
@@ -95,10 +92,6 @@ class UpdateControversyJob
 				long age = ( now - BEGINNING_OF_TIME ) - (dateCreated.time - BEGINNING_OF_TIME );
 				age = age / (1000*60);
 				
-				// println "age in milliseconds: ${age}";
-				
-				// entry.age = age;
-				
 				def decayForAge = Math.log( age );
 				
 				double ratio = 0.0;
@@ -106,12 +99,9 @@ class UpdateControversyJob
 				{
 					Math.min( upVotes, downVotes ) / Math.max(upVotes, downVotes)
 				}
-				
-				// println "totalVotes: ${totalVotes}, upVotes: ${upVotes}, downVotes: ${downVotes}, ratio: ${ratio}, decayForAge: ${decayForAge}";
-				
+								
 				double finalControversy = ( totalVotes * ratio ) - decayForAge;
-				// println "final \"controversy\" score: ${finalControversy}";
-				
+								
 				updateControversySt.setDouble( 1, finalControversy );
 				updateControversySt.setInt( 2, uelId );
 				updateControversySt.executeUpdate();

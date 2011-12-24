@@ -34,27 +34,27 @@ class ChannelController {
     		}
     	}
     	
-    	println "requested pageNumber: ${pageNumber}";			
+    	log.debug( "requested pageNumber: ${pageNumber}" );			
 			
 		List<Channel> allChannels = new ArrayList<Channel>();
 		allChannels.addAll( channelService.getAllChannels());
 	
     	int dataSize = allChannels.size();
-    	println "dataSize: ${dataSize}";
+    	log.debug( "dataSize: ${dataSize}" );
     	int pages = dataSize / itemsPerPage;
-		println "dataSize / itemsPerPage = ${pages}"
+		log.debug( "dataSize / itemsPerPage = ${pages}" );
     	pages = Math.max( pages, 1 );
 		
-		println "pages: ${pages}";
+		log.debug( "pages: ${pages}" );
 		
 		if( dataSize > (pages*itemsPerPage) )
 		{
-			println "WTF:  ${dataSize % (pages*itemsPerPage)}";
+			log.debug( "WTF:  ${dataSize % (pages*itemsPerPage)}" );
 			pages += 1;
 		}
 		
 		availablePages = pages;
-    	println "availablePages: ${availablePages}";
+    	log.debug( "availablePages: ${availablePages}" );
     	
     	if( pageNumber < 1 )
     	{
@@ -101,9 +101,7 @@ class ChannelController {
 			Channel theChannel = channelService.findByName( channelName );	
 			channelService.updateFromDatasource( theChannel );
 		}
-
-		// done... return.
-		System.out.println( "done" );
+		
 		render( "DONE" );
 	}
 	
@@ -115,10 +113,7 @@ class ChannelController {
 	
 	def save = {
 		
-		println "Channel.save()";
-		println params;
-		println "";
-		
+		log.debug( "Channel.save()" );
 		Channel channel = new Channel();
 		channel.name = params.channelName;
 		channel.description = params.channelDescription;
@@ -126,7 +121,7 @@ class ChannelController {
 		String[] feedsToAdd = params.feeds;
 		for( String feedToAdd : feedsToAdd ) 
 		{
-			println "adding feed: ${feedToAdd}";
+			log.debug( "adding feed: ${feedToAdd}" );
 			RssFeed theFeed = RssFeed.findById( feedToAdd );
 			feeds.add( theFeed );	
 		}
@@ -163,11 +158,8 @@ class ChannelController {
 	
 	def update = {
 		
-		println "Update Channel Properties: ${params.channelId}";
-		println "feedsToAdd: ${params.feedsToAdd}";
-		println "feedsToRemove: ${params.feedsToRemove}";
-		println "Params:\n ${params}";
-		
+		log.debug( "Update Channel Properties: ${params.channelId}" );
+				
 		Channel theChannel = Channel.findById( params.channelId );
 		theChannel.description = params.channelDescription;
 				
@@ -175,43 +167,44 @@ class ChannelController {
 		for( String feedToRemove : feedsToRemove )
 		{
 			
-			println "removing feed: ${feedToRemove}";
+			log.debug( "removing feed: ${feedToRemove}" );
 			// RssFeed feed = RssFeed.findById( feedToRemove );
 			RssFeed feed = theChannel.feeds.find { it.id == Integer.parseInt(feedToRemove) }
 			if( feed )
 			{
-				println "calling removeFromFeeds using feed: ${feed}";
+				log.debug( "calling removeFromFeeds using feed: ${feed}");
 				theChannel.removeFromFeeds( feed );
 			}
 			else
 			{
-				println "problem finding feed instance for ${feedToRemove}";	
+				log.warn( "problem finding feed instance for ${feedToRemove}" );	
 			}
 		
-			println "about to save()";
+			log.debug( "about to theChannel.save()" );
 			if( !theChannel.save(flush:true, validate:true) )
-			{
-				theChannel.errors.allErrors.each { println it };
+			{	
+				log.error( "Error saving channel" );
+				// theChannel.errors.allErrors.each { p rintln it };
 			}			
 				
 		}
 	
 	
-		println "dealing with feeds to add";
+		log.debug( "dealing with feeds to add" );
 		def feedsToAdd = params.list( 'feedsToAdd');
 		for( String feedToAdd : feedsToAdd ) 
 		{	
-			println "adding feed: ${feedToAdd}";
+			log.debug( "adding feed: ${feedToAdd}" );
 			RssFeed feed = RssFeed.findById( feedToAdd );
 			theChannel.addToFeeds( feed );
 		}
 	
 		if( !theChannel.save() )
 		{
-			theChannel.errors.allErrors.each { println it };
+			log.error( "Error saving channel" );
+			// theChannel.errors.allErrors.each { p rintln it };
 		}
-		
-		println "done";
+
 		redirect(controller:"channel", action:"list");
 	}
 	

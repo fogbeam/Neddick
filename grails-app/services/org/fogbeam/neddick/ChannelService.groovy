@@ -29,7 +29,7 @@ class ChannelService {
 	public void updateFromDatasource( Channel channel )
 	{
 	
-		println "Updating from DataSource for channel: ${channel.name}";	
+		log.debug( "Updating from DataSource for channel: ${channel.name}" );	
 		User anonymous = User.findByUserId( "anonymous" );
 		
 		// if the specified channel has an RssFeed associated with it...
@@ -37,14 +37,13 @@ class ChannelService {
 		
 		if( feeds != null && feeds.size() > 0 )
 		{
-			println "There are feeds!";
+			log.debug( "There are feeds!" );
 			
 			for( RssFeed rssFeed in feeds )
 			{
-			
 				// lookup the feed, and get the FeedUrl
 				String url = rssFeed.feedUrl;
-				println "Loading from url: ${url}";
+				log.debug( "Loading from url: ${url}" );
 				
 				// load the feed, and create an Entry for each link in the RssFeed
 				URL feedUrl = new URL(url);
@@ -55,11 +54,11 @@ class ChannelService {
 				{
 					reader = new XmlReader(feedUrl)
 					feed = input.build(reader);
-					println "Feed: ${feed.getTitle()}"
+					log.debug( "Feed: ${feed.getTitle()}" );
 					
 					List<SyndEntry> entries = feed.getEntries();
 					
-					println "processing ${entries.size()} entries!";
+					log.debug( "processing ${entries.size()} entries!" );
 					int good = 0;
 					int bad = 0;
 					
@@ -68,13 +67,10 @@ class ChannelService {
 						String linkUrl = entry.getLink();
 						String linkTitle = entry.getTitle();
 						
-						/* @@checkforexisting@@ */
-						
 						List<Entry> testForExisting = entryService.findByUrlAndChannel( linkUrl, channel );
 						if( testForExisting != null && testForExisting.size() > 0 )
 						{
-							// println "An Entry for this link already exists. Skipping";
-							
+							log.debug( "An Entry for this link already exists. Skipping" );							
 							continue;
 						}
 						else
@@ -87,13 +83,13 @@ class ChannelService {
 								// we already have this Entry, so instead of creating a new Entry object, we just
 								// need to link this one to this Channel.
 								Entry existingEntry = e2.get(0);
-								existingEntry.addToChannels( theChannel );
+								existingEntry.addToChannels( channel );
 								existingEntry.save();
 							}
 							else
 							{
 							
-								println "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}"
+								log.debug( "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}" );
 					
 								Entry newEntry = new Entry( url: linkUrl, title: linkTitle, submitter: anonymous );
 								entryService.saveEntry( newEntry );
@@ -102,15 +98,15 @@ class ChannelService {
 								if( newEntry )
 								{
 									good++;
-									println "saved new Entry with id: ${newEntry.id}";
+									log.debug( "saved new Entry with id: ${newEntry.id}" );
 									// send JMS message saying "new entry submitted"
 									def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
 					
-									println "sending new entry message to JMS entryQueue";
+									log.debug( "sending new entry message to JMS entryQueue");
 									// send a JMS message to our entryQueue
 									sendJMSMessage("entryQueue", newEntryMessage );
 							
-									println "sending new entry message to JMS searchQueue";
+									log.debug( "sending new entry message to JMS searchQueue" );
 									// send a JMS message to our searchQueue
 									sendJMSMessage("searchQueue", newEntryMessage );
 								
@@ -119,13 +115,13 @@ class ChannelService {
 								{
 									bad++;
 									// failed to save newEntry
-									println "Failed to save newEntry!"
+									log.debug( "Failed to save newEntry!" );
 								}
 							}
 						}
 					}
 					
-					println "Good entries: ${good}, bad entries:${bad}";
+					log.debug( "Good entries: ${good}, bad entries:${bad}" );
 					
 				}
 				catch( Exception e )

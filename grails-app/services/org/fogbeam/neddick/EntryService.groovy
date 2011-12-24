@@ -53,8 +53,8 @@ class EntryService {
 		
 		if( ! ( success = entry.save(validate:false,flush:true)) )
 		{
-			println( "Updating entry: ${entry.id} FAILED");
-			entry.errors.allErrors.each { println it };
+			log.error( "Updating entry: ${entry.id} FAILED");
+			// entry.errors.allErrors.each { p rintln it };
 		}
 		
 		return success;
@@ -65,7 +65,7 @@ class EntryService {
 	public List<Entry> getAllNonHiddenEntriesForUser( final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllNonHiddenEntriesForUser( final User user )");
+		log.debug( "called getAllNonHiddenEntriesForUser( final User user )");
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by entry.dateCreated desc", [user.userId] );
 		for( Object o : temp )
 		{
@@ -96,7 +96,7 @@ class EntryService {
 	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user )");
+		log.debug( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user )");
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, " 
 												+ " ChannelEntryLink as clink where user.userId = ? and clink.entry = entry and clink.channel = ? " 
 												+ " and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user " 
@@ -118,7 +118,7 @@ class EntryService {
 	public List<Entry> getAllNonHiddenEntriesForUser( final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllNonHiddenEntriesForUser( final User user, final int maxResults, final int offset )");
+		log.debug( "called getAllNonHiddenEntriesForUser( final User user, final int maxResults, final int offset )");
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user order by entry.dateCreated desc", [user.userId], [max:maxResults, offset:offset]);
 		for( Object o : temp )
 		{
@@ -135,7 +135,7 @@ class EntryService {
 	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println(  "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
+		log.debug( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, " 
 			+ "ChannelEntryLink as clink where user.userId = ? and clink.entry = entry and clink.channel = ? " 
 			+ " and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user " 
@@ -157,7 +157,7 @@ class EntryService {
 	public List<Entry> getAllEntries()
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println(  "called getAllEntries()" );
+		log.debug( "called getAllEntries()" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry order by entry.dateCreated desc") );
 		return entries;		
 	}	
@@ -166,7 +166,7 @@ class EntryService {
 	public List<Entry> getAllEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllEntries(final Channel channel)");
+		log.debug( "called getAllEntries(final Channel channel)");
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? " 
 											+ "  order by entry.dateCreated desc", [channel] ) );
 										
@@ -177,7 +177,7 @@ class EntryService {
 	public List<Entry> getAllEntries( final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllEntries( final User user )" );
+		log.debug( "called getAllEntries( final User user )" );
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, UserEntryScoreLink as link where entry.submitter = ?  and link.entry = entry and link.user = ? order by entry.dateCreated desc", [user, user] );
 		for( Object o : temp )
 		{
@@ -204,7 +204,7 @@ class EntryService {
 	public List<Entry> getAllEntries( final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllEntries( final int maxResults )" );
+		log.debug( "called getAllEntries( final int maxResults )" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry order by entry.dateCreated desc", [], [max:maxResults, offset:offset]) );
 		return entries;
 	}
@@ -213,7 +213,7 @@ class EntryService {
 	public List<Entry> getAllEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllEntries(final Channel channel, final int maxResults )" );
+		log.debug( "called getAllEntries(final Channel channel, final int maxResults )" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? " 
 											+ " order by entry.dateCreated desc", [channel], [max:maxResults, offset:offset] ) );
 		return entries;
@@ -223,7 +223,7 @@ class EntryService {
 	public List<Entry> getAllEntries( final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllEntries( final User user, final int maxResults )" );
+		log.debug( "called getAllEntries( final User user, final int maxResults )" );
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, UserEntryScoreLink as link where entry.submitter = ? and link.entry = entry and link.user = ? order by entry.dateCreated desc", [user, user], [max:maxResults, offset:offset] );
 		for( Object o : temp )
 		{
@@ -242,7 +242,7 @@ class EntryService {
 	public List<Entry> getHotEntriesForUser( final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getHotEntriesForUser( final Channel channel, final User user )" );
+		log.debug( "called getHotEntriesForUser( final Channel channel, final User user )" );
 		List<Object> temp =  Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, ChannelEntryLink as clink where user.userId = ? " 
 												 + " and clink.entry = entry and clink.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry " 
 												 + " and link.user = user order by link.entryHotness desc", [user.userId, channel] );
@@ -261,7 +261,7 @@ class EntryService {
 	public List<Entry> getHotEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getHotEntries(final Channel channel)" );
+		log.debug( "getHotEntries(final Channel channel)" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? and link.entry = entry order by link.entryHotness desc", [channel] ) );
 		
 		return entries;		
@@ -271,7 +271,7 @@ class EntryService {
 	public List<Entry> getHotEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getHotEntriesForUser( final Channel channel, final User user )" );
+		log.debug( "called getHotEntriesForUser( final Channel channel, final User user )" );
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, ChannelEntryLink as clink where user.userId = ? " 
 												+ " and clink.entry = entry and clink.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry " 
 												+ " and link.user = user order by link.entryHotness desc", [user.userId, channel], [max:maxResults, offset:offset] );
@@ -290,22 +290,18 @@ class EntryService {
 	public List<Entry> getHotEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getHotEntries(final Channel channel)" );
+		log.debug( "getHotEntries(final Channel channel)" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? and link.entry = entry order by link.entryHotness desc", [channel], [max:maxResults, offset:offset] ) );
 		
 		return entries;
 	}
-	
-	/* @@fromhere@@ 
-	   'and clink.entry = entry and clink.channel = ?'
-	 */
 	
 	/* get new entries */
 	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getNewEntriesForUser(final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getNewEntriesForUser(final Channel channel, final User user )" );
+		log.debug( "getNewEntriesForUser(final Channel channel, final User user )" );
 		List<Object> temp =  Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, ChannelEntryLink as clink " 
 												 + " where user.userId = ? and clink.entry = entry and clink.channel = ? " 
 												 + " and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user " 
@@ -326,7 +322,7 @@ class EntryService {
 	public List<Entry> getNewEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getNewEntries(final Channel channel)" );
+		log.debug( "getNewEntries(final Channel channel)" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? order by entry.dateCreated desc", [channel] ) );
 		
 		return entries;		
@@ -336,7 +332,7 @@ class EntryService {
 	public List<Entry> getNewEntriesForUser(final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getNewEntriesForUser(final Channel channel, final User user )" );
+		log.debug( "getNewEntriesForUser(final Channel channel, final User user )" );
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, ChannelEntryLink as clink " 
 												+ " where user.userId = ? and clink.entry = entry and clink.channel = ? " 
 												+ " and entry not in elements(user.hiddenEntries) and link.entry = entry " 
@@ -357,7 +353,7 @@ class EntryService {
 	public List<Entry> getNewEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getNewEntries(final Channel channel)" );
+		log.debug( "getNewEntries(final Channel channel)" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? order by entry.dateCreated desc", [channel] ) );
 		
 		return entries;
@@ -369,7 +365,7 @@ class EntryService {
 	public List<Entry> getTopEntriesForUser(final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getTopEntriesForUser(final Channel channel, final User user )");
+		log.debug("getTopEntriesForUser(final Channel channel, final User user )");
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link where user.userId = ? and entry.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryBaseScore desc", [user.userId, channel] )
 		for( Object o : temp ) 
 		{
@@ -389,7 +385,7 @@ class EntryService {
 	public List<Entry> getTopEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getTopEntries(final Channel channel)");
+		log.debug( "called getTopEntries(final Channel channel)");
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? order by entry.dateCreated desc", [channel] ) );
 		
 		return entries;		
@@ -399,7 +395,7 @@ class EntryService {
 	public List<Entry> getTopEntriesForUser(final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "getTopEntriesForUser(final Channel channel, final User user )");
+		log.debug( "getTopEntriesForUser(final Channel channel, final User user )");
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, ChannelEntryLink as clink " 
 												+ " where user.userId = ? and clink.entry = entry and clink.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryBaseScore desc", [user.userId, channel], [max:maxResults, offset:offset] ); 
 		for( Object o : temp )
@@ -419,7 +415,7 @@ class EntryService {
 	public List<Entry> getTopEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getTopEntries(final Channel channel)");
+		log.debug( "called getTopEntries(final Channel channel)");
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, ChannelEntryLink as clink where clink.entry = entry and clink.channel = ? order by entry.dateCreated desc", [channel], [max:maxResults, offset:offset] ) );
 		
 		return entries;
@@ -432,7 +428,7 @@ class EntryService {
 	public List<Entry> getControversialEntriesForUser( final Channel channel, final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getControversialEntriesForUser( final Channel channel, final User user )" );
+		log.debug( "called getControversialEntriesForUser( final Channel channel, final User user )" );
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, ChannelEntryLink as clink " 
 												+ " where user.userId = ? and clink.entry = entry and clink.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryControversy desc", [user.userId, channel] );
 		for( Object o : temp )
@@ -451,7 +447,7 @@ class EntryService {
 	public List<Entry> getControversialEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getControversialEntries(final Channel channel)" );
+		log.debug( "called getControversialEntries(final Channel channel)" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link, ChannelEntryLink as clink " 
 											+ " where clink.entry = entry and clink.channel = ? and link.entry = entry order by link.entryControversy desc", [channel] )  );
 		
@@ -462,7 +458,7 @@ class EntryService {
 	public List<Entry> getControversialEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getControversialEntriesForUser( final Channel channel, final User user )" );
+		log.debug( "called getControversialEntriesForUser( final Channel channel, final User user )" );
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, ChannelEntryLink as clink " 
 												+ " where user.userId = ? and clink.entry = entry and clink.channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user order by link.entryControversy desc", [user.userId, channel], [max:maxResults, offset:offset] );
 		for( Object o : temp )
@@ -481,7 +477,7 @@ class EntryService {
 	public List<Entry> getControversialEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getControversialEntries(final Channel channel)" );
+		log.debug( "called getControversialEntries(final Channel channel)" );
 		entries.addAll( Entry.executeQuery( "select entry from Entry as entry, UserEntryScoreLink as link, ChannelEntryLink as clink " 
 											+ " where clink.entry = entry and clink.channel = ? and link.entry = entry order by link.entryControversy desc", [channel], [max:maxResults, offset:offset] ) );
 		
@@ -493,12 +489,12 @@ class EntryService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getSavedEntriesForUser( final User user ) 
 	{
-		println( "called getSavedEntriesForUser( final User user )" );
+		log.debug("called getSavedEntriesForUser( final User user )" );
 		List<Entry> entries = new ArrayList<Entry>();
 		def theUser = User.findByUserId( user.userId );
-		println "found user: ${theUser}";
+		log.debug( "found user: ${theUser}" );
 		// def tempEntries = theUser.savedEntries;
-		// println "found ${tempEntries.size()} savedEntries";
+
 		List<Object> temp = Entry.executeQuery( "select  entry, link from User as user inner join user.savedEntries as entry, UserEntryScoreLink as link where user = ? and entry = link.entry and link.user = ?", [user, user] );
 		for( Object o : temp )
 		{
@@ -518,7 +514,7 @@ class EntryService {
 	public List<Entry> getHiddenEntriesForUser( final User user ) 
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getHiddenEntriesForUser( final User user )" );
+		log.debug( "called getHiddenEntriesForUser( final User user )" );
 		def theUser = User.findByUserId( user.userId );
         def tempEntries = theUser.hiddenEntries;
 		entries.addAll( tempEntries );

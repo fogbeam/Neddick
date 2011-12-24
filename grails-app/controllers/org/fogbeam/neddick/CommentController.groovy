@@ -10,15 +10,15 @@ class CommentController {
 	def addComment = {
 			
 		// lookup the Entry by id
-		println "entryId: ${params.entryId}";
+		log.debug( "entryId: ${params.entryId}" );
 		Entry entry = Entry.findById(params.entryId);
 			
 		// add the comment to the Entry
 		if( session.user )
 		{
-			println "entry: ${entry}";
+			log.debug( "entry: ${entry}" );
 			def user = User.findByUserId( session.user.userId );
-			println "user: ${user}";
+			log.debug( "user: ${user}" );
 		
 			Comment newComment = new Comment();
 			newComment.text = params.commentText;
@@ -37,12 +37,12 @@ class CommentController {
 	    	// send a JMS message to our testQueue
 			sendJMSMessage("searchQueue", newCommentMessage );			
 			
-			println( "saved Comment for user ${user.userId}, entry ${entry.id}" );
+			log.debug( "saved Comment for user ${user.userId}, entry ${entry.id}" );
 		}
 		else
 		{
 			// do nothing, can't comment if you're not logged in.
-			println( "doing nothing, not logged in!" );
+			log.info( "doing nothing, not logged in!" );
 		}
 	
 		redirect(controller:"entry", action:"viewEntry", params:[uuid:entry.uuid]);
