@@ -62,7 +62,8 @@ class EntryController {
 		    	
 		    	if( session.user )
 		    	{
-		    		entry.submitter = session.user;
+					def user = User.findByUserId(session.user.userId);
+		    		entry.submitter = user;
 		    	}
 		    	else
 		    	{
@@ -114,7 +115,7 @@ class EntryController {
 			// note: have to pass the User object from the session, since the cache
 			// is keyed on the actual objects, which depend on object identity, not
 			// db id equality.
-			entryCacheService.removeEntry( session.user, entry );
+			// DEADCODE: entryCacheService.removeEntry( session.user, entry );
 			
             log.debug( "hid Entry for user ${session.user.userId}");
         }
@@ -185,7 +186,8 @@ class EntryController {
     	
     	if( session.user )
     	{
-    		entry.submitter = session.user;
+			def user = User.findByUserId(session.user.userId);
+    		entry.submitter = user;
     	}
     	else
     	{

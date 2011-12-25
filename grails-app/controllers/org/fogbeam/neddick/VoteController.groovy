@@ -16,7 +16,7 @@ class VoteController {
 		
 		if( session.user )
 		{
-			def user = session.user;
+			def user = User.findByUserId(session.user.userId);
 			Vote upVote = new Vote( weight:1, enabled:true);
 			log.debug( "submitting upVote for user ${session.user} with weight: ${upVote.weight}" );
 			entry = voteService.submitUpVote( entry, upVote, user );
