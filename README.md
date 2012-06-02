@@ -1,27 +1,35 @@
+Neddick
+========
+
 Neddick is part of the ScrewPile suite of tools for building intelligent applications. Neddick provides tools for tagging, ranking, discussing and discovering various sources of knowledge: web-links, documents, people, etc.
 
 Why "Neddick?"
+----------------
 
 We like lighthouses, so Neddick is named after the famous Cape Neddick "Nubble" Lighthouse.
 
 Ok, but what does it do?
+--------------------------
 
 This is over-simplifying a little bit, but think of Neddick as sort of a combination of Reddit, Delicious and Planet. Mix in a powerful search engine, and a recommendations engine, and it lets you categorize, rate, tag, filter, discuss, and discover the knowledge in ways that most enterprise search applications can't. Point Neddick at the RSS feed coming from your Document Management System, feed it some web-links, post some questions, tag some article, vote some things up or down, and let Neddick help you discover the knowledge you need, even if you didn't know you were looking for it.
 
 Ok, but what's this "Project Shelley" stuff?
+----------------------------------------------
 
 "Shelley" was the original code name for this project before we settled on the new naming scheme. "Neddick" is the new, official name.
 
 Features
+----------
 
-Summary of already implemented features. To see Neddick in action, visit the demo site.
-http://spdemo.fogbeam.org:8080/neddick1/
+Summary of already implemented features. To see Neddick in action, visit [the demo site](http://spdemo.fogbeam.org:8080/neddick1/).
 
 Screenshots
+-------------
 
 Some screenshots are posted on the Old Blog and we'll have a screencast ready for your viewing pleasure soon.
 See http://www.jroller.com/openqabal/entry/introducting_project_shelley_with_lots for a batch of screenshots of Neddick in action.
 
 Roadmap
+----------
 
-See the Roadmap wiki page: http://code.google.com/p/neddick/wiki/Roadmap
+See the [Roadmap wiki page](http://code.google.com/p/neddick/wiki/Roadmap).
