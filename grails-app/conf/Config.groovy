@@ -97,7 +97,7 @@ chat {
     host = "talk.google.com"
     port = 5222
     username = "motley.crue.fan@gmail.com"
-    password = ""
+    password = "7400seriesIC"
 }
 
 channel {

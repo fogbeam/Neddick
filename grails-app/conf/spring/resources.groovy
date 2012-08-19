@@ -6,7 +6,7 @@ beans = {
 	   host='smtp.gmail.com'
 	   port='587'
 	   username = "motley.crue.fan"
-	   password = ""
+	   password = "7400seriesIC"
 	   javaMailProperties = ['mail.smtp.auth': 'true',
 	      'mail.smtp.starttls.enable':'true',
 	      'mail.smtp.starttls.required':'true',
