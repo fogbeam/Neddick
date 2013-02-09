@@ -141,7 +141,8 @@ public class SearchQueueInputService
 		    	// add document to index
 		    	log.debug( "adding document to index: ${msg['uuid']}" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
-		    	Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
+		    	log.debug ( "got indexDirLocation as: ${indexDirLocation}");
+				Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = null;
 				
 				// TODO: fix this so it will eventually give up, to deal with the pathological case
