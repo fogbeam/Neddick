@@ -41,7 +41,7 @@ public class SearchQueueInputService
     
     	if( msg instanceof java.lang.String )
     	{
-    		log.debug( "Yep, it's a string!" );
+    		log.info( "Received message: ${msg}" );
     		
     		
     		if( msg.equals( "REINDEX_ALL" ))
@@ -73,6 +73,8 @@ public class SearchQueueInputService
     	}
     	else
     	{
+			log.info( "Received message: ${msg}" );
+			
     		String msgType = msg['msgType'];
     		
     		if( msgType.equals( "NEW_COMMENT" ))
@@ -85,6 +87,7 @@ public class SearchQueueInputService
 				
 				// TODO: fix this so it will eventually give up, to deal with the pathological case
 				// where we never do get the required lock.
+				int luceneLockRetryCount = 0;
 				while( writer == null )
 				{
 					try
@@ -93,7 +96,17 @@ public class SearchQueueInputService
 					}
 					catch( org.apache.lucene.store.LockObtainFailedException lfe )
 					{
-						Thread.sleep( 1200 );
+						luceneLockRetryCount++;
+						if( luceneLockRetryCount > 10 )
+						{
+							log.error( "Failed to obtain lock for Lucene store", e );
+							return;
+						}
+						else 
+						{
+							Thread.sleep( 1200 );
+							continue;
+						}
 					}
 				}
 				
@@ -139,9 +152,9 @@ public class SearchQueueInputService
     		else if( msgType.equals( "NEW_ENTRY" ))
     		{
 		    	// add document to index
-		    	log.debug( "adding document to index: ${msg['uuid']}" );
+		    	log.info( "adding document to index: ${msg['uuid']}" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
-		    	log.debug ( "got indexDirLocation as: ${indexDirLocation}");
+		    	log.info ( "got indexDirLocation as: ${indexDirLocation}");
 				Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = null;
 				
