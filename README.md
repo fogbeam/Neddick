@@ -16,7 +16,7 @@ This is over-simplifying a little bit, but think of Neddick as sort of a combina
 Features
 ----------
 
-Summary of already implemented features. To see Neddick in action, visit [the demo site](http://spdemo.fogbeam.org:8080/neddick1/).
+Summary of already implemented features. To see Neddick in action, visit [the demo site](http://demo.fogbeam.org:8080/neddick1/).
 
 
 Roadmap
