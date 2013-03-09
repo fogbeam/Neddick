@@ -32,7 +32,17 @@ class HomeController {
 		
 		if( itemsPerPage == -1 )
 		{
-			itemsPerPage = Integer.parseInt( siteConfigService.getSiteConfigEntry( "itemsPerPage" ));
+			String strItemsPerPage = siteConfigService.getSiteConfigEntry( "itemsPerPage" );
+			if( itemsPerPage != null ) 
+			{
+				itemsPerPage = Integer.parseInt( strItemsPerPage );
+			}
+			else 
+			{
+				// default if it's not set in the DB
+				// TODO: move "default" control into siteConfigEntryService
+				itemsPerPage = 25;
+			}
 		}
 		
 		log.debug( "itemsPerPage: ${itemsPerPage}");

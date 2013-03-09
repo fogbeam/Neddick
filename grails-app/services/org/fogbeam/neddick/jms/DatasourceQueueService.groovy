@@ -17,6 +17,9 @@ class DatasourceQueueService
 			// receive message saying to update channel
 			if( msg instanceof String )
 			{
+				
+				log.info( "received message: ${msg}" );
+				
 				String[] parts = ((String)msg).split(":");
 				switch( parts[0] )
 				{
@@ -25,9 +28,16 @@ class DatasourceQueueService
 						String channelName = parts[1];
 						// lookup the Channel object
 						Channel channel = channelService.findByName( channelName );
-					
-						// use the channelService to update the channel from the datasource
-						channelService.updateFromDatasource( channel );
+						if( channel != null )
+						{
+							// use the channelService to update the channel from the datasource
+							channelService.updateFromDatasource( channel );
+						}
+						else
+						{
+							log.error( "Could not locate Channel entry for channel: ${channelName}" );	
+						}
+						
 						break;	
 				}
 

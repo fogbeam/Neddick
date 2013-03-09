@@ -63,6 +63,10 @@ class BootStrap {
 				log.info( "Index already initialized, skipping..." );	
 			}
 		 }
+		 else
+		 {
+		 	log.warn( "No indexDirLocation configured!!");
+		 }
 		      
      }
      
