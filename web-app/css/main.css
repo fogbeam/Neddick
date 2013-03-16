@@ -43,7 +43,13 @@ body, #header {
 }
 
 .settingsNav {
-	float:right;
+  float:right;
+}
+.settingsNav li {
+  font-size:12px;
+  margin:10px;
+  display:block;
+  float:left;
 }
 
 .usertext {
@@ -106,9 +112,6 @@ ul.menu li{display:inline;list-style-image:none;list-style-position:outside;list
 	line-height: 36px;
 }
 	
-#searchBtn {
-}
-
 #updateStatusSubmit {
 	margin-left: 22px;
 	float:right;
@@ -136,11 +139,11 @@ ul.menu li{display:inline;list-style-image:none;list-style-position:outside;list
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.searchBoxContainer {width:280px;}
-.searchBoxContainer input {padding:12px; height:24px !important;}
+.searchBoxContainer {width:212px;}
+.searchBoxContainer input[type="text"] {width:160px; padding:12px; height:24px !important;}
+.searchBoxcontainer input[type="submit"] {float:right; position:relative; left: -22px;}
 .searchBoxContainer .btn-group {float: right; position: relative; left: -14px;}
 .searchBoxContainer .btn-group button { font-size: 11px; margin-top: -5px !important; left:-6px; padding: 4px 6px; }
-
 
 .aseWrapper {
 	padding-top: 10px;
