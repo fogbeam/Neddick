@@ -89,7 +89,7 @@
           <a href="${resource(dir:'home', file:'topEntries')}"><i class="icon-star"></i> Top</a>
         </g:if>
         <g:else>
-          <a href="${resource(dir:'r/'+channelName, file:'topEntries')}">i<i class="icon-star"></i> Top</a>
+          <a href="${resource(dir:'r/'+channelName, file:'topEntries')}"><i class="icon-star"></i> Top</a>
         </g:else>
       </li>
       <li class="navigation_active">
