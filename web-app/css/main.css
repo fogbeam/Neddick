@@ -51,6 +51,7 @@ body, #header {
   display:block;
   float:left;
 }
+.settingsNav li ul li { float:none;}
 
 .usertext {
  color:gray;
