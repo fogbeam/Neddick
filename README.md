@@ -1,7 +1,7 @@
 Neddick
 ========
 
-Neddick is part of the Fogcutter suite of tools for building intelligent applications. Neddick provides tools for tagging, ranking, discussing and discovering various sources of knowledge: web-links, documents, people, etc.
+Neddick - an Open Source Information Discovery Platform -  is part of the Fogcutter suite of tools for building intelligent applications. Neddick provides tools for tagging, ranking, discussing and discovering various sources of knowledge: web-links, documents, people, etc.
 
 Why "Neddick?"
 ----------------
