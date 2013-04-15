@@ -28,5 +28,5 @@ Commercial Support
 ------------------
 
 Commercial support is available from [Fogbeam Labs](http://www.fogbeam.com).  For more information on
-Neddick Enterprise, please visit [http://wwww.fogbeam.com/neddick_enterprise.html](http://wwww.fogbeam.com/neddick_enterprise.html).
+Neddick Enterprise, please visit [http://www.fogbeam.com/neddick_enterprise.html](http://www.fogbeam.com/neddick_enterprise.html).
 
