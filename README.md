@@ -1,7 +1,7 @@
 Neddick
 ========
 
-Neddick is part of the Fogcutter suite of tools for building intelligent applications. Neddick provides tools for tagging, ranking, discussing and discovering various sources of knowledge: web-links, documents, people, etc.
+Neddick - an Open Source Information Discovery Platform -  is part of the Fogcutter suite of tools for building intelligent applications. Neddick provides tools for tagging, ranking, discussing and discovering various sources of knowledge: web-links, documents, people, etc.
 
 Why "Neddick?"
 ----------------
@@ -23,3 +23,10 @@ Roadmap
 ----------
 
 See the [Roadmap wiki page](http://code.google.com/p/neddick/wiki/Roadmap).
+
+Commercial Support
+------------------
+
+Commercial support is available from [Fogbeam Labs](http://www.fogbeam.com).  For more information on
+Neddick Enterprise, please visit [http://www.fogbeam.com/neddick_enterprise.html](http://www.fogbeam.com/neddick_enterprise.html).
+
