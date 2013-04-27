@@ -123,17 +123,6 @@
             </li>
             <li>
             <g:if test="${session.user}">
-              <g:link controller="login" action="logout">Logout</g:link>
-            </g:if>
-            <g:else>
-            <li>
-              <g:link controller="login" action="index">Login</g:link>
-            </li>
-            <li>
-            <g:link controller="user" action="create">Register</g:link>
-            </li>
-            </g:else>
-            <g:if test="${session.user}">
             <li>
               <g:link controller="channel" action="create">Create New Channel</g:link>
             </li>
@@ -152,8 +141,27 @@
           </ul>
       </div>
     </li>
-    <g:render template="/sidebar" />
     </ul>
+    <ul class="user">
+            <g:if test="${session.user}">
+              <li><g:link controller="userHome" action="index" id="${session.user.userId}">${session.user.userId}</g:link></li>
+            </g:if>
+            </li>
+            <li>
+            <g:if test="${session.user}">
+              <g:link controller="login" action="logout">Logout</g:link>
+            </g:if>
+            <g:else>
+            <li>
+              <g:link controller="login" action="index">Login</g:link>                                                                                                            
+            </li>
+            <li>
+            <g:link controller="user" action="create">Register</g:link>
+            </li>
+            </g:else>
+            </ul>
+    </ul>
+    <g:render template="/sidebar" />
 
   </div>
   </div>
