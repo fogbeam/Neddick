@@ -14,7 +14,7 @@
 
         <g:javascript library="jquery-1.7.1.min" />
         <g:javascript>
-          var $j = jQuery.noConflict();>
+          var $j = jQuery.noConflict();
         </g:javascript>
         <g:javascript library="dropdown" />
         <g:javascript>

@@ -37,8 +37,7 @@
                     <div style="margin-top:20px;">
                          <label for="feeds">Selected Feeds</label></div>
                     <div style="float:left;margin-top:7px;">                               
-                         <g:select name="feeds" from="${channel.feeds}" optionKey="id" optionValue="feedUrl" multiple="true">
-                         </g:select> 
+                         <g:select name="feeds" from="${channel.feeds}" optionKey="id" optionValue="feedUrl" multiple="true"></g:select> 
                     </div>
                     
                     <div style="margin-left:245px;margin-top:7px;">
@@ -57,8 +56,7 @@
                          <label for="feeds">Available Feeds</label>
                     </div>
                     <div style="margin-left:320px;margin-top:7px;">                               
-                         <g:select name="availablefeeds" from="${availableFeeds}" optionKey="id" optionValue="feedUrl" multiple="true">
-                         </g:select> 
+                         <g:select name="availablefeeds" from="${availableFeeds}" optionKey="id" optionValue="feedUrl" multiple="true"></g:select> 
                     </div> 
                     <div style="margin-top:7px;"></div>
                     <div><g:submitButton name="Save" /></div>

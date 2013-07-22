@@ -1,7 +1,7 @@
 // dropdown hook
 
-$(document).ready(function() {
-	$('.settings').dropdown()
+$j(document).ready(function() {
+	$j('.settings').dropdown()
 });
 
 /*var Ajax;
