@@ -140,9 +140,9 @@ ul.menu li{display:inline;list-style-image:none;list-style-position:outside;list
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.searchBoxContainer {width:212px;}
+.searchBoxContainer {width:213px;}
 .searchBoxContainer input[type="text"] {width:160px; padding:12px; height:24px !important;}
-.searchBoxcontainer input[type="submit"] {float:right; position:relative; left: -22px;}
+.searchBoxcontainer input[type="submit"] {float:right;}
 .searchBoxContainer .btn-group {float: right; position: relative; left: -14px;}
 .searchBoxContainer .btn-group button { font-size: 11px; margin-top: -5px !important; left:-6px; padding: 4px 6px; }
 
