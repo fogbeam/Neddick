@@ -15,8 +15,12 @@
           Edit Channel
           <g:form action="update" controller="channel">
                <g:hiddenField name="channelId" value="${channel.id}" />
-               <g:select id="feedsToAdd" name="feedsToAdd" multiple="true" style="display:none;" />
-               <g:select id="feedsToRemove" name="feedsToRemove" multiple="true" style="display:none;" />
+               <g:select id="feedsToAdd" name="feedsToAdd" 
+                    from="${availableFeeds}" optionKey="id" optionValue="feedUrl"
+               	    multiple="true" style="display:none;" />
+               <g:select id="feedsToRemove" name="feedsToRemove" 
+               	 from="${channel.feeds}" optionKey="id" optionValue="feedUrl"
+                 multiple="true" style="display:none;" />
                <div>
                     <div style="margin-top:7px;">
                          <label for="channelName">Name:</label>

@@ -1,10 +1,10 @@
 package org.fogbeam.neddick
 
-import com.sun.syndication.feed.synd.SyndEntry 
-import com.sun.syndication.feed.synd.SyndFeed 
-import com.sun.syndication.io.SyndFeedInput 
-import com.sun.syndication.io.XmlReader 
-import org.fogbeam.neddick.Channel;
+import com.sun.syndication.feed.synd.SyndEntry
+import com.sun.syndication.feed.synd.SyndFeed
+import com.sun.syndication.io.SyndFeedInput
+import com.sun.syndication.io.XmlReader
+
 
 class ChannelService {
 
@@ -29,7 +29,7 @@ class ChannelService {
 	public void updateFromDatasource( Channel channel )
 	{
 	
-		log.debug( "Updating from DataSource for channel: ${channel.name}" );	
+		log.info( "Updating from DataSource for channel: ${channel.name}" );	
 		User anonymous = User.findByUserId( "anonymous" );
 		
 		// if the specified channel has an RssFeed associated with it...
@@ -43,13 +43,29 @@ class ChannelService {
 			{
 				// lookup the feed, and get the FeedUrl
 				String url = rssFeed.feedUrl;
-				log.debug( "Loading from url: ${url}" );
+				println( "Loading from url: ${url}, description: ${rssFeed.description}" );
 				
 				// load the feed, and create an Entry for each link in the RssFeed
+				
+				URL dummyUrl = new URL(url);
+				
+				InputStream dummyInStream = dummyUrl.getContent();
+				BufferedReader dummyReader = new BufferedReader(new InputStreamReader(dummyInStream));
+				String dummyResult;
+				String dummyLine = dummyReader.readLine();
+				dummyResult = dummyLine;
+				while((dummyLine=dummyReader.readLine())!=null){
+					dummyResult+=dummyLine;
+				}
+				
+				println ("url content: " + dummyResult );
+				
 				URL feedUrl = new URL(url);
 				SyndFeedInput input = new SyndFeedInput();
 				SyndFeed feed = null;
 				XmlReader reader = null;
+				
+				
 				try
 				{
 					reader = new XmlReader(feedUrl)
@@ -126,7 +142,12 @@ class ChannelService {
 				}
 				catch( Exception e )
 				{
+					println "Caught Exception in Feed Processing Loop!";
+					
 					e.printStackTrace();
+					
+					println "Continuing to next Feed";
+					continue;
 				}
 				finally 
 				{

@@ -33,7 +33,7 @@ class HomeController {
 		if( itemsPerPage == -1 )
 		{
 			String strItemsPerPage = siteConfigService.getSiteConfigEntry( "itemsPerPage" );
-			if( itemsPerPage != null ) 
+			if( strItemsPerPage != null && !strItemsPerPage.empty ) 
 			{
 				itemsPerPage = Integer.parseInt( strItemsPerPage );
 			}

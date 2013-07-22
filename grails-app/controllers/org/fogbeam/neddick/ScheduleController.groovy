@@ -1,12 +1,10 @@
 package org.fogbeam.neddick
 
-import java.util.List
-
 import org.codehaus.groovy.grails.commons.ArtefactHandler
 import org.codehaus.groovy.grails.commons.GrailsClass
 import org.quartz.JobDetail
-import org.quartz.SimpleTrigger
 import org.quartz.Trigger
+import org.quartz.impl.triggers.SimpleTriggerImpl
 
 class ScheduleController {
 
@@ -111,7 +109,7 @@ class ScheduleController {
 		else
 		{
 			// SimpleTrigger(String name, String group, int repeatCount, long repeatInterval)
-			Trigger trigger = new SimpleTrigger( params.triggerName, params.triggerGroup, Integer.parseInt(params.repeatCount), Long.parseLong(params.recurrenceInterval));
+			Trigger trigger = new SimpleTriggerImpl( params.triggerName, params.triggerGroup, Integer.parseInt(params.repeatCount), Long.parseLong(params.recurrenceInterval));
 			// jobClass.newInstance().schedule( Long.parseLong( recurrenceInterval ), SimpleTrigger.REPEAT_INDEFINITELY, sparams );
 			jobClass.newInstance().schedule( trigger );
 		}
