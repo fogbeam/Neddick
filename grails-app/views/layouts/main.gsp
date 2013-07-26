@@ -10,12 +10,22 @@
         <link rel="stylesheet" type="text/css" href="${createLinkTo(dir:'css/FontAwesome/css', file:'font-awesome.css')}">
         <link rel="stylesheet" type="text/css" href="${createLinkTo(dir:'css', file:'oagis.css')}" />
         <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.3.0/build/cssgrids/grids-min.css" />
+        
+        <link rel="stylesheet" type="text/css"
+ href="${createLinkTo(dir:'js/jquery-ui-1.10.3.custom/css/vader', file:'jquery-ui-1.10.3.custom.css') }" />
+        
+        
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <g:javascript library="jquery-1.7.1.min" />
+
+		<g:javascript library="jquery-ui-1.10.3.custom/js/jquery-1.9.1" />
+		<g:javascript library="jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom" />
+        
+        
         <g:javascript>
           var $j = jQuery.noConflict();
         </g:javascript>
+        
         <g:javascript library="dropdown" />
         <g:javascript>
           $j('.dropdown-toggle').dropdown();
@@ -187,6 +197,51 @@
                          <center>Footer for Neddick</center>
                     </div>
                </div> 
-          </div>            
+          </div>
+          
+ <div id="shareDialog" title="Share this Item">
+	
+	<g:formRemote name="shareItemForm" url="[controller: 'share', action:'shareItem']">
+	
+		<!--  we need a way to specify who/what you are sharing this item WITH -->
+		<!--  a set of checkboxes could work, or a multi-select select box -->
+		<!--  let's go with checkboxes for now, just because it's the easiest way -->
+		<div>  
+			<input type="checkbox" style="display:inline-block;overflow:hidden;" value="shareEmail" name="shareEmailCheck" id="shareEmailCheck" />
+			<label style="display:inline-block;overflow:hidden;color:red" for="shareEmailCheck">Email</label> 
+			<input type="checkbox" style="display:inline-block;overflow:hidden;" value="shareXmpp" name="shareXmppCheck" id="shareXmppCheck" />
+			<label style="display:inline-block;overflow:hidden;color:red" for="shareXmppCheck">Xmpp</label>
+			<input type="checkbox" style="display:inline-block;overflow:hidden;" value="shareQuoddy" name="shareQuoddyCheck" id="shareQuoddyCheck" />
+			<label style="display:inline-block;overflow:hidden;color:red" for="shareQuoddyCheck">Quoddy</label>
+		</div>
+			
+		<!--  the uuid of the thing being shared -->
+		<input id="shareItemUuid" name="shareItemUuid" type="hidden" value="" />
+		
+		<!-- the permalink of the thing being shared -->
+		<input id="permaLink" name="permaLink" type="hidden" value="" />
+		
+		<div style="margin-top:20px;margin-bottom:30px;">
+			<!--  here we have inputs for the various shareTargets.  We'll need boxes for
+			 "email", "xmpp" and "quoddy" and we'll want all three to start out hidden, then we can
+			  reveal them if/when the user checks the appropriate checkbox above -->	
+			<label id="forShareTargetEmail" name="forShareTargetEmail" style="display:none;color:red;" for="shareTargetEmail">Email:</label>
+				<input style="display:none;" name="shareTargetEmail" id="shareTargetEmail" type="text" value="" />
+			<label id="forShareTargetXmpp" name="forShareTargetXmpp" style="display:none;color:red;" for="shareTargetXmpp">Xmpp:</label>
+				<input style="display:none;" name="shareTargetXmpp" id="shareTargetXmpp" type="text" value="" />
+			<label id="forShareTargetQuoddy" name="forShareTargetQuoddy" style="display:none;color:red;" for="shareTargetQuoddy">Quoddy:</label>
+				<input style="display:none;" name="shareTargetQuoddy" id="shareTargetQuoddy" type="text" value="" />
+		
+		</div>
+		
+		<!--  text of an (optional) comment -->
+		<label style="color:red;" id="forShareItemComment" name="forShareItemComment" for="shareItemComment">Comment: </label>
+			<input id="shareItemComment" name="shareItemComment" type="text" value="" />
+		
+		
+	</g:formRemote>
+</div>         
+          
+                      
     </body>	
 </html>

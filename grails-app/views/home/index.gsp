@@ -47,9 +47,12 @@
                                    </dd>
                                    <dd>
                                      <span>
+	                                    <input id="permalink-${entry.uuid}" name="permalink-${entry.uuid}" type="hidden" value="${createLink( absolute:true, controller: 'entry', action:'e', id:entry.uuid)}" />
                                         <g:link controller="entry" action="e" id="${entry.uuid}">comment</g:link>
                                         </span> 
-                                        <span><a href="#" onClick="openShareDialog(${entry.id});">share</a></span>
+                                        <span>
+											<a href="#" class="shareButton" name="shareButton.${entry.uuid}" id="shareButton.${entry.uuid}">share</a>
+                                        </span>
                                         <span><g:remoteLink controller="entry" action="saveEntry" 
                                                                  params="[entryId:entry.id]" onComplete="afterSave(e);">save</g:remoteLink>
                                         </span>

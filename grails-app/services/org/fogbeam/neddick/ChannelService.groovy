@@ -46,9 +46,8 @@ class ChannelService {
 				println( "Loading from url: ${url}, description: ${rssFeed.description}" );
 				
 				// load the feed, and create an Entry for each link in the RssFeed
-				
+				/*
 				URL dummyUrl = new URL(url);
-				
 				InputStream dummyInStream = dummyUrl.getContent();
 				BufferedReader dummyReader = new BufferedReader(new InputStreamReader(dummyInStream));
 				String dummyResult;
@@ -59,6 +58,7 @@ class ChannelService {
 				}
 				
 				println ("url content: " + dummyResult );
+				*/
 				
 				URL feedUrl = new URL(url);
 				SyndFeedInput input = new SyndFeedInput();
