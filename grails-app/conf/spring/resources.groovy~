@@ -6,7 +6,7 @@ beans = {
 	   host='smtp.gmail.com'
 	   port='587'
 	   username = "motley.crue.fan"
-	   password = "7400seriesIC"
+	   password = ""
 	   javaMailProperties = ['mail.smtp.auth': 'true',
 	      'mail.smtp.starttls.enable':'true',
 	      'mail.smtp.starttls.required':'true',
@@ -29,16 +29,5 @@ beans = {
 		                 "java.naming.provider.url":"localhost:1099"]
 		}
 
-		
-		jsonConverterBean(org.springframework.http.converter.json.MappingJacksonHttpMessageConverter)
-		stringConverterBean(org.springframework.http.converter.StringHttpMessageConverter)
-									
-		restTemplate( org.springframework.web.client.RestTemplate )
-		{
-			messageConverters = [
-									ref("jsonConverterBean"), 
-									ref("stringConverterBean")
-				 				]
-		}
-		
+
 }

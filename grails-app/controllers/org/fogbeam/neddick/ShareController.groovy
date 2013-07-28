@@ -1,7 +1,14 @@
 package org.fogbeam.neddick
 
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
+import java.text.SimpleDateFormat
+
+import org.fogbeam.protocol.activitystreams.ActivityStreamEntry
+import org.fogbeam.protocol.activitystreams.Actor
+import org.fogbeam.protocol.activitystreams.Image
+import org.fogbeam.protocol.activitystreams.Target
+import org.springframework.http.ResponseEntity
+import org.springframework.mail.MailSender
+import org.springframework.mail.SimpleMailMessage
 
 
 class ShareController 
@@ -9,6 +16,8 @@ class ShareController
 	MailSender mailSender;
 	SimpleMailMessage mailMessage;	
 	def xmppNotificationService;
+	def restTemplate;
+	
 	
 	def index = {
 		
@@ -22,34 +31,21 @@ class ShareController
 		
 		
 		println "in ShareItem:";
-		println "params: ${params}";
-		
-/* 
-  
-  params: [		
-				shareItemUuid:66244d92-c223-4956-ac8b-6a498e539bad, 
-				shareEmailCheck:shareEmail, 
-				shareItemComment:I think you might find this useful!, 
-				shareTargetXmpp:, 
-				shareTargetEmail:motley.crue.fan@gmail.com, 
-				shareTargetQuoddy:, 
-				action:shareItem, 
-				controller:share
-		   ]
-
-*/		
+		println "params: ${params}";	
 		
 		def entryUuid = params.shareItemUuid;
 		def entryToSend = Entry.findByUuid( entryUuid );
 
 		
 		def messageSubject = "${session.user?.userId} has shared a Neddick entry with you";
-		def messageText = "${params.shareItemComment} \n ${entryToSend.title} \n ${params.permaLink}\n";
-				
+						
 		
 		if( params.shareEmailCheck )
 		{
 
+			def messageText = "${params.shareItemComment} \n ${entryToSend.title} \n ${params.permaLink}\n";
+			
+			
 			// send this entry to this address
 			SimpleMailMessage message = new SimpleMailMessage(mailMessage);
 			
@@ -84,6 +80,8 @@ class ShareController
 		{
 			// share to xmpp address(es)
 
+			def messageText = "${params.shareItemComment} \n ${entryToSend.title} \n ${params.permaLink}\n";
+			
 			
 			String xmppTargets = params.shareTargetXmpp;
 			String[] addresses = xmppTargets.trim().split("\\s+");
@@ -109,7 +107,69 @@ class ShareController
 		if( params.shareQuoddyCheck )
 		{
 			// share to Quoddy destinations
-			// TODO: 
+
+			def messageText = params.shareItemComment;
+			
+			
+			String quoddyTargets = params.shareTargetQuoddy;
+			String[] addresses = quoddyTargets.trim().split("\\s+");
+			
+			for( String address: addresses )
+			{
+						
+				SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssZ" );
+				
+				ActivityStreamEntry newEntry = new ActivityStreamEntry();
+				newEntry.setTitle(  entryToSend.title );
+				newEntry.setContent( "User ${session.user.userId} has shared a NeddickLink" );
+				newEntry.setPublished( sdf.format( new Date() ) );
+				
+				newEntry.setUrl( params.permaLink );
+				newEntry.setVerb( "share_neddick_link" );
+				
+				Actor actor = new Actor();
+				actor.setId( session.user.userId );
+				actor.setObjectType( "UserByUserId" );
+				actor.setDisplayName( session.user.fullName );
+				actor.setUrl( "" );
+				Image actorImage = new Image();
+				actorImage.setHeight( "" );
+				actorImage.setUrl( "" );
+				actorImage.setWidth( "" );
+				actor.setImage( actorImage );
+				
+				newEntry.setActor( actor );
+				
+				org.fogbeam.protocol.activitystreams.Object object = new org.fogbeam.protocol.activitystreams.Object();
+				object.setObjectType( "NeddickLink" );
+				object.setUrl( params.permaLink );
+				object.setId( entryToSend.uuid );
+				object.setDisplayName( entryToSend.title );
+				object.setSummary( messageSubject );
+				object.setContent( messageText );
+				newEntry.setObject(  object );
+				
+				Target target = new Target();
+				target.setId( address );
+				target.setObjectType( "UserByUserId" );
+				target.setDisplayName( "" );
+				target.setUrl( "" );
+				
+				newEntry.setTarget( target );
+				
+				
+				ResponseEntity<String> response =
+					restTemplate.postForEntity(
+							"http://localhost:8080/quoddy2/api/activitystreamentry",
+							newEntry, String.class );
+				
+				String responseText = response.getBody();
+				
+				System.out.println( "done with response: " + responseText );
+			
+			
+			} // end quoddy address processing loop
+			
 		}
 		
 		
