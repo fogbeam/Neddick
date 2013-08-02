@@ -35,20 +35,22 @@
 
         <g:javascript library="prototype" /> 
         <g:javascript library="scriptaculous" />
+        <g:javascript library="effects" />
         <g:javascript library="application" />
 
         <g:javascript>
-           function addTag(e, id ) {
+           function addTag(id ) {
                toggleTagbox(id);
                clearTagbox(id);
            }               
            
-           function clearTagbox(e) {
-               var tagNameField = document.getElementById( 'tagNameField' );
+           function clearTagbox(id) {
+               var tagNameField = document.getElementById( 'tagNameField.' + id );
                tagNameField.value = '';
            }
                
           function toggleTagbox(e) {
+          		// alert( e );
                var tagboxDisplay = document.getElementById('tagbox.' + e)
                var toggleText = document.getElementById( 'showHideTagbox.' + e );
                
@@ -123,30 +125,34 @@
       <div class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Settings <i class="icon-sort-down"></i></a>
           <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            <li><a href="${resource(dir:'home', file:'savedEntries')}">Saved</a></li>
-            <li><g:link controller="tag" action="list">Tags</g:link></li>
-            <li><g:link controller="channel" action="list">Channels</g:link></li>
-            <li><g:link controller="admin" action="index">Admin</g:link></li>
+            <li>
+            	<g:link controller="channel" action="list">Channels</g:link>
+            </li>
+            
             <g:if test="${session.user}">
-              <li><g:link controller="userHome" action="index" id="${session.user.userId}">${session.user.userId}</g:link></li>
-            </g:if>
-            </li>
-            <li>
-            <g:if test="${session.user}">
-            <li>
-              <g:link controller="channel" action="create">Create New Channel</g:link>
-            </li>
-            <li>
-              <g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
-            </li>
+            	<li>
+            		<a href="${resource(dir:'home', file:'savedEntries')}">Saved Entries</a></li>
+            	<li>
+            		<g:link controller="tag" action="list">Tags</g:link>
+            	</li>
+            	<li>
+            		<g:link controller="trigger" action="index">Triggers</g:link>
+            	</li>    
             </g:if>
             <g:if test="${session.user}">
-            <li>
-              <g:link controller="channel" action="create">Create New Channel</g:link>
-            </li>
-            <li>
-              <g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
-            </li>·
+            	<li>
+              		<g:link controller="channel" action="create">Create New Channel</g:link>
+            	</li>
+            
+            	<li>
+              		<g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
+            	</li>
+            	
+            	<!--  TODO: hide this if user does not have "admin" role -->
+            	<li>
+            		<g:link controller="admin" action="index">Admin</g:link>
+            	</li>
+            	
             </g:if>
           </ul>
       </div>

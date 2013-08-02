@@ -6,17 +6,13 @@
     </head>
     <body>
           <div class="searchResults" id="searchResults" style="margin-left:35px;padding-top:20px;">
-               <g:each in="${tagList}" var="tag">
-                    <div style="padding:10px;">
-                         <div style="margin-left:70px;float:left;">
-                              <dl>
-                                   <dd>
-                                        <g:link controller="tags" action="${tag.name}">${tag.name}</g:link>
-                                   </dd>
-                              </dl>
-                         </div>
-                    </div>
-               </g:each>
+               <ul>
+               		<g:each in="${tagList}" var="tag">
+               			<li style="margin-top:10px; margin-bottom:10px;">
+               				<g:link controller="tags" action="${tag.name}">${tag.name}</g:link>
+               			</li>
+               		</g:each>
+               </ul>
           </div> 
     </body>
 </html>

@@ -51,11 +51,11 @@
                               <span><a href="#" id="showHideTagbox.${theEntry.id}" onClick="return toggleTagbox(${theEntry.id});" >Tag</a></span>
                               <div id="tagbox.${theEntry.id}" style="display:none;" >
                                    
-                                   <g:formRemote onSuccess="addTag(e, ${theEntry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
+                                   <g:formRemote onSuccess="addTag(${theEntry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
                                         <g:textField id="tagNameField.${theEntry.id}" name="tagName" />
                                         <g:hiddenField name="entryUuid" value="${theEntry.uuid}" />
                                         <g:hiddenField name="entryId" value="${theEntry.id}" />
-                                        <g:submitToRemote controller="tag" onSuccess="addTag(e, ${theEntry.id})" action="addTag" value="Save" />
+                                        <g:submitToRemote controller="tag" onSuccess="addTag(${theEntry.id})" action="addTag" value="Save" />
                                    </g:formRemote>
                               
                               </div>
@@ -126,11 +126,11 @@
                                                        params="[entryId:recommendedEntry.id]" onComplete="afterHide(e);">hide</g:remoteLink></span>
                               <span><a href="#" id="showHideTagbox.${recommendedEntry.id}" onClick="return toggleTagbox(${recommendedEntry.id});" >Tag</a></span>
                               <div id="tagbox.${recommendedEntry.id}" style="display:none;" >
-                                   <g:formRemote onSuccess="addTag(e, ${recommendedEntry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
+                                   <g:formRemote onSuccess="addTag(${recommendedEntry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
                                         <g:textField id="tagNameField.${recommendedEntry.id}" name="tagName" />
                                         <g:hiddenField name="entryUuid" value="${recommendedEntry.uuid}" />
                                         <g:hiddenField name="entryId" value="${recommendedEntry.id}" />
-                                        <g:submitToRemote controller="tag" onSuccess="addTag(e, ${recommendedEntry.id})" action="addTag" value="Save" />
+                                        <g:submitToRemote controller="tag" onSuccess="addTag(${recommendedEntry.id})" action="addTag" value="Save" />
                                    </g:formRemote>
                               </div>
                          </dd>

@@ -187,6 +187,7 @@ public class IndexerListenerService
 				}
 				
 				InputStream input = null;
+				HttpMethod method = null;
 				try
 				{
 					writer.setUseCompoundFile(true);
@@ -209,7 +210,7 @@ public class IndexerListenerService
 					//establish a connection within 10 seconds
 					client.getHttpConnectionManager().getParams().setConnectionTimeout(10000); 
 					String url = msg['url'];
-					HttpMethod method = new GetMethod(url);
+					method = new GetMethod(url);
 		
 					String responseBody = null;
 					try{

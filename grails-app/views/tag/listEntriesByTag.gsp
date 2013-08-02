@@ -57,7 +57,7 @@
                                                   <g:textField id="tagNameField.${entry.id}" name="tagName" />
                                                   <g:hiddenField name="entryUuid" value="${entry.uuid}" />
                                                   <g:hiddenField name="entryId" value="${entry.id}" />
-                                                  <g:submitToRemote controller="tag" onSuccess="addTag(e, ${entry.id})" action="addTag" value="Save" />
+                                                  <g:submitToRemote controller="tag" onSuccess="addTag(${entry.id})" action="addTag" value="Save" />
                                              </g:form>
                                         </div>                          
                                    </dd>

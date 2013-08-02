@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity
 
 class QuoddyShareTriggerAction extends BaseTriggerAction
 {
+	def restTemplate;
+	
 	String destination;
 	
 	public void doAction( final String entryUuid )
@@ -38,7 +40,7 @@ class QuoddyShareTriggerAction extends BaseTriggerAction
 			newEntry.setContent( "User TBD has shared a NeddickLink" );
 			newEntry.setPublished( sdf.format( new Date() ) );
 			
-			newEntry.setUrl( "TBD" );
+			newEntry.setUrl( "http://example.com/TBD" );
 			newEntry.setVerb( "share_neddick_link" );
 			
 			Actor actor = new Actor();
@@ -56,7 +58,7 @@ class QuoddyShareTriggerAction extends BaseTriggerAction
 			
 			org.fogbeam.protocol.activitystreams.Object object = new org.fogbeam.protocol.activitystreams.Object();
 			object.setObjectType( "NeddickLink" );
-			object.setUrl( "TBD" );
+			object.setUrl( "http://example.com/TBD" );
 			object.setId( entryToSend.uuid );
 			object.setDisplayName( entryToSend.title );
 			object.setSummary( messageSubject );

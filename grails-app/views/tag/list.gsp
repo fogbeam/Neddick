@@ -12,17 +12,13 @@
           </g:if>
     
           <div class="searchResults" id="searchResults" style="margin-left:35px;padding-top:20px;">
-               <g:each in="${allTags}" var="tag">
-                    <div style="padding:10px;">
-                         <div style="margin-left:70px;float:left;">
-                              <dl>
-                                   <dd>
-                                        <a href="${resource(dir: 'tags', file: tag.name)}">${tag.name}</a>
-                                   </dd>
-                              </dl>
-                         </div>
-                    </div>
-               </g:each>
+               <ul>
+	               <g:each in="${allTags}" var="tag">
+	               	<li style="margin-top:10px; margin-bottom:10px;">
+	               		<a href="${resource(dir: 'tags', file: tag.name)}">${tag.name}</a>
+	               	</li>
+	               </g:each>
+               </ul>
           </div> 
           
           <div style="padding-top:10px;">
