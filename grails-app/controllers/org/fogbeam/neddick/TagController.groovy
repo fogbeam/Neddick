@@ -11,16 +11,19 @@ class TagController {
 	
 	def scaffold = true;
 
-	int itemsPerPage = -1;	
+	int defaultItemsPerPage = 25;	
 	
 	def list = {
 		
-    	if( itemsPerPage == -1 )
+		String strItemsPerPage = siteConfigService.getSiteConfigEntry( "itemsPerPage" );
+		
+    	int itemsPerPage = defaultItemsPerPage;
+		if( strItemsPerPage != null )
     	{
-    		itemsPerPage = Integer.parseInt( siteConfigService.getSiteConfigEntry( "itemsPerPage" ));
+    		itemsPerPage = Integer.parseInt( strItemsPerPage );
     	}
-    	
-    	String requestedPageNumber = params.pageNumber;
+
+		String requestedPageNumber = params.pageNumber;
     	int pageNumber = 1;
     	int availablePages = -1;
     	if( requestedPageNumber != null )
