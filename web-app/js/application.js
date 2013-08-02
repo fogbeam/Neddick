@@ -2,6 +2,15 @@
 
 $j(document).ready(function() {
 	
+	// start of thinking about how we will limit the levels
+	// of nesting for trigger criteria
+	// $j('body').data( 'triggerCriteriaLevel', 1 );
+	
+	
+	// we may or may not need something like this, see below 
+	// $j("#triggerCriteriaBox").data( "triggerCriteriaCount", 1 );
+	
+	
 	$j('.settings').dropdown()
 	
 
@@ -77,6 +86,7 @@ $j(document).ready(function() {
 	    }
 	});	
 	
+	
 	$j("#shareQuoddyCheck").change(function() {
 	    // alert( 'shareQuoddyCheck' );
 		if(this.checked) {
@@ -91,6 +101,97 @@ $j(document).ready(function() {
 	    	$j("#forShareTargetQuoddy").css("display", "none");
 	    }
 	});	
+	
+	/* Trigger creation / editing controls */
+	
+	// select on the radio button group that toggles trigger type between "Global" and "Channel" 
+	$j("input[name=triggerType]").change(function () 
+	{
+		
+		// alert( "here: " + $j(this).attr('value') );
+		
+		var triggerType = $j(this).attr('value');
+		
+		if( triggerType == "Channel" )
+		{		
+			// if "Channel" is selected, add an input field to specify
+			// the channel
+			var channelSelector = $j("div #channelSelector").clone();
+			channelSelector.css('display', 'block').insertAfter("#triggerNameBox");
+		
+		}
+		else
+		{
+			// see if we have previously added a channel selector.  
+			// If we have, remove it from the view 
+			var channelSelector = $j("div#channelSelector :visible");
+			if( channelSelector )
+			{
+				// alert( "found it" );
+				channelSelector.remove();
+			}
+			else 
+			{
+				// alert( "nope" );
+			}
+		}
+	});
+	
+	// the select control for picking a trigger criteria.  When this changes, we need to enable
+	// the associated text input field if the criteria is something other than "any" or "all"
+	$j(".triggerCriteriaSelect").change(function () 
+	{
+		// alert( "ok: " + triggerCriteriaLevel );
+		// $j('body').data("triggerCriteriaLevel", triggerCriteriaLevel += 1 );
+		// var triggerCriteriaLevel = $j('body').data("triggerCriteriaLevel"); 
+
+		// do we need a count like this as part of managing the ids for multiple trigger criteria??
+		// var triggerCriteriaCount = $j("triggerCriteriaBox").data("triggerCriteriaCount");
+		
+		var selectName = $j(this).attr('name');
+		
+		// parse out the number after the '.' as in
+		// criteriaType.1, and activate the corresponding
+		// input box
+		var critSelectNum = selectName.split('.')[1];
+		
+		var critValName = "criteriaValue-" + critSelectNum;
+		
+		var critValInput = $j("#"+critValName);
+		
+		critValInput.attr('disabled', false);
+		
+	});
+	
+	
+	// the select control for picking a trigger action.  When this changes, we need to enable
+	// the associated text input field.
+	$j(".triggerActionSelect").change(function () 
+	{		
+		// alert( 'here' );
+		
+		var selectName = $j(this).attr('name');
+		
+		// alert( "name: " + selectName );
+		// parse out the number after the '.' as in
+		// criteriaType.1, and activate the corresponding
+		// input box
+		var actionSelectNum = selectName.split('.')[1];
+		// alert( "num: " + actionSelectNum );
+		
+		var actionValName = "actionValue-" + actionSelectNum;
+		
+		// alert( "" + actionValName );
+		
+		var actionValInput = $j("#"+actionValName);
+		
+		// alert( $j(actionValInput).attr('name'));
+		
+		actionValInput.attr('disabled', false);
+		
+	});	
+	
+	
 	
 }
 

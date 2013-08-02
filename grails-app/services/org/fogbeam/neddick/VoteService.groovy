@@ -12,6 +12,8 @@ class VoteService {
 	boolean transactional = false
 
 	def sessionFactory;
+	def triggerService;
+	
 	
 	public Entry submitUpVote( Entry entry, Vote upVote, User submitter )
 	{
@@ -77,7 +79,7 @@ class VoteService {
 		if( !entry.save() )
 		{
 			log.error( "Failed to save vote!");
-			// entry.errors.allErrors.each { p rintln it };
+			// entry.errors.allErrors.each { println it };
 		}		
 		else
 		{
@@ -122,6 +124,11 @@ class VoteService {
 			uesLink.entryBaseScore += ( upVote.weight + boost );
 			uesLink.save();
 		}		
+		
+		
+		
+		
+		
 		return entry;
 		
 	}

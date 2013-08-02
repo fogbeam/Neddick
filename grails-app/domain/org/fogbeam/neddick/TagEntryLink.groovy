@@ -16,8 +16,16 @@ class TagEntryLink
 	/* static utility methods for managing the linking of tags and entries */
 	 static TagEntryLink link(Tag tag, Entry entry, User user ) 
 	{ 
+		println "linking...";
 		 
-		def alink = TagEntryLink.executeQuery( "select tel from TagEntryLink as tel where tel.tag = ? and tel.entry = ? and tel.creator = ?", [tag, entry, user] );
+		List<TagEntryLink> tels = TagEntryLink.executeQuery( "select tel from TagEntryLink as tel where tel.tag = ? and tel.entry = ? and tel.creator = ?", [tag, entry, user] );
+		
+		def alink = null;
+		if( tels != null && !tels.size == 0 )
+		{
+			alink = tels[0];
+		}
+		
 		if ( !alink )
 		{ 
 			alink = new TagEntryLink();

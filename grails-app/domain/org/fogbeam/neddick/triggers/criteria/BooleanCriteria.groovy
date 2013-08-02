@@ -1,7 +1,7 @@
 package org.fogbeam.neddick.triggers.criteria
 
-public abstract class BooleanCriteria extends AbstractBaseTriggerCriteria
+public abstract class BooleanCriteria extends BaseTriggerCriteria
 {
-	TriggerCriteria rhs;
-	TriggerCriteria lhs;
+	BaseTriggerCriteria rightHandSide;
+	BaseTriggerCriteria leftHandSide;
 }
