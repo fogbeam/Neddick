@@ -126,7 +126,7 @@ class TriggerController
 				println "creating AboveScoreTriggerCriteria";
 				criteria = new AboveScoreTriggerCriteria();
 				criteria.aboveScoreThreshold = Integer.parseInt( params.get( "criteriaValue-1") );
-				
+				criteria.scoreName = "raw";
 				break;
 				
 			case "TitleKeywordTriggerCriteria":
