@@ -3,6 +3,7 @@ package org.fogbeam.neddick
 import org.fogbeam.neddick.triggers.BaseTrigger
 import org.fogbeam.neddick.triggers.ChannelTrigger
 import org.fogbeam.neddick.triggers.GlobalTrigger
+import org.fogbeam.neddick.triggers.criteria.AboveScoreTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.BodyKeywordTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TagTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TitleKeywordTriggerCriteria
@@ -11,6 +12,7 @@ class TriggerService
 {
 	
 	def searchService;
+	def entryService;
 	
 	
 	public List<GlobalTrigger> getGlobalTriggersForUser( final User user )
@@ -66,9 +68,41 @@ class TriggerService
 	}
 
 	// the score of an entry has changed, process "score" triggers
-	public void fireThresholdTriggerCriteria()
+	public void fireThresholdTriggerCriteria( final String entryUuid, final String strNewScore )
 	{
 		println "processing score threshold triggers...";
+		
+		List<AboveScoreTriggerCriteria> triggerCriteria = AboveScoreTriggerCriteria.findAll();
+		
+		// Entry theEntry = entryService.findByUuid( entryUuid );
+		int newScore = Integer.parseInt( strNewScore);
+		
+		for( AboveScoreTriggerCriteria criteria : triggerCriteria )
+		{
+			
+			println "found an instance of AboveScoreTriggerCriteria";
+			println "newScore: ${newScore}, threshold: ${criteria.aboveScoreThreshold}";
+			
+			
+			/* TODO: this needs to take score personalization into account */
+			
+			// does this criteria fire?
+			if( newScore  > criteria.aboveScoreThreshold )
+			{
+				// get the associated Trigger
+				BaseTrigger trigger = criteria.trigger;
+				
+				println "found a match, firing Trigger: ${trigger.name}";
+				
+				// and fire it's actions
+				trigger.fireAllActions( entryUuid );
+			}
+			else
+			{
+				println "No match, not firing actions...";	
+			}
+
+		}			
 	}
 	
 	// a new tag was added, process "tag" triggers

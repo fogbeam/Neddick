@@ -36,8 +36,16 @@ class TriggerListenerService
 			case "NEW_ENTRY_INDEXED":
 				String entryUuid = msg.entry_uuid;
 				triggerService.fireContentTriggerCriteria( entryUuid );
-				break;	
+				break;
 					
+			case "ENTRY_SCORE_CHANGED":
+			
+				String entryUuid = msg.entry_uuid;
+				String newScore = msg.newScore;				
+				triggerService.fireThresholdTriggerCriteria( entryUuid, newScore );
+			
+				break;
+						
 			default:
 				println "Remote sent bad msgType";
 				break;

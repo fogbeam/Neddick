@@ -126,7 +126,11 @@ class VoteService {
 		}		
 		
 		
-		
+		// send JMS message for triggers, with notification that a score has changed
+		def scoreChangedMessage = [msgType:"ENTRY_SCORE_CHANGED", entry_uuid:entry.uuid, newScore:entry.score ];
+	
+		// send a JMS message to our testQueue
+		sendJMSMessage( "neddickTriggerQueue", scoreChangedMessage );
 		
 		
 		return entry;
@@ -231,6 +235,18 @@ class VoteService {
 			uesLink.entryBaseScore = newScore;
 			uesLink.save();
 		}
+		
+		
+		/* NOTE: for now, we assume triggers only case about the case "a score is voted UP past a certain
+		 * threshold, so let's skip sending notifications to the triggerQueue for downvotes.
+		 */
+		
+		// send JMS message for triggers, with notification that a score has changed
+		// def scoreChangedMessage = [msgType:"ENTRY_SCORE_CHANGED", entry_uuid:entry.uuid ];
+	
+		// send a JMS message to our testQueue
+		// sendJMSMessage( "neddickTriggerQueue", scoreChangedMessage );
+		
 		
         return entry;
 	}
