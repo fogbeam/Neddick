@@ -32,7 +32,12 @@ class TriggerListenerService
 				String entryUuid = msg.entry_uuid;
 				triggerService.fireTagTriggerCriteria( tagName, entryUuid );
 				break;
-				
+			
+			case "NEW_ENTRY_INDEXED":
+				String entryUuid = msg.entry_uuid;
+				triggerService.fireContentTriggerCriteria( entryUuid );
+				break;	
+					
 			default:
 				println "Remote sent bad msgType";
 				break;

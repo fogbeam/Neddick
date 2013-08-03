@@ -16,58 +16,23 @@ class SearchController {
 
 	def entryService;
 	def siteConfigService;
+	def searchService;
+	
 	
 	def doSearch = {
 			
 		
+		def entries = new ArrayList<Entry>();
+		
 		String queryString = params.queryString;
 		log.debug( "searching Users, queryString: ${queryString}" );
 		
-		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
-		File indexDir = new File( indexDirLocation );
-		Directory fsDir = FSDirectory.open( indexDir );
+		List<Entry> searchResults = searchService.doSearch( queryString );
 		
-		IndexSearcher searcher = new IndexSearcher( fsDir );
-	
-		String[] searchFields = ['title', 'url', 'tags', 'content'];
-		QueryParser queryParser = new MultiFieldQueryParser(Version.LUCENE_30, searchFields, new StandardAnalyzer(Version.LUCENE_30));
-		Query query = queryParser.parse(queryString);
-		
-		TopDocs hits = searcher.search(query, 40);
-		
-		def entries = new ArrayList<Entry>();
-		ScoreDoc[] docs = hits.scoreDocs;
-		for( ScoreDoc doc : docs )
+		if( searchResults != null )
 		{
-			Document result = searcher.doc( doc.doc );
-			
-			String docType = result.get( "docType" );
-			if( docType.equals( "docType.entry" ))
-			{
-			
-				String id = result.get("id")
-				log.debug( id + " " + result.get("title"));
-		
-				entries.add( entryService.findById(id));
-			}
-			else if( docType.equals( "docType.comment" ))
-			{
-				// this document is actually a comment, so we have to lookup the
-				// associated Entry using the entry_id field.
-				String id = result.get("entry_id");
-				entries.add( entryService.findById(id));
-			}
-			else
-			{
-				
-				log.warn( "bad docType: ${docType}" );
-				continue;
-			}
-		
+			entries.addAll( searchResults );
 		}
-		
-		log.debug( "found some entries: ${entries.size()}");
-		
 		
 		render( view:'displaySearchResults', model:[searchResults:entries]);
 	}

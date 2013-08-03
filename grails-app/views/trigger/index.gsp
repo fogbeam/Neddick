@@ -25,6 +25,8 @@
           			
           			<li>
           				<g:link controller="trigger" action="edit" id="${globalTrigger.id}" >${globalTrigger.name}</g:link>
+						<g:link style="margin-left:25px;" controller="trigger" action="delete" id="${globalTrigger.id}">delete</g:link>
+
           			</li>
           			
           		</g:each>
@@ -38,6 +40,7 @@
           			
           			<li>
           				<g:link controller="trigger" action="edit" id="${channelTrigger.id}">${channelTrigger.name}</g:link>
+          				<g:link style="margin-left:25px;" controller="trigger" action="delete" id="${channelTrigger.id}">delete</g:link>
           			</li>
           			
           		</g:each>

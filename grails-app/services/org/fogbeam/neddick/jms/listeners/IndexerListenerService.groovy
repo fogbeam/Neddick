@@ -66,7 +66,7 @@ public class IndexerListenerService
     			log.debug( "tagName: ${tagName}" );
     			addTag( uuid, tagName );
     
-				// send JMS message saying "new entry submitted"
+				// send JMS message saying "tag added"
 				def tagIndexedMessage = [msgType:"TAG_INDEXED", entry_uuid:uuid, tagName: tagName ];
 			
 				// send a JMS message to our testQueue
@@ -295,6 +295,15 @@ public class IndexerListenerService
 					}
 				}
 
+				
+				// send JMS message saying "tag added"
+				def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
+			
+				// send a JMS message to our testQueue
+				sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
+				
+				
+				
     		}
     		else if( msgType.equals( "NEW_QUESTION" ))
     		{

@@ -63,7 +63,7 @@ class TriggerController
 		BaseTrigger newTrigger = null;
 		switch( triggerType )
 		{
-			case "Global":
+			case "GlobalTrigger":
 			
 				println "Creating Global Trigger";
 				newTrigger = new GlobalTrigger();
@@ -72,7 +72,7 @@ class TriggerController
 				
 				break;
 				
-			case "Channel":
+			case "ChannelTrigger":
 			
 				println "Creating Channel Trigger"
 				newTrigger = new ChannelTrigger();
@@ -236,6 +236,11 @@ class TriggerController
 		
 	}
 	
-	
+
+	def delete =
+	{
+		triggerService.deleteTrigger( Long.parseLong( params.id ));
+		redirect( controller:'trigger', action:'index');
+	}	
 	
 }

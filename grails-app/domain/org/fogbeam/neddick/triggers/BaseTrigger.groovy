@@ -1,5 +1,7 @@
 package org.fogbeam.neddick.triggers
 
+import grails.util.GrailsNameUtils
+
 import org.fogbeam.neddick.User
 import org.fogbeam.neddick.triggers.actions.BaseTriggerAction
 import org.fogbeam.neddick.triggers.criteria.BaseTriggerCriteria
@@ -18,6 +20,7 @@ public class BaseTrigger
 	
 	static hasMany = [ triggerCriteria: BaseTriggerCriteria, triggerActions: BaseTriggerAction ];
 	
+	static transients = ['triggerType'];
 	
 	static constraints =
 	{
@@ -35,4 +38,9 @@ public class BaseTrigger
 		}
 	}	
 	
+	
+	public String getTriggerType()
+	{
+		return GrailsNameUtils.getShortName( this.class );
+	} 
 }

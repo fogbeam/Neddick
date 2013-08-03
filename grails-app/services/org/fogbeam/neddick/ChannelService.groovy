@@ -29,7 +29,7 @@ class ChannelService {
 	public void updateFromDatasource( Channel channel )
 	{
 	
-		log.info( "Updating from DataSource for channel: ${channel.name}" );	
+		println( "Updating from DataSource for channel: ${channel.name}" );	
 		User anonymous = User.findByUserId( "anonymous" );
 		
 		// if the specified channel has an RssFeed associated with it...
@@ -37,7 +37,7 @@ class ChannelService {
 		
 		if( feeds != null && feeds.size() > 0 )
 		{
-			log.debug( "There are feeds!" );
+			println( "There are feeds!" );
 			
 			for( RssFeed rssFeed in feeds )
 			{

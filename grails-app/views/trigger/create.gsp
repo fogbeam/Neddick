@@ -13,9 +13,9 @@
           		Global Trigger or Channel Trigger -->
 				<b style="display:block;margin-bottom:10px;">Trigger Type</b>
 				<span>
-					<g:radio style="display:inline-block;" name="triggerType" id="triggerType" value="Global" />
+					<g:radio style="display:inline-block;" name="triggerType" id="triggerType" value="GlobalTrigger" />
 						<label style="display:inline-block;" for="triggerType">Global</label>
-					<g:radio style="display:inline-block;" name="triggerType" id="triggerType" value="Channel" />		
+					<g:radio style="display:inline-block;" name="triggerType" id="triggerType" value="ChannelTrigger" />		
 						<label style="display:inline-block;" for="triggerType">Channel</label>	
 				</span>
           		<div id="triggerNameBox" name="triggerNameBox">

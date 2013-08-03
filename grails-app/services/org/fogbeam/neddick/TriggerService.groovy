@@ -3,10 +3,15 @@ package org.fogbeam.neddick
 import org.fogbeam.neddick.triggers.BaseTrigger
 import org.fogbeam.neddick.triggers.ChannelTrigger
 import org.fogbeam.neddick.triggers.GlobalTrigger
+import org.fogbeam.neddick.triggers.criteria.BodyKeywordTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TagTriggerCriteria
+import org.fogbeam.neddick.triggers.criteria.TitleKeywordTriggerCriteria
 
 class TriggerService
 {
+	
+	def searchService;
+	
 	
 	public List<GlobalTrigger> getGlobalTriggersForUser( final User user )
 	{
@@ -105,14 +110,94 @@ class TriggerService
 	}
 	
 	// a new piece of content was delivered, process "content" (body and title keyword) triggers
-	public void fireContentTriggers()
+	public void fireContentTriggerCriteria( final String entryUuid )
 	{
-		// note: If we want to just rely on the lucene index to test this stuff, we need to know
-		// that we aren't processing this until Lucene indexing is done.  
-		
 		println "processing content triggers..."
-		
-	}
 			
+		List<BodyKeywordTriggerCriteria> bodyKeywordTriggerCriteria = BodyKeywordTriggerCriteria.findAll();
+		
+		if( bodyKeywordTriggerCriteria != null )
+		{
+			println "bodyKeywordTriggerCriteria object is valid";
+			
+			for( BodyKeywordTriggerCriteria triggerCrit : bodyKeywordTriggerCriteria )
+			{
+
+				
+				String keyword = triggerCrit.bodyKeyword;
+				
+				println "found a triggerCriteria with keyword: ${keyword}";
+				
+				List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND content: ${keyword}" );
+				
+				println "did search for entry_uuid: ${entryUuid}";
+								
+				// does this criteria fire?
+				if( searchResults != null && !searchResults.isEmpty() )
+				{
+					
+					
+					// get the associated Trigger
+					BaseTrigger trigger = triggerCrit.trigger;
+					
+					println "found a match, firing Trigger: ${trigger.name}";
+					
+					// and fire it's actions
+					trigger.fireAllActions( entryUuid );
+				}
+				else
+				{
+					
+				}
+				
+				
+			}
+		}
+		
+		List<TitleKeywordTriggerCriteria> titleKeywordTriggerCriteria = TitleKeywordTriggerCriteria.findAll();
+		
+		if( titleKeywordTriggerCriteria != null )
+		{
+			for( TitleKeywordTriggerCriteria triggerCrit : titleKeywordTriggerCriteria )
+			{
+				// does this criteria fire?
+				if( false )
+				{
+					String keyword = triggerCrit.bodyKeyword;
+					List<Entry> searchResults = searchService.doSearch( "entry_uuid: ${entryUuid} AND title: ${keyword}" );
+				
+								
+					// does this criteria fire?
+					if( searchResults != null && !searchResults.isEmpty() )
+					{
+						// get the associated Trigger
+						BaseTrigger trigger = triggerCrit.trigger;
+					
+						// and fire it's actions
+						trigger.fireAllActions( entryUuid );
+					}
+					else
+					{
+					
+					}
+				}
+				else
+				{
+					
+				}
+
+			}
+		}
+		
+		
+			
+	}
+
+	public void deleteTrigger( final Long id )
+	{
+		BaseTrigger triggerToDelete = BaseTrigger.findById( id );
+		triggerToDelete.delete();
+	}
+				
 }
  
