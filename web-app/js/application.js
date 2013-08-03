@@ -201,12 +201,15 @@ $j(document).ready(function() {
 
 function afterVote(e) {
     
-    var entryId = e.responseJSON.resp.entryId;
-    var score = e.responseJSON.resp.score;
-
+	var jsonResponse = JSON.parse(e.responseText);
+    var entryId = jsonResponse.resp.entryId;
+    var score = jsonResponse.resp.score;
+    
+	// alert( 'afterVote called: entryId = ' + entryId + ', score = ' + score );
+    
     var scoreDiv = document.getElementById("score."+entryId);
     scoreDiv.innerHTML = score;
-         
+	
  }
          
  function afterSave(e) {

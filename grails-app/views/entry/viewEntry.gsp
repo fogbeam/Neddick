@@ -14,7 +14,7 @@
                          <dd>
                               <div id="upVote.${theEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:theEntry.id]"
-                              onComplete="afterVote(e);">
+                              onComplete="afterVote(XMLHttpRequest);">
                               <img src="${resource(dir:'images/icons',file:'1uparrow.png')}" />
                               </g:remoteLink>
                               </div>
@@ -25,7 +25,7 @@
                               
                               <div id="downVote.${theEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:theEntry.id]"
-                              onComplete="afterVote(e);">
+                              onComplete="afterVote(XMLHttpRequest);">
                               <img src="${resource(dir:'images/icons',file:'1downarrow.png')}" />
                               </g:remoteLink>
                               </div>                                                
@@ -90,7 +90,7 @@
                          <dd>
                               <div id="upVote.${recommendedEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:recommendedEntry.id]"
-                              onComplete="afterVote(e);">
+                              onComplete="afterVote(XMLHttpRequest);">
                               <img src="${resource(dir:'images/icons',file:'1uparrow.png')}" />
                               </g:remoteLink>
                               </div>
@@ -101,7 +101,7 @@
                               
                               <div id="downVote.${recommendedEntry.id}">
                               <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:recommendedEntry.id]"
-                              onComplete="afterVote(e);">
+                              onComplete="afterVote(XMLHttpRequest);">
                               <img src="${resource(dir:'images/icons',file:'1downarrow.png')}" />
                               </g:remoteLink>
                               </div>                                                
