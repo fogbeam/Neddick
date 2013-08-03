@@ -3,7 +3,9 @@ package org.fogbeam.neddick
 import org.fogbeam.neddick.triggers.BaseTrigger
 import org.fogbeam.neddick.triggers.ChannelTrigger
 import org.fogbeam.neddick.triggers.GlobalTrigger
+import org.fogbeam.neddick.triggers.actions.BaseTriggerAction
 import org.fogbeam.neddick.triggers.criteria.AboveScoreTriggerCriteria
+import org.fogbeam.neddick.triggers.criteria.BaseTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.BodyKeywordTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TagTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TitleKeywordTriggerCriteria
@@ -67,6 +69,34 @@ class TriggerService
 		return trigger;
 	}
 
+	public BaseTrigger updateTrigger( final BaseTrigger triggerToEdit, 
+									  final BaseTriggerCriteria newCriteria, final BaseTriggerAction newTriggerAction )
+	{
+		
+		BaseTriggerCriteria criteriaToRemove = triggerToEdit.theOneCriteria;
+		triggerToEdit.removeFromTriggerCriteria( criteriaToRemove );
+		criteriaToRemove.delete();
+		
+		
+		BaseTriggerAction actionToRemove = triggerToEdit.theOneAction;
+		triggerToEdit.removeFromTriggerActions( actionToRemove );
+		actionToRemove.delete();
+		
+		triggerToEdit.addToTriggerCriteria( newCriteria );
+		triggerToEdit.addToTriggerActions( newTriggerAction );
+		
+		if( !triggerToEdit.save())
+		{
+			triggerToEdit.errors.allErrors.each { println it; }
+			throw new RuntimeException( "Failed to update trigger!");
+		}
+		
+		
+		return triggerToEdit;
+	}
+	
+	
+	
 	// the score of an entry has changed, process "score" triggers
 	public void fireThresholdTriggerCriteria( final String entryUuid, final String strNewScore )
 	{

@@ -37,9 +37,17 @@ class XmppTriggerAction extends BaseTriggerAction
 				continue;
 			}
 		}
-		
-		
-		
-		
 	}
+	
+	
+	public String getShortName()
+	{
+		return "XmppAction";
+	}
+	
+	public String getValue()
+	{
+		return destination;
+	}
+	
 }

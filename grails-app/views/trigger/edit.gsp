@@ -32,28 +32,83 @@
 				
 
           		<div id="triggerNameBox" name="triggerNameBox">
-          			<label style="display:block;" for="triggerName">Name </label>
-          				<g:textField style="display:inline-block;" name="triggerName" />
+          			<label style="display:block;" for="triggerName">Name</label>
+          				<g:textField style="display:inline-block;" name="triggerName" value="${triggerToEdit.name}"/>
           			<p />
           		</div>
           		
           		
           		
+          		<!-- 
+          		
+          		<option value="BodyKeywordTriggerCriteria">Body Contains Keyword </option>
+							<option value="TagTriggerCriteria">Entry Has Tag </option>
+							<option value="AboveScoreTriggerCriteria">Score Is Above</option>
+							<option value="TitleKeywordTriggerCriteria">Title Contains Keyword</option>
+          		 -->
+          		
+          		
           		<div id="triggerCriteriaBox" name="triggerCriteriaBox" >
 	          		<b style="display:block;">Trigger Criteria</b>
 		          	<!--  a select box for a criteria type-->
-					<select id="criteriaType.1" name="criteriaType.1" class="triggerCriteriaSelect" style="display:inline-block;">
-						<option value="Blank" selected="selected"></option>
-          			</select>
+					<g:select 	id="criteriaType.1" name="criteriaType.1" 
+								class="triggerCriteriaSelect" style="display:inline-block;"
+								from="${[ 
+											[id:'BodyKeywordTriggerCriteria', title:'Body Contains Keyword'],
+											[id:'TagTriggerCriteria',title:'Entry Has Tag'], 
+											[id:'AboveScoreTriggerCriteria', title:'Score Is Above'],
+											[id:'TitleKeywordTriggerCriteria', title:'Title Contains Keyword']
+											 ]}"
+								value="${triggerToEdit.theOneCriteria.shortName}"
+								optionKey="id" 
+								optionValue="title" />
+								
+								
+					<!--  a text box for a value  -->
+	          		<input type="text" id="criteriaValue-1" name="criteriaValue-1" 
+	          				style="display:inline-block;"
+	          				value="${triggerToEdit.theOneCriteria.value}"></input>
+	          						
+								
           		</div>
           		
+          		
+          		<!-- 
+          				<option value="EmailAction">Send Entry By Email</option>
+						<option value="XmppAction">Send Entry By XMPP</option>
+						<option value="QuoddyAction">Share Entry To Quoddy</option>
+						<option value="WorkflowAction">Trigger Workflow</option>
+						<option value="HttpAction">POST Entry To HTTP Endpoint</option>
+						<option value="JMSAction">Send Entry By JMS</option>
+						<option value="ScriptAction">Run Script</option>
+          		 -->
           		
           		<!-- trigger action(s) go here -->
           		<div>
 					<b style="display:block;">Trigger Actions</b>
-					<select class="triggerActionSelect" id="actionType.1" name="actionType.1" style="display:inline-block;">
-						<option value="Blank" selected="selected"></option>
-          			</select>
+					<g:select class="triggerActionSelect" id="actionType.1" 
+					name="actionType.1" style="display:inline-block;"
+					from="${[
+							  [id:'EmailAction', title:'Send Entry By Email'],
+							  [id:'XmppAction', title:'Send Entry By XMPP'],
+							  [id:'QuoddyAction', title:'Share Entry To Quoddy'],
+							  [id:'WorkflowAction', title:'Trigger Workflow'],
+						      [id:'HttpAction', title:'POST Entry To HTTP Endpoint'],
+							  [id:'JMSAction', title:'Send Entry By JMS'],
+							  [id:'ScriptAction', title:'Run Script']		
+									
+						    ]}"
+					value="${triggerToEdit.theOneAction.shortName}"
+					optionKey="id"
+					optionValue="title" />
+					
+                  	<!--  a text box for a value  -->
+          			<input type="text" id="actionValue-1" name="actionValue-1" 
+          					style="display:inline-block;"
+          					value="${triggerToEdit.theOneAction.value}"></input>
+					
+					
+					
           		</div>
           		
           		

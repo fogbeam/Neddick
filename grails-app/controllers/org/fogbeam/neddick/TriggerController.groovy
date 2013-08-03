@@ -226,11 +226,138 @@ class TriggerController
 	
 	def update =
 	{
+		
+		println "Params: ${params}";
+		
+		
 		BaseTrigger triggerToEdit = triggerService.findTriggerById( Long.parseLong( params.id ) );
 			
 		triggerToEdit.name = params.triggerName;
 		
-		triggerService.saveTrigger( triggerToEdit );
+		/*
+				Params: [
+							id:71776, 
+							criteriaValue-1:hadoop, 
+							criteriaType.1:BodyKeywordTriggerCriteria, 
+							criteriaType:[1:BodyKeywordTriggerCriteria], 
+							Save:Save, 
+							actionValue-1:fogbeam@gmail.com, 
+							triggerName:Body with "hadoop", 
+							actionType.1:EmailAction, 
+							actionType:[1:EmailAction], 
+							action:update, 
+							controller:trigger]
+ 
+		 */
+		
+		/* TODO: modify Trigger stuff */
+		
+		
+		String criteriaType = params.get("criteriaType.1");
+		BaseTriggerCriteria newCriteria = null;
+		switch( criteriaType )
+		{
+			case "BodyKeywordTriggerCriteria":
+				
+				println "creating BodyKeywordTriggerCriteria";
+				newCriteria = new BodyKeywordTriggerCriteria();
+				newCriteria.bodyKeyword = params.get( "criteriaValue-1");
+				
+				break;
+				
+			case "TagTriggerCriteria":
+			
+				println "creating TagTriggerCriteria";
+				criteria = new TagTriggerCriteria();
+				String tag = params.get( "criteriaValue-1");
+				if( tag != null && !tag.isEmpty())
+				{
+					tag = tag.trim().toLowerCase();
+					newCriteria.tag = tag;
+				}
+				else
+				{
+					throw new RuntimeException( "Empty tag name not allowed in Trigger Criteria" );
+				}
+				break;
+				
+			case "AboveScoreTriggerCriteria":
+			
+				println "creating AboveScoreTriggerCriteria";
+				newCriteria= new AboveScoreTriggerCriteria();
+				newCriteria.aboveScoreThreshold = Integer.parseInt( params.get( "criteriaValue-1") );
+				newCriteria.scoreName = "raw";
+				break;
+				
+			case "TitleKeywordTriggerCriteria":
+			
+				println "creating TitleKeywordTriggerCriteria";
+				newCriteria = new TitleKeywordTriggerCriteria();
+				newCriteria.titleKeyword = params.get( "criteriaValue-1");
+				
+				break;
+				
+			default:
+				
+				println "bad type";
+				break;
+		}
+		
+		
+		
+		
+		
+		String actionType = params.get("actionType.1");
+		BaseTriggerAction newTriggerAction = null;
+		switch( actionType )
+		{
+			case "EmailAction":
+				
+				newTriggerAction = new EmailTriggerAction();
+				newTriggerAction.destination = params.get( "actionValue-1");
+				break;
+				
+			case "XmppAction":
+			
+				newTriggerAction = new XmppTriggerAction();
+				newTriggerAction.destination = params.get( "actionValue-1");
+				break;
+				
+			case "QuoddyAction":
+				
+				newTriggerAction = new QuoddyShareTriggerAction();
+				newTriggerAction.destination = params.get( "actionValue-1");
+				
+				break;
+				
+			case "WorkflowAction":
+				
+				// TODO: implement WorkflowTriggerAction
+				// break;
+				
+			case "HttpAction":
+			
+				// TODO: implement HttpTriggerAction
+				// break;
+				
+			case "JMSAction":
+				
+				// TODO: implement JmsTriggerAction
+				// break;
+				
+			case "ScriptAction":
+			
+				// TODO: implement ScriptTriggerAction
+				// break;
+				
+			default:
+			
+				println "bad type";
+				break;
+		}
+		
+		
+		triggerService.updateTrigger( triggerToEdit, newCriteria, newTriggerAction );
 		
 		redirect( controller:'trigger', action:'index');
 		

@@ -45,8 +45,16 @@ class EmailTriggerAction extends BaseTriggerAction
 				continue;
 			}
 		}
-		
-		
-		
 	}
+	
+	public String getShortName()
+	{
+		return "EmailAction";	
+	}
+	
+	public String getValue()
+	{
+		return destination;
+	}
+	
 }

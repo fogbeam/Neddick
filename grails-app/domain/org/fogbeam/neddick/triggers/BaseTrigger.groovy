@@ -42,5 +42,19 @@ public class BaseTrigger
 	public String getTriggerType()
 	{
 		return GrailsNameUtils.getShortName( this.class );
-	} 
+	}
+	
+	/* a cheat for now, since we only support one criteria */
+	public BaseTriggerCriteria getTheOneCriteria()
+	{
+		return this.triggerCriteria.toArray()[0];
+	}
+	
+	/* a cheat for now, since we only support one action */
+	public BaseTriggerAction getTheOneAction()
+	{
+		return this.triggerActions.toArray()[0];
+	}
+	
+	 
 }

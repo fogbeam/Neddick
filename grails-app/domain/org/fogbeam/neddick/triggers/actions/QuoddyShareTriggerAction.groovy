@@ -86,8 +86,17 @@ class QuoddyShareTriggerAction extends BaseTriggerAction
 		
 		} // end quoddy address processing loop
 		
-				
-		
-		
 	}
+	
+	public String getShortName()
+	{
+		return "QuoddyAction";
+	}
+
+	
+	public String getValue()
+	{
+		return destination;
+	}
+	
 }

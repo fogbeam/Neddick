@@ -1,5 +1,7 @@
 package org.fogbeam.neddick.triggers.criteria
 
+import grails.util.GrailsNameUtils
+
 import org.fogbeam.neddick.triggers.BaseTrigger
 
 public class BaseTriggerCriteria
@@ -9,6 +11,7 @@ public class BaseTriggerCriteria
 		tablePerHierarchy false
 	}
 	
-		static belongsTo = [trigger: BaseTrigger];
+	static belongsTo = [trigger: BaseTrigger];
 	
+		
 }
