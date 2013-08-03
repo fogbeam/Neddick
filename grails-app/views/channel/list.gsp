@@ -12,17 +12,13 @@
           </g:if>
           
           <div class="searchResults" id="searchResults" style="margin-left:35px;padding-top:20px;">
+               <ul>
                <g:each in="${allChannels}" var="channel">
-                    <div style="padding:10px;">
-                         <div style="margin-left:70px;float:left;">
-                              <dl>
-                                   <dd>
-                                        <g:link controller="r" action="${channel.name}">${channel.name}</g:link>
-                                   </dd>
-                              </dl>
-                         </div>
-                    </div>
+                    <li>
+                    	<g:link controller="r" action="${channel.name}">${channel.name}</g:link>
+                    </li>
                </g:each>
+               	</ul>
           </div> 
           <div style="padding-top:10px;">
                <!-- Display Pager -->
