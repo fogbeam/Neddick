@@ -104,6 +104,8 @@ class TriggerService
 		
 		List<AboveScoreTriggerCriteria> triggerCriteria = AboveScoreTriggerCriteria.findAll();
 		
+		Entry theEntry = entryService.findByUuid( entryUuid );
+		
 		// Entry theEntry = entryService.findByUuid( entryUuid );
 		int newScore = Integer.parseInt( strNewScore);
 		
@@ -121,6 +123,16 @@ class TriggerService
 			{
 				// get the associated Trigger
 				BaseTrigger trigger = criteria.trigger;
+				
+				if( trigger instanceof ChannelTrigger )
+				{
+					Entry tempEntry = entryService.findByUuidAndChannel( entryUuid, trigger.channel );
+					if(  tempEntry == null )
+					{
+						continue;
+					}
+				}
+				
 				
 				println "found a match, firing Trigger: ${trigger.name}";
 				
@@ -141,10 +153,21 @@ class TriggerService
 		println "processing tag triggers..."
 		List<TagTriggerCriteria> triggersCriteria = this.findTagTriggerCriteriaByTagName( tagName );
 		
+		Entry theEntry = entryService.findByUuid( entryUuid );
+		
 		for( TagTriggerCriteria criteria : triggersCriteria )
 		{
 			// get the associated Trigger
 			BaseTrigger trigger = criteria.trigger;
+			if( trigger instanceof ChannelTrigger )
+			{
+				Entry tempEntry = entryService.findByUuidAndChannel( entryUuid, trigger.channel );
+				if(  tempEntry == null )
+				{
+					continue;
+				}
+			}
+			
 			
 			// and fire it's actions
 			trigger.fireAllActions( entryUuid );
@@ -180,6 +203,8 @@ class TriggerService
 			
 		List<BodyKeywordTriggerCriteria> bodyKeywordTriggerCriteria = BodyKeywordTriggerCriteria.findAll();
 		
+		Entry theEntry = entryService.findByUuid( entryUuid );
+		
 		if( bodyKeywordTriggerCriteria != null )
 		{
 			println "bodyKeywordTriggerCriteria object is valid";
@@ -203,7 +228,15 @@ class TriggerService
 					
 					// get the associated Trigger
 					BaseTrigger trigger = triggerCrit.trigger;
-					
+					if( trigger instanceof ChannelTrigger )
+					{
+						Entry tempEntry = entryService.findByUuidAndChannel( entryUuid, trigger.channel );
+						if(  tempEntry == null )
+						{
+							continue;
+						}
+					}
+										
 					println "found a match, firing Trigger: ${trigger.name}";
 					
 					// and fire it's actions
@@ -224,37 +257,49 @@ class TriggerService
 		{
 			for( TitleKeywordTriggerCriteria triggerCrit : titleKeywordTriggerCriteria )
 			{
-				// does this criteria fire?
-				if( false )
-				{
-					String keyword = triggerCrit.bodyKeyword;
-					List<Entry> searchResults = searchService.doSearch( "entry_uuid: ${entryUuid} AND title: ${keyword}" );
+				println "Found valid TitleKeywordTriggerCriteria with keyword: ${triggerCrit.titleKeyword}";
 				
-								
-					// does this criteria fire?
-					if( searchResults != null && !searchResults.isEmpty() )
-					{
-						// get the associated Trigger
-						BaseTrigger trigger = triggerCrit.trigger;
+				String keyword = triggerCrit.titleKeyword;
+				List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND title: ${keyword}" );
+				
+							
+				// does this criteria fire?
+				if( searchResults != null && !searchResults.isEmpty() )
+				{
+					println "found results for entryUuid: ${entryUuid} and title keyword: ${keyword}";
 					
-						// and fire it's actions
-						trigger.fireAllActions( entryUuid );
+					// get the associated Trigger
+					BaseTrigger trigger = triggerCrit.trigger;
+					if( trigger instanceof ChannelTrigger )
+					{
+						println "this is a ChannelTrigger for Channel: ${trigger.channel.name}";
+						Entry tempEntry = entryService.findByUuidAndChannel( entryUuid, trigger.channel );
+						if(  tempEntry == null )
+						{
+							println "but the channel doesn't match, skipping...";
+							continue;
+						}
+						else
+						{
+							println "and the channel does match, proceeding...";
+						}
 					}
 					else
 					{
-					
+						println "this is not a Channel Trigger";
 					}
+					
+		
+					println "firing all actions...";			
+					// and fire it's actions
+					trigger.fireAllActions( entryUuid );
 				}
 				else
 				{
-					
+					println "found NO results for entryUuid: ${entryUuid} and title keyword: ${keyword}";
 				}
-
 			}
 		}
-		
-		
-			
 	}
 
 	public void deleteTrigger( final Long id )

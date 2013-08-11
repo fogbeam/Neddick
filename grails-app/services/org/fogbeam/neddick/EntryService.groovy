@@ -46,6 +46,23 @@ class EntryService {
 		return entries;	
 	}
 	
+	
+	@Transactional(propagation = Propagation.REQUIRED)
+	public Entry findByUuidAndChannel( final String entryUuid, final Channel channel )
+	{
+		// check if this channel already has an Entry for this same link
+		List<Entry> entries = Entry.executeQuery( "select entry from Entry as entry, ChannelEntryLink as clink where entry.uuid = ? and clink.entry = entry and clink.channel = ?", [entryUuid, channel] );
+		if( entries != null && entries.size() == 1 )
+		{
+			return entries[0];
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public boolean saveEntry( final Entry entry )
 	{

@@ -112,16 +112,20 @@ $j(document).ready(function() {
 		
 		var triggerType = $j(this).attr('value');
 		
-		if( triggerType == "Channel" )
-		{		
+		// alert( "TriggerType: " + triggerType );
+		
+		if( triggerType == "ChannelTrigger" )
+		{	
+			// alert( "Channel" );
 			// if "Channel" is selected, add an input field to specify
 			// the channel
 			var channelSelector = $j("div #channelSelector").clone();
 			channelSelector.css('display', 'block').insertAfter("#triggerNameBox");
 		
 		}
-		else
+		else if( triggerType == "GlobalTrigger" )
 		{
+			// alert( "Not Channel" );
 			// see if we have previously added a channel selector.  
 			// If we have, remove it from the view 
 			var channelSelector = $j("div#channelSelector :visible");
@@ -134,6 +138,10 @@ $j(document).ready(function() {
 			{
 				// alert( "nope" );
 			}
+		}
+		else 
+		{
+			alert( "Invalid TriggerType selected" );
 		}
 	});
 	

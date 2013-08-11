@@ -17,6 +17,7 @@ class TriggerController
 {
 	def triggerService;
 	def userService;
+	def channelService;
 	
 	def index =
 	{
@@ -79,8 +80,8 @@ class TriggerController
 				newTrigger.name = params.triggerName;
 				newTrigger.owner = userService.findUserByUserId( session.user.userId );
 			
-				// Channel channel = channelService.findChannelById( params.channelId );
-				// newTrigger.channel = channel;
+				Channel channel = channelService.findByName( params.triggerChannel );
+				newTrigger.channel = channel;
 				
 				break;
 				

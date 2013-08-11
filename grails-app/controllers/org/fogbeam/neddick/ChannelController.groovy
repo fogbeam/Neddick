@@ -143,14 +143,35 @@ class ChannelController {
 	def edit = {
 		// lookup the specified channel
 		String channelName = params.id;
+
+		println "got channelName as: ${channelName}";
+		
 		Channel theChannel = null;
 		if( channelName )
 		{
 			theChannel = channelService.findByName( channelName );
+		
+			if( theChannel )
+			{
+				println "located channel: ${theChannel.id}";
+			}
+			else
+			{
+				println "Could not locate channel: ${channelName}";
+			}
+			
 		}
-
+		else
+		{
+			flash.message = "No Channel name provided";
+		}
+		
+		
+		
 		
 		List<RssFeed> availableFeeds = RssFeed.executeQuery( "select feed from RssFeed as feed, Channel as channel where channel = ? and feed not in elements(channel.feeds)", [theChannel] );
+		println "Found ${availableFeeds.size()} available feeds";
+		
 				
 		[channel: theChannel,availableFeeds:availableFeeds];
 		
