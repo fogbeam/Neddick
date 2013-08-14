@@ -137,7 +137,12 @@
             	</li>
             	<li>
             		<g:link controller="trigger" action="index">Triggers</g:link>
-            	</li>    
+            	</li>
+            	
+            	<li>
+            		<g:link controller="filter" action="index">Filters</g:link>
+            	</li>            	
+            	    
             </g:if>
             <g:if test="${session.user}">
             	<li>
