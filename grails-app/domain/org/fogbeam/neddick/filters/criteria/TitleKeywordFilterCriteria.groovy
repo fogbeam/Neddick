@@ -2,9 +2,10 @@ package org.fogbeam.neddick.filters.criteria
 
 import grails.util.GrailsNameUtils
 
-class BodyKeywordFilterCriteria extends BaseFilterCriteria
+class TitleKeywordFilterCriteria extends BaseFilterCriteria
 {
-	String bodyKeyword;
+	String titleKeyword;
+	
 	
 	public String getShortName()
 	{
@@ -13,7 +14,7 @@ class BodyKeywordFilterCriteria extends BaseFilterCriteria
 
 	public String getValue()
 	{
-		return( bodyKeyword );
+		return this.titleKeyword;
 	}
 		
 }

@@ -8,5 +8,5 @@ class BaseFilterCriteria
 		tablePerHierarchy false
 	}
 	
-	static belongsTo = [trigger: BaseFilter];
+	static belongsTo = [filter: BaseFilter];
 }

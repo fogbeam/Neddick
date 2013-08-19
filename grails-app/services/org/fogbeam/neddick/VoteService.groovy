@@ -131,7 +131,7 @@ class VoteService {
 	
 		// send a JMS message to our testQueue
 		sendJMSMessage( "neddickTriggerQueue", scoreChangedMessage );
-		
+		sendJMSMessage( "neddickFilterQueue", scoreChangedMessage );
 		
 		return entry;
 		

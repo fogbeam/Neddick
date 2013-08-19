@@ -69,8 +69,10 @@ public class IndexerListenerService
 				// send JMS message saying "tag added"
 				def tagIndexedMessage = [msgType:"TAG_INDEXED", entry_uuid:uuid, tagName: tagName ];
 			
-				// send a JMS message to our testQueue
+				// send notifications
 				sendJMSMessage( "neddickTriggerQueue", tagIndexedMessage );
+				sendJMSMessage( "neddickFilterQueue", tagIndexedMessage );
+				
 				return;
     		}
     		else
@@ -296,12 +298,12 @@ public class IndexerListenerService
 				}
 
 				
-				// send JMS message saying "tag added"
+				// send JMS message saying "content indexed"
 				def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
 			
-				// send a JMS message to our testQueue
+				// send notifications
 				sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
-				
+				sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
 				
 				
     		}

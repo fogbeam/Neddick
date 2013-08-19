@@ -1,8 +1,7 @@
 package org.fogbeam.neddick
 
-import java.util.SortedSet;
-
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.fogbeam.neddick.filters.BaseFilter
 
 
 class HomeController {
@@ -12,6 +11,7 @@ class HomeController {
 	def entryCacheService;
 	def channelService;
 	def siteConfigService;	
+	def filterService;
 	
 	int itemsPerPage = -1;
 	
@@ -76,11 +76,7 @@ class HomeController {
 		boolean defaultChannel = false;
 		String channelName = params.channelName;
 		if( channelName == null )
-		{
-			/* TODO: if we're on the "default" channel, then get the user's subscribed channels and
-			 * aggregate the Entries associated with those channels
-			 */
-			
+		{	
 			channelName = ConfigurationHolder.config.channel.defaultChannel;
 			defaultChannel = true;
 		}
@@ -98,61 +94,115 @@ class HomeController {
 			user = userService.findUserByUserId( "anonymous" );
 		}
 		
-		// select count Entries for this channel
-		int dataSize = 0;
-		if( user != null ) {
-			
-			dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
-		}
-		else 
+		
+		// check if there is a Filter for this channel, for this User
+		// if there is, only render the entries from the Filter
+		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
+		
+		if( filter )
 		{
-			dataSize = entryService.getCountAllEntries( theChannel );
-			
-		}
-		
-		int pages = dataSize / itemsPerPage;
-		pages = Math.max( pages, 1 );
-		
-		log.debug( "calculated available pages as: ${pages}");
-		
-		if( dataSize > (pages*itemsPerPage) )
-		{
-			pages += 1;
-		}
-		availablePages = pages;
-		
-		log.debug( "After allowing for overflow, availablePages now: ${availablePages}");
-		
-		if( pageNumber < 1 )
-		{
-			flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-			pageNumber = 1;
-		}
-		if( pageNumber > availablePages )
-		{
-			flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-			pageNumber = availablePages;
-		}
 
-		List<Entry> entries = null;
-		if( user != null ) 
-		{
-			log.debug( "calling getAllNonHiddenEntriesForUser" );
-			entries = entryService.getAllNonHiddenEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-		else 
-		{
-			log.debug( "calling getAllEntries" );
-			entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-		
-		def sortedEntries = entries.sort { it.dateCreated }.reverse();
-		def model = [allEntries: sortedEntries,
-					 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
-					 requestType:"index"];
-
-		render(view:"index", model:model);
 			
+			// select count Entries for this channel
+			int dataSize = filterService.getCountNonHiddenEntriesForFilter( filter );
+			
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			log.debug( "calculated available pages as: ${pages}");
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+			
+			log.debug( "After allowing for overflow, availablePages now: ${availablePages}");
+			
+			if( pageNumber < 1 )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = 1;
+			}
+			if( pageNumber > availablePages )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = availablePages;
+			}
+
+			
+			log.debug( "calling getAllNonHiddenEntriesForFilter" );
+			List<Entry> entries;
+			entries = filterService.getAllNonHiddenEntriesForFilter(filter, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			
+			
+			def sortedEntries = entries.sort { it.dateCreated }.reverse();
+			def model = [allEntries: sortedEntries,
+						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+						 requestType:"index"];
+	
+			render(view:"index", model:model);
+			
+						
+		}
+		else
+		{
+			
+			// select count Entries for this channel
+			int dataSize = 0;
+			if( user != null ) {
+				
+				dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			}
+			else 
+			{
+				dataSize = entryService.getCountAllEntries( theChannel );
+				
+			}
+			
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			log.debug( "calculated available pages as: ${pages}");
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+			
+			log.debug( "After allowing for overflow, availablePages now: ${availablePages}");
+			
+			if( pageNumber < 1 )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = 1;
+			}
+			if( pageNumber > availablePages )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = availablePages;
+			}
+	
+			List<Entry> entries = null;
+			if( user != null ) 
+			{
+				log.debug( "calling getAllNonHiddenEntriesForUser" );
+				entries = entryService.getAllNonHiddenEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+			else 
+			{
+				log.debug( "calling getAllEntries" );
+				entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+			
+			def sortedEntries = entries.sort { it.dateCreated }.reverse();
+			def model = [allEntries: sortedEntries,
+						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+						 requestType:"index"];
+	
+			render(view:"index", model:model);
+		}
 	}
 
 	

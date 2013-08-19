@@ -40,25 +40,6 @@ class TriggerController
 	{
 		// create a new Trigger from the received parameters and save it, then
 		// redirect to the main triggers page
-		// println "Params: ${params}";
-		
-		// 	Params: [Save:Save, triggerType:Global, triggerName:Interesting shit, action:save, controller:trigger]
-
-		/*
-			Params: [criteriaValue-1:semantic, 
-					 criteriaType.1:BodyKeywordTriggerCriteria, 
-					 criteriaType:[1:BodyKeywordTriggerCriteria], 
-					 Save:Save, triggerType:Global, 
-					 actionValue-1:prhodes, 
-					 triggerName:Body with 'semantic', 
-					 actionType.1:QuoddyAction, 
-					 actionType:[1:QuoddyAction], 
-					 action:save, 
-					 controller:trigger]
-
-		 */
-		
-		
 		
 		String triggerType = params.triggerType;
 		BaseTrigger newTrigger = null;
@@ -226,32 +207,11 @@ class TriggerController
 	}
 	
 	def update =
-	{
-		
-		println "Params: ${params}";
-		
+	{		
 		
 		BaseTrigger triggerToEdit = triggerService.findTriggerById( Long.parseLong( params.id ) );
 			
 		triggerToEdit.name = params.triggerName;
-		
-		/*
-				Params: [
-							id:71776, 
-							criteriaValue-1:hadoop, 
-							criteriaType.1:BodyKeywordTriggerCriteria, 
-							criteriaType:[1:BodyKeywordTriggerCriteria], 
-							Save:Save, 
-							actionValue-1:fogbeam@gmail.com, 
-							triggerName:Body with "hadoop", 
-							actionType.1:EmailAction, 
-							actionType:[1:EmailAction], 
-							action:update, 
-							controller:trigger]
- 
-		 */
-		
-		/* TODO: modify Trigger stuff */
 		
 		
 		String criteriaType = params.get("criteriaType.1");

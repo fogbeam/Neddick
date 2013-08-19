@@ -2,18 +2,20 @@ package org.fogbeam.neddick.filters.criteria
 
 import grails.util.GrailsNameUtils
 
-class BodyKeywordFilterCriteria extends BaseFilterCriteria
+class AboveScoreFilterCriteria extends BaseFilterCriteria
 {
-	String bodyKeyword;
+	int aboveScoreThreshold;
+	String scoreName;
+
 	
 	public String getShortName()
 	{
 		return GrailsNameUtils.getShortName( this.class );
 	}
-
+	
 	public String getValue()
 	{
-		return( bodyKeyword );
+		return Integer.toString( this.aboveScoreThreshold );
 	}
 		
 }

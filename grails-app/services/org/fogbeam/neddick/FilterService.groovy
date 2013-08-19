@@ -1,9 +1,23 @@
 package org.fogbeam.neddick
 
 import org.fogbeam.neddick.filters.BaseFilter
+import org.fogbeam.neddick.filters.criteria.AboveScoreFilterCriteria
+import org.fogbeam.neddick.filters.criteria.BaseFilterCriteria
+import org.fogbeam.neddick.filters.criteria.BodyKeywordFilterCriteria
+import org.fogbeam.neddick.filters.criteria.TagFilterCriteria
+import org.fogbeam.neddick.filters.criteria.TitleKeywordFilterCriteria
 
 class FilterService
 {
+	def searchService;
+	def entryService;
+	
+	public BaseFilter findFilterById( final Long id )
+	{
+		
+		BaseFilter theFilter = BaseFilter.findById( id );
+		return theFilter;
+	}
 	
 
 	public List<BaseFilter> getFiltersForUser( final User user )
@@ -33,5 +47,330 @@ class FilterService
 		}
 	}
 	
+	public void deleteFilterById( final long id)
+	{
+		BaseFilter filterToDelete = BaseFilter.findById( id );
+		filterToDelete.delete();
+	}
+
+	public BaseFilter updateFilter( final BaseFilter filterToEdit, final BaseFilterCriteria newCriteria )
+	{
+		
+		BaseFilterCriteria criteriaToRemove = filterToEdit.theOneCriteria;
+		filterToEdit.removeFromFilterCriteria( criteriaToRemove );
+		criteriaToRemove.delete();
+		
+		filterToEdit.addToFilterCriteria( newCriteria );
+		
+		if( !filterToEdit.save())
+		{
+			filterToEdit.errors.allErrors.each { println it; }
+			throw new RuntimeException( "Failed to update filter!");
+		}
+		
+		
+		return filterToEdit;
+	}
+
 	
+	public BaseFilter findFilterByUserAndChannel( final User user, final Channel channel )
+	{
+		BaseFilter filter = null;
+		
+		List<BaseFilter> queryResults = BaseFilter.
+			executeQuery( "select filter from BaseFilter as filter where filter.owner = :user and filter.channel = :channel",
+				[user:user, channel:channel] );
+		
+		
+		if( queryResults != null && queryResults.size() == 1 )
+		{
+			filter = queryResults[0];
+		}
+		
+		
+		return filter;
+	}
+	
+	
+	public long getCountNonHiddenEntriesForFilter( final BaseFilter filter )
+	{
+		long entryCount = 0L;
+		
+		
+		List<Long> queryResults = BaseFilter.
+			executeQuery( "select size(filter.entries) from BaseFilter filter where filter = :filter", [filter:filter] );
+
+		if( queryResults != null && queryResults.size() == 1 )
+		{
+			entryCount = queryResults[0];
+		}	
+					
+		return entryCount;
+	}
+	
+	
+	public List<Entry> getAllNonHiddenEntriesForFilter(final BaseFilter filter, final int maxResults, final int offset )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		
+		
+		List<Entry> queryResults = Entry.
+			executeQuery( "select e from Entry as e, BaseFilter as f, User as u where e in elements(f.entries) " + 
+						  " and f = :filter and e not in elements(u.hiddenEntries) and u = :user", 
+						  [filter:filter, user: filter.owner], 
+						  [max:maxResults, offset:offset]);
+		
+		
+		if( queryResults != null )
+		{
+			entries.addAll( queryResults );
+		}
+		
+		return entries;
+	}
+	
+		
+	public void fireTagFilterCriteria( final String tagName, final String entryUuid  )
+	{
+		println "fireTagFilterCriteria";
+		
+		// lookup the Entry that was just tagged
+		Entry entry = entryService.findByUuid( entryUuid );
+				
+		// find any tag criteria for this channel and this tagName
+		List<BaseFilterCriteria> filterCriteria = this.findTagCriteriaByTagName( tagName );
+		
+		// for each specific criteria, add our entry to the associated filter
+		for( BaseFilterCriteria criteria : filterCriteria )
+		{
+			// println "adding Entry to filter for channel: ${channel.name} and tag: ${tagName}";
+			BaseFilter filter = criteria.filter;
+			Channel targetChannel = filter.channel;
+			
+			// we have an entry that's just been tagged with a tag for which there
+			// is a filter, but is it on the channel the filter is set for?
+			List<Channel> entryChannels = entry.channels;
+			
+			for( Channel channel : entryChannels )
+			{
+				if( channel.id == targetChannel.id )
+				{
+					
+					filter.addToEntries( entry );
+					break;
+				}
+			}
+		}
+		
+	}
+	
+	
+	public void fireThresholdFilterCriteria( final String entryUuid, final String strNewScore )
+	{
+		println "fireThresholdFilterCriteria";
+		println "processing score threshold filter criteria...";
+		
+			
+		int newScore = Integer.parseInt( strNewScore);
+		
+		Entry theEntry = entryService.findByUuid( entryUuid );
+		List<Channel> entryChannels = theEntry.channels;
+	
+		
+		for( Channel channel : entryChannels )
+		{
+			// get any AboveScoreFilterCriteria for this channel
+			List<AboveScoreFilterCriteria> triggerCriteria = this.findAboveScoreFilterCriteriaByChannel( channel );
+			
+			
+			for( AboveScoreFilterCriteria criteria : triggerCriteria)
+			{
+				// for each AboveScoreFilterCriteria, test to see if it's Filter should file 
+				println "found an instance of AboveScoreFilterCriteria";
+				println "newScore: ${newScore}, threshold: ${criteria.aboveScoreThreshold}";
+				
+				
+				/* TODO: this needs to take score personalization into account */
+				
+				// does this criteria fire?
+				if( newScore  > criteria.aboveScoreThreshold )
+				{
+					// get the associated filter
+					BaseFilter filter = criteria.filter;
+					
+					println "found a match, attaching Entry to Filter: ${filter.name}";
+				
+					filter.addToEntries( theEntry );	
+				}
+				else
+				{
+					println "No match, not firing actions...";
+				}
+				
+			}
+		}
+				
+		
+	}
+	
+	
+	
+	List<BaseFilterCriteria> findTagCriteriaByTagName( final String tagName )
+	{
+		List<BaseFilterCriteria> criteria = new ArrayList<BaseFilterCriteria>();
+		
+		// TagTriggerCriteria.executeQuery( "select criteria from TagTriggerCriteria as criteria where criteria.tag = :tagName", [tagName:canonicalTagName] );
+
+		List<BaseFilterCriteria> queryResults = TagFilterCriteria.executeQuery( 
+				"select criteria from TagFilterCriteria as criteria where criteria.tag = :tagName", [tagName:tagName] );
+		
+		if( queryResults != null )
+		{
+			criteria.addAll( queryResults );
+		}
+		
+		
+		return criteria;
+	}
+	
+
+	List<AboveScoreFilterCriteria> findAboveScoreFilterCriteriaByChannel( final Channel channel )
+	{
+		List<AboveScoreFilterCriteria> criteria = new ArrayList<>();
+		
+		
+		List<AboveScoreFilterCriteria> queryResults = AboveScoreFilterCriteria.
+			executeQuery( "select criteria from AboveScoreFilterCriteria as criteria where criteria.filter.channel = :channel",
+				[channel:channel] );
+		
+		if( queryResults != null )
+		{
+			criteria.addAll( queryResults );
+		}	
+			
+		
+		return criteria;
+	}
+	
+	
+	
+	public void fireContentFilterCriteria( final String entryUuid )
+	{
+		println "processing content triggers..."
+	
+		
+		
+		Entry theEntry = entryService.findByUuid( entryUuid );
+		List<Channel> entryChannels = theEntry.channels;
+	
+		
+		for( Channel channel : entryChannels )
+		{		
+			List<BodyKeywordFilterCriteria> bodyKeywordFilterCriteria = this.findBodyKeywordFilterCriteriaByChannel( channel );
+		
+		
+			if( bodyKeywordFilterCriteria != null )
+			{
+				println "bodyKeywordFilterCriteria object is valid";
+			
+				for( BodyKeywordFilterCriteria criteria : bodyKeywordFilterCriteria )
+				{
+					
+					String keyword = criteria.bodyKeyword;
+				
+					println "found a body filterCriteria with keyword: ${keyword}";
+					
+					List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND content: ${keyword}" );
+					
+					println "did search for entry_uuid: ${entryUuid}";
+									
+					// does this criteria fire?
+					if( searchResults != null && !searchResults.isEmpty() )
+					{
+						// this entry matches, so add it to the filter
+						
+						// get the associated filter
+						BaseFilter filter = criteria.filter;
+						
+						println "found a match, attaching Entry to Filter: ${filter.name}";
+					
+						filter.addToEntries( theEntry );
+						
+					}
+							
+				}
+			}
+			
+			
+			List<TitleKeywordFilterCriteria> titleKeywordFilterCriteria = this.findTitleKeywordFilterCriteriaByChannel( channel );
+			if( titleKeywordFilterCriteria != null )
+			{
+				println "titleKeywordFilterCriteria object is valid";
+			
+				for( TitleKeywordFilterCriteria criteria : titleKeywordFilterCriteria )
+				{
+					
+					String keyword = criteria.titleKeyword;
+				
+					println "found a title filterCriteria with keyword: ${keyword}";
+					
+					List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND title: ${keyword}" );
+					
+					println "did search for entry_uuid: ${entryUuid}";
+									
+					// does this criteria fire?
+					if( searchResults != null && !searchResults.isEmpty() )
+					{
+						// this entry matches, so add it to the filter
+						
+						// get the associated filter
+						BaseFilter filter = criteria.filter;
+						
+						println "found a match, attaching Entry to Filter: ${filter.name}";
+					
+						filter.addToEntries( theEntry );
+						
+					}
+				}
+			}
+
+		}
+		
+		
+	}
+	
+
+	private List<BodyKeywordFilterCriteria> findBodyKeywordFilterCriteriaByChannel( final Channel channel )
+	{
+		List<BodyKeywordFilterCriteria> filterCriteria  = new ArrayList<BodyKeywordFilterCriteria>();
+		
+		List<BodyKeywordFilterCriteria> queryResults = BodyKeywordFilterCriteria.
+						executeQuery( "select criteria from BodyKeywordFilterCriteria as criteria where criteria.filter.channel = :channel",
+						[channel:channel] );
+	
+		if( queryResults != null )
+		{
+			filterCriteria.addAll( queryResults );
+		}
+	
+		return filterCriteria;
+	}		
+
+	
+	private List<TitleKeywordFilterCriteria> findTitleKeywordFilterCriteriaByChannel( final Channel channel )
+	{
+		List<TitleKeywordFilterCriteria> filterCriteria  = new ArrayList<TitleKeywordFilterCriteria>();
+		
+		List<TitleKeywordFilterCriteria> queryResults = TitleKeywordFilterCriteria.
+						executeQuery( "select criteria from TitleKeywordFilterCriteria as criteria where criteria.filter.channel = :channel",
+						[channel:channel] );
+	
+		if( queryResults != null )
+		{
+			filterCriteria.addAll( queryResults );
+		}
+	
+		return filterCriteria;
+	}
+		
 }

@@ -5,6 +5,11 @@
           <nav:resources />
     </head>
     <body>
+    
+            <div>
+          		<g:link controller="filter" action="create">Create Filter</g:link>
+          	</div>
+    
           <div style="margin-left:35px;padding-top:20px;">
        		<strong>Filters</strong>   
 			<p />

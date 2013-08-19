@@ -1,19 +1,16 @@
 package org.fogbeam.neddick.filters.criteria
 
-import grails.util.GrailsNameUtils
-
-class BodyKeywordFilterCriteria extends BaseFilterCriteria
+class TagFilterCriteria extends BaseFilterCriteria
 {
-	String bodyKeyword;
+	String tag;
 	
 	public String getShortName()
 	{
 		return GrailsNameUtils.getShortName( this.class );
 	}
-
+	
 	public String getValue()
 	{
-		return( bodyKeyword );
+		return this.tag;
 	}
-		
 }

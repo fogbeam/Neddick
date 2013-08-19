@@ -1,22 +1,22 @@
 package org.fogbeam.neddick.jms.listeners
 
-class TriggerListenerService
+class FilterListenerService
 {
 	
 	def siteConfigService;
 	def entryService;
-	def triggerService;
+	def filterService;
 	
 	static expose = ['jms']
-	static destination = "neddickTriggerQueue"
-
+	static destination = "neddickFilterQueue"
+	
 	
 	def onMessage( msg )
 	{
 		
-		// something happened that might invoke one or more triggers
-		// fire the respective method on triggerService
-				
+		println "FilterListenerService received message: ${msg}";
+		
+		
 		String msgType = msg.msgType;
 		
 		switch( msgType )
@@ -25,19 +25,20 @@ class TriggerListenerService
 				
 				String tagName = msg.tagName;
 				String entryUuid = msg.entry_uuid;
-				triggerService.fireTagTriggerCriteria( tagName, entryUuid );
+				println "firing TagFilterCriteria";
+				filterService.fireTagFilterCriteria( tagName, entryUuid );
 				break;
 			
 			case "NEW_ENTRY_INDEXED":
 				String entryUuid = msg.entry_uuid;
-				triggerService.fireContentTriggerCriteria( entryUuid );
+				filterService.fireContentFilterCriteria( entryUuid );
 				break;
 					
 			case "ENTRY_SCORE_CHANGED":
 			
 				String entryUuid = msg.entry_uuid;
-				String newScore = msg.newScore;				
-				triggerService.fireThresholdTriggerCriteria( entryUuid, newScore );
+				String newScore = msg.newScore;
+				filterService.fireThresholdFilterCriteria( entryUuid, newScore );
 			
 				break;
 						
@@ -46,6 +47,8 @@ class TriggerListenerService
 				break;
 		}
 		
-	}
 		
+	}
+	
+	
 }
