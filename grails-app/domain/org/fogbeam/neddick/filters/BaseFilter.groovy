@@ -4,7 +4,6 @@ import org.fogbeam.neddick.Channel
 import org.fogbeam.neddick.Entry
 import org.fogbeam.neddick.User
 import org.fogbeam.neddick.filters.criteria.BaseFilterCriteria
-import org.fogbeam.neddick.triggers.criteria.BaseTriggerCriteria;
 
 class BaseFilter
 {
@@ -12,7 +11,14 @@ class BaseFilter
 		tablePerHierarchy false
 	}
 
+	public BaseFilter()
+	{
+		this.uuid = java.util.UUID.randomUUID().toString();
+	}
+	
+	
 	String name;
+	String uuid;
 	User owner;
 	Channel channel;
 	

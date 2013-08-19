@@ -20,6 +20,14 @@ class FilterService
 	}
 	
 
+	public BaseFilter findFilterByUuid( final String uuid )
+	{
+		
+		BaseFilter theFilter = BaseFilter.findByUuid( uuid );
+		return theFilter;
+	}
+	
+	
 	public List<BaseFilter> getFiltersForUser( final User user )
 	{
 		List<BaseFilter> filters = new ArrayList<BaseFilter>();
@@ -36,8 +44,14 @@ class FilterService
 	
 	public BaseFilter saveFilter( final BaseFilter newFilter )
 	{
-		if( newFilter.save() )
+		if( newFilter.save(flush:true) )
 		{
+			
+			def newFilterMessage = [msgType:'NEW_FILTER_CREATED', filterUuid:newFilter.uuid];
+			
+			sendJMSMessage( "neddickFilterQueue", newFilterMessage );
+			
+			
 			return newFilter;
 		}
 		else 
@@ -372,5 +386,15 @@ class FilterService
 	
 		return filterCriteria;
 	}
+
+	private void processExistingContentForFilter( final String filterUuid )
+	{
+		println "processing existing content for filter: ${filterUuid}";
 		
+		BaseFilter filter = this.findFilterByUuid( filterUuid );
+		
+		println "Found filter: ${filter.name}";
+		
+	}	
+			
 }

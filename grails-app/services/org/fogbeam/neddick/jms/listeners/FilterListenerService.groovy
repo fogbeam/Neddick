@@ -41,7 +41,13 @@ class FilterListenerService
 				filterService.fireThresholdFilterCriteria( entryUuid, newScore );
 			
 				break;
-						
+		
+			case "NEW_FILTER_CREATED":
+			
+				filterService.processExistingContentForFilter( msg.filterUuid );
+			
+				break;	
+								
 			default:
 				println "Remote sent bad msgType";
 				break;
