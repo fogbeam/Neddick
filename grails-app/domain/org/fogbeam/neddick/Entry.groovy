@@ -17,10 +17,8 @@ class Entry
 	
     static transients = [ "score", "hotness", "controversy", "age", "siteConfigService", "link" ];
     static mapping = {
-		channel lazy:false // eagerly fetch the channel
 		submitter lazy:false;
 	}
-
 
     
     String uuid;

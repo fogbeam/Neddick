@@ -11,7 +11,8 @@ class FilterService
 {
 	def searchService;
 	def entryService;
-	
+	def tagService;
+		
 	public BaseFilter findFilterById( final Long id )
 	{
 		
@@ -394,6 +395,71 @@ class FilterService
 		BaseFilter filter = this.findFilterByUuid( filterUuid );
 		
 		println "Found filter: ${filter.name}";
+		
+		// get the Channel this Filter is associated with, so we can grab all
+		// the content for that Channel
+		Channel channel = filter.channel;
+		
+		// get our Criteria from the Filter so we can look for content which
+		// could match
+		BaseFilterCriteria filterCriteria = filter.theOneCriteria;
+		
+		List<Entry> entriesToAdd = new ArrayList<Entry>();
+		
+		// TODO: convert to polymorphic function calls, something like
+		// getEntriesByFilterCriteria( TitleKeywordFilterCriteria filterCriteria )
+		// getEntriesByFilterCriteria( BodyKeywordFilterCriteria filterCriteria )
+		// getEntriesByFilterCriteria( TagKeywordFilterCriteria filterCriteria )
+		// etc...
+		
+		if( filterCriteria instanceof TitleKeywordFilterCriteria )
+		{
+			List<Entry> entries = searchService.doSearch( "+ channel_uuids: ${channel.uuid} and + title: ${filterCriteria.titleKeyword}" );
+			
+			if( entries != null )
+			{
+				entriesToAdd.addAll( entries );
+			}
+			
+		}
+		else if( filterCriteria instanceof BodyKeywordFilterCriteria )
+		{
+			List<Entry> entries = searchService.doSearch( "+ channel_uuids: ${channel.uuid} and + content: ${filterCriteria.bodyKeyword}" );
+			
+			if( entries != null )
+			{
+				entriesToAdd.addAll( entries );
+			}			
+			
+			
+		}
+		else if( filterCriteria instanceof TagFilterCriteria )
+		{
+			String tagName = filterCriteria.tag;
+			Tag tag = tagService.findTagByName(tagName);
+			if( null != tag )
+			{
+				List<Entry> taggedEntries = tag.entries;
+				if( taggedEntries != null )
+				{
+					entriesToAdd.addAll( taggedEntries );
+				}
+			}
+		}
+		else if( filterCriteria instanceof AboveScoreFilterCriteria )
+		{
+			List<Entry> entries = entryService.findEntriesByChannelAndScoreThreshold( channel, filterCriteria.aboveScoreThreshold );
+			if( entries != null )
+			{
+				entriesToAdd.addAll( entries );
+			}
+		}
+		
+		for( Entry entryToAdd : entriesToAdd )
+		{
+			filter.addToEntries( entryToAdd );
+		}
+		
 		
 	}	
 			

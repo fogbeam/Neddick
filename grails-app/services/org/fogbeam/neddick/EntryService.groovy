@@ -548,5 +548,25 @@ class EntryService {
 		
 		return comments;
 	}
+
+	public List<Entry> findEntriesByChannelAndScoreThreshold( final Channel channel, final int scoreThreshold )
+	{
+		List<Entry> entries = new ArrayList<Entry>();
+		
+		List<Entry> temp =  
+			Entry.executeQuery( "select entry from Entry as entry,  ChannelEntryLink as clink "
+				+ " where clink.entry = entry and clink.channel = :channel "
+				+ " and entry.score > :scoreThreshold "
+				+ " order by entry.dateCreated desc", [channel:channel, scoreThreshold:scoreThreshold] );
+
+		if( temp != null )
+		{
+			entries.addAll( temp );
+		}
+			
+		return entries;	
+			
+	}
 	
+		
 }
