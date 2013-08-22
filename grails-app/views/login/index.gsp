@@ -20,6 +20,7 @@
                </g:if>
           
                <g:form controller="login" action="login">
+               		<input type="hidden" name="targetUri" value="${targetUri}" />
                     <dl>
                
                          <dt>Username:</dt>

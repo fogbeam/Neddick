@@ -19,8 +19,27 @@ grails.project.dependency.resolution = {
 	//mavenRepo "http://repository.jboss.com/maven2/"
  } 
  dependencies { 
-	     // specify dependencies here under either 'build', 'compile', ...
+	    // specify dependencies here under either 'build', 'compile', ...
 
-	     // runtime 'mysql:mysql-connector-java:5.1.5' 
-	     } 
+ 		// runtime 'mysql:mysql-connector-java:5.1.5'
+	 	
+	 	compile "org.grails:grails-webflow:$grailsVersion"
+	 
+	  
+	}
+ 
+ plugins {
+	 
+	 compile ':webflow:2.0.0', {
+		 exclude 'grails-webflow'
+	 	}
+	 
+	 runtime( ":shiro:1.1.4" ){
+		 exclude 'quartz';
+	 	}
+
+	 compile ":jaxrs:0.8"
+
+   }
+ 
 }

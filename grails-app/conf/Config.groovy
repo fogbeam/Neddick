@@ -103,3 +103,5 @@ chat {
 channel {
 	defaultChannel = "default";
 }    
+
+security.shiro.redirect.uri = "/login/index";

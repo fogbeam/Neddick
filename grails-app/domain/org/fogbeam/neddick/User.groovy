@@ -35,7 +35,14 @@ class User {
     	table 'uzer'
     }
 
-    static hasMany = [savedEntries : Entry, hiddenEntries: Entry, childUserLinks:UserToUserLink, parentUserLinks: UserToUserLink, userEntryScoreLinks:UserEntryScoreLink ];
+    static hasMany = [	savedEntries : Entry, 
+						hiddenEntries: Entry, 
+						childUserLinks:UserToUserLink, 
+						parentUserLinks: UserToUserLink, 
+						userEntryScoreLinks:UserEntryScoreLink,
+						roles: AccountRole, 
+						permissions: String ];
+					
     static mappedBy = [savedEntries : "savers", hiddenEntries:"hiders", userProfile:"owner", childUserLinks:"owner", parentUserLinks:"target"  ];
 
     public void setUuid( String uuid ){
