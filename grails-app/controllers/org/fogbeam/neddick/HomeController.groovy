@@ -95,6 +95,18 @@ class HomeController {
 		}
 		
 		
+		// check if this is a private channel, and - if it is - if the user
+		// is the owner
+		if( theChannel.privateChannel )
+		{
+			if( user.id != theChannel.owner.id )
+			{
+				flash.message = "Not authorized to view this channel";
+				return [];
+			}
+		}
+		
+		
 		// check if there is a Filter for this channel, for this User
 		// if there is, only render the entries from the Filter
 		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );

@@ -41,7 +41,8 @@ class User {
 						parentUserLinks: UserToUserLink, 
 						userEntryScoreLinks:UserEntryScoreLink,
 						roles: AccountRole, 
-						permissions: String ];
+						permissions: String,
+						channels: Channel ];
 					
     static mappedBy = [savedEntries : "savers", hiddenEntries:"hiders", userProfile:"owner", childUserLinks:"owner", parentUserLinks:"target"  ];
 

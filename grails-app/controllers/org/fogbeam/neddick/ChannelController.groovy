@@ -8,6 +8,7 @@ class ChannelController {
 	def entryService;
 	def siteConfigService;
 	def sessionFactory;
+	def userService;
 	
 	int itemsPerPage = -1;
 	
@@ -113,6 +114,8 @@ class ChannelController {
 	
 	def save = {
 		
+		println "channel save params: ${params}";
+		
 		log.debug( "Channel.save()" );
 		Channel channel = new Channel();
 		channel.name = params.channelName;
@@ -128,6 +131,17 @@ class ChannelController {
 		
 		channel.feeds = feeds;
 		
+		if( params.privateChannel != null && params.privateChannel.equals( "on" ))
+		{
+			channel.privateChannel = true;
+		}
+		else
+		{
+			channel.privateChannel = false;
+		}
+		
+		channel.owner = session.user;
+		
 		if( channel.save() )
 		{
 			
@@ -141,6 +155,10 @@ class ChannelController {
 	}
 	
 	def edit = {
+
+		// lookup our user
+		User user = userService.findUserByUserId( session.user.userId );
+		
 		// lookup the specified channel
 		String channelName = params.id;
 
@@ -154,6 +172,18 @@ class ChannelController {
 			if( theChannel )
 			{
 				println "located channel: ${theChannel.id}";
+			
+				
+				// check if it's a private channel, and - if it is - if the user
+				// is the channel owner
+				if( theChannel.privateChannel )
+				{
+					if( theChannel.owner.id != user.id )
+					{
+						flash.message = "Not authorized to edit this channel";
+						return [];
+					}
+				}		
 			}
 			else
 			{
@@ -182,7 +212,30 @@ class ChannelController {
 		log.debug( "Update Channel Properties: ${params.channelId}" );
 				
 		Channel theChannel = Channel.findById( params.channelId );
+		
+		
+		// deal with private channel test
+		if( theChannel.privateChannel )
+		{
+			User user = userService.findUserByUserId( session.user.userId );
+			if( theChannel.owner.id != user.id )
+			{
+				flash.message = "Not authorized to edit that Channel";
+				redirect(controller:"channel", action:"list");
+			}
+		}
+				
 		theChannel.description = params.channelDescription;
+		
+		if( params.privateChannel != null && params.privateChannel.equals("on"))
+		{
+			theChannel.privateChannel = true;
+		}
+		else
+		{
+			theChannel.privateChannel = false;
+		}
+		
 				
 		def feedsToRemove = params.list('feedsToRemove');
 		for( String feedToRemove : feedsToRemove )

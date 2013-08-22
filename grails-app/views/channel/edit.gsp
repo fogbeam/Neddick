@@ -34,6 +34,15 @@
                     <div>
                          <g:textField name="channelDescription" value="${channel.description}"></g:textField>
                     </div>
+                    
+                    <div style="margin-top:7px;">
+                         <label for="privateChannel">Private Channel:</label>
+                    </div>
+                    <div>
+                         <g:checkBox name="privateChannel" value="${channel.privateChannel}" />
+                    </div>                     
+                    
+                    
                     <div style="margin-top:20px;">
                          <label for="feeds">Selected Feeds</label></div>
                     <div style="float:left;margin-top:7px;">                               

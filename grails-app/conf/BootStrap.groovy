@@ -24,12 +24,12 @@ class BootStrap {
 	     switch( Environment.current )
 	     {
 	         case Environment.DEVELOPMENT:
-	        	 createDefaultChannel();
 				 createRoles();
 				 createAdminUser();
 	             createSomeUsers();
-				 createSomeChannels();
 	             createAnonymousUser();
+				 createDefaultChannel();
+				 createSomeChannels();
 	             break;
 	         case Environment.PRODUCTION:
 	             log.info( "No special configuration required" );
@@ -83,10 +83,17 @@ class BootStrap {
     	 if( !Channel.findByName( "default" ) )
     	 {
     		 log.info( "Fresh Database, creating DEFAULT channel" );
-    		 def channel = new Channel(name:"default");
+    		 Channel channel = new Channel(name:"default");
+			 channel.privateChannel = false;
+			 
+			 User userAnon = User.findByUserId( "anonymous" );
+			  
+			 channel.owner = userAnon;
+			 
     		 if( !channel.save() )
     		 {
     			 log.error( "Saving DEFAULT channel failed!" );
+				 channel.errors.allErrors.each { println it; };
     		 }
     	 }
     	 else
@@ -104,9 +111,17 @@ class BootStrap {
 				 log.info( "Fresh Database, creating channel${i} channel" );
 				 def channel = new Channel( name: "channel${i}", description:"Channel${i}" );
 				 
+				 
+				 channel.privateChannel = false;
+				 
+				 User userAnon = User.findByUserId( "anonymous" );
+				  
+				 channel.owner = userAnon;
+				 
 				 if( !channel.save() )
 				 {
 					 log.error( "Saving channel${i} channel failed!");
+					 channel.errors.allErrors.each { println it; };
 				 }
 				 
 			 }

@@ -6,7 +6,9 @@ class Channel implements Comparable {
 	String name;
 	String description;
 	Date dateCreated;
-
+	boolean privateChannel = false;
+	User owner;
+	
 	public Channel()
 	{
 		this.uuid = java.util.UUID.randomUUID().toString();

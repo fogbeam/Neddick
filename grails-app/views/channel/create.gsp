@@ -26,6 +26,14 @@
                     <dd>
                          <g:textField name="channelDescription"></g:textField>
                     </dd>
+                    
+                    <dt style="margin-top:7px;">
+                         <label for="privateChannel">Private Channel:</label>
+                    </dt>
+                    <dd>
+                         <g:checkBox name="privateChannel" />
+                    </dd>                    
+                    
                     <dt>
                          <label for="feeds">Feeds</label></dt>
                     <dd>                               
