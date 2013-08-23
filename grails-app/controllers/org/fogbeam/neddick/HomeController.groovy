@@ -101,8 +101,8 @@ class HomeController {
 		{
 			if( user.id != theChannel.owner.id )
 			{
-				flash.message = "Not authorized to view this channel";
-				return [];
+				flash.message = "Not authorized to view Channel: [${theChannel.name}]";
+				redirect( controller:'home', action:'index' );
 			}
 		}
 		
@@ -273,8 +273,21 @@ class HomeController {
 		else
 		{
 			user = userService.findUserByUserId( "anonymous" );
-		}
-    	
+		}    	
+		
+		
+		// check if this is a private channel, and - if it is - if the user
+		// is the owner
+		if( theChannel.privateChannel )
+		{
+			if( user.id != theChannel.owner.id )
+			{
+				flash.message = "Not authorized to view Channel: [${theChannel.name}]";
+				redirect( controller:'home', action:'index' );
+			}
+		}		
+		
+		
 		// select count Entries for this channel
 		int dataSize = 0;
 		if( user != null ) {
@@ -380,6 +393,19 @@ class HomeController {
 			user = userService.findUserByUserId( "anonymous" );
 		}
 		
+			
+		// check if this is a private channel, and - if it is - if the user
+		// is the owner
+		if( theChannel.privateChannel )
+		{
+			if( user.id != theChannel.owner.id )
+			{
+				flash.message = "Not authorized to view Channel: [${theChannel.name}]";
+				redirect( controller:'home', action:'index' )
+			}
+		}	
+		
+		
 		// select count Entries for this channel
 		int dataSize = 0;
 		if( user != null ) {
@@ -484,6 +510,19 @@ class HomeController {
 		{
 			user = userService.findUserByUserId( "anonymous" );
 		}
+		
+				
+		// check if this is a private channel, and - if it is - if the user
+		// is the owner
+		if( theChannel.privateChannel )
+		{
+			if( user.id != theChannel.owner.id )
+			{
+				flash.message = "Not authorized to view Channel: [${theChannel.name}]";
+				redirect( controller:'home', action:'index' )
+			}
+		}
+
 		
 		// select count Entries for this channel
 		int dataSize = 0;
@@ -591,7 +630,21 @@ class HomeController {
 		{
 			user = userService.findUserByUserId( "anonymous" );
 		}
+
 		
+		
+		// check if this is a private channel, and - if it is - if the user
+		// is the owner
+		if( theChannel.privateChannel )
+		{
+			if( user.id != theChannel.owner.id )
+			{
+				flash.message = "Not authorized to view Channel: [${theChannel.name}]";
+				redirect( controller:'home', action:'index' )
+			}
+		}
+		
+				
 		// select count Entries for this channel
 		int dataSize = 0;
 		if( user != null ) {
@@ -841,6 +894,7 @@ class HomeController {
     }
      
     /* TODO: limit returned results here */
+	/* TODO: require authentication for RSS, so we can enforce private channels here */
     def renderRss = 
     {
     	log.debug( "renderRss" );
