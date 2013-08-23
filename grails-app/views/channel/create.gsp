@@ -40,6 +40,14 @@
                          <g:select name="feeds" from="${availableFeeds}" optionKey="id" optionValue="feedUrl" multiple="true">
                          </g:select> 
                     </dd> 
+
+                    <dt>
+                         <label for="aggregateChannels">Aggregate Channels</label></dt>
+                    <dd>                               
+                         <g:select name="aggregateChannels" from="${availableChannels}" optionKey="id" optionValue="name" multiple="true">
+                         </g:select> 
+                    </dd> 
+
                     
                     <dt style="margin-top:7px;"></dt>
                     <dd><g:submitButton name="Save" /></dd>

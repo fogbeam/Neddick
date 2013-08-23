@@ -107,9 +107,16 @@ class ChannelController {
 	}
 	
 	def create = {
+		
 		List<RssFeed> availableFeeds = RssFeed.list();
 		
-		[availableFeeds:availableFeeds];
+		User user = userService.findUserByUserId( session.user.userId );
+		
+		List<Channel> availableChannels = channelService.getEligibleAggregateChannels( user );
+		
+		
+		[ availableFeeds:availableFeeds,
+		  availableChannels:availableChannels];
 	}
 	
 	def save = {
@@ -120,6 +127,7 @@ class ChannelController {
 		Channel channel = new Channel();
 		channel.name = params.channelName;
 		channel.description = params.channelDescription;
+		
 		List<RssFeed> feeds = new ArrayList<RssFeed>();
 		String[] feedsToAdd = params.feeds;
 		for( String feedToAdd : feedsToAdd ) 
@@ -130,6 +138,22 @@ class ChannelController {
 		}
 		
 		channel.feeds = feeds;
+		
+		
+		String[] aggregateChannelsToAdd = params.aggregateChannels;
+		List<Channel> aggregateChannels = new ArrayList<Channel>();
+		// println "aggregateChannels: ${aggregateChannelsToAdd}";
+		for( String aggregateChannelId : aggregateChannelsToAdd )
+		{
+			Channel channelToAdd = channelService.findById( Long.parseLong( aggregateChannelId ));
+			if( channelToAdd )
+			{
+				aggregateChannels.add( channelToAdd );
+			}
+		}
+		
+		channel.aggregateChannels = aggregateChannels;
+		
 		
 		if( params.privateChannel != null && params.privateChannel.equals( "on" ))
 		{
@@ -149,6 +173,7 @@ class ChannelController {
 		else
 		{
 			flash.message = "Failed to save Channel!";	
+			channel.errors.allErrors.each{ println it };
 		}
 		
 		redirect(controller:"channel", action:"list");
@@ -158,7 +183,8 @@ class ChannelController {
 
 		// lookup our user
 		User user = userService.findUserByUserId( session.user.userId );
-		
+	
+				
 		// lookup the specified channel
 		String channelName = params.id;
 
@@ -202,14 +228,21 @@ class ChannelController {
 		List<RssFeed> availableFeeds = RssFeed.executeQuery( "select feed from RssFeed as feed, Channel as channel where channel = ? and feed not in elements(channel.feeds)", [theChannel] );
 		println "Found ${availableFeeds.size()} available feeds";
 		
-				
-		[channel: theChannel,availableFeeds:availableFeeds];
 		
+		List<Channel> availableChannels = channelService.getEligibleAggregateChannels( user, theChannel );
+		
+		
+		[ 	channel: theChannel,
+			availableFeeds:availableFeeds,
+			availableChannels:availableChannels];
 	}
+	
 	
 	def update = {
 		
 		log.debug( "Update Channel Properties: ${params.channelId}" );
+		
+		println "params: ${params}";
 				
 		Channel theChannel = Channel.findById( params.channelId );
 		
@@ -279,6 +312,51 @@ class ChannelController {
 			// theChannel.errors.allErrors.each { p rintln it };
 		}
 
+		
+		def aggregateChannelsToRemove = params.list('aggregateChannelsToRemove');
+		for( String aggregateChannelToRemove : aggregateChannelsToRemove )
+		{
+			
+			log.debug( "removing channel: ${aggregateChannelToRemove}" );
+
+			Channel channel = theChannel.aggregateChannels.find { it.id == Integer.parseInt(aggregateChannelToRemove) }
+			if( channel )
+			{
+				log.debug( "calling removeFromAggregateChannels using channel: ${channel}");
+				theChannel.removeFromAggregateChannels( channel );
+			}
+			else
+			{
+				log.warn( "problem finding channel instance for ${aggregateChannelToRemove}" );
+			}
+		
+			log.debug( "about to theChannel.save()" );
+			if( !theChannel.save(flush:true, validate:true) )
+			{
+				log.error( "Error saving channel" );
+				// theChannel.errors.allErrors.each { p rintln it };
+			}
+				
+		}
+	
+	
+		log.debug( "dealing with aggregate channels to add" );
+		def aggregateChannelsToAdd = params.list('aggregateChannelsToAdd');
+		
+		for( String aggregateChannelToAdd : aggregateChannelsToAdd )
+		{
+			log.debug( "adding aggregateChannel: ${aggregateChannelToAdd}" );
+			Channel channel = channelService.findById( Long.parseLong( aggregateChannelToAdd ) );
+			theChannel.addToAggregateChannels( channel );
+		}
+	
+		if( !theChannel.save() )
+		{
+			log.error( "Error saving channel" );
+			// theChannel.errors.allErrors.each { p rintln it };
+		}		
+		
+		
 		redirect(controller:"channel", action:"list");
 	}
 	

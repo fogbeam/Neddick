@@ -102,8 +102,11 @@ class EntryService {
 	{
 		long numEntries = 0l;
 		
-		Object[] o = Entry.executeQuery( "select count(entry) from Entry as entry, User as user, ChannelEntryLink as clink " 
-										 + " where user.userId = ? and clink.entry = entry and clink.channel = ?  and entry not in elements(user.hiddenEntries)", [user.userId, channel] );
+		Object[] o = Entry.executeQuery( "select count(entry) from Entry as entry, User as user, Channel as channel, ChannelEntryLink as clink " 
+										 + " where user.userId = ? and clink.entry = entry and " 
+										 // + " clink.channel = ?  " 
+										 + " ( clink.channel in elements(channel.aggregateChannels) or clink.channel = channel) "
+										 + " and channel = ? and entry not in elements(user.hiddenEntries)", [user.userId, channel] );
 		numEntries = ((Long)o[0]).longValue();
 		
 		return numEntries;	
@@ -115,8 +118,9 @@ class EntryService {
 		List<Entry> entries = new ArrayList<Entry>();
 		log.debug( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user )");
 		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, " 
-												+ " ChannelEntryLink as clink where user.userId = ? and clink.entry = entry and clink.channel = ? " 
-												+ " and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user " 
+												+ " Channel as channel, ChannelEntryLink as clink where user.userId = ? and clink.entry = entry and " 
+												+ " ( clink.channel in elements(channel.aggregateChannels) or clink.channel = channel) " 
+												+ " and channel = ? and entry not in elements(user.hiddenEntries) and link.entry = entry and link.user = user " 
 												+ " order by entry.dateCreated desc", [user.userId, channel] );
 											
 		for( Object o : temp )
@@ -153,9 +157,11 @@ class EntryService {
 	{
 		List<Entry> entries = new ArrayList<Entry>();
 		log.debug( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
-		List<Object> temp = Entry.executeQuery( "select entry, link from Entry as entry, User as user, UserEntryScoreLink as link, " 
-			+ "ChannelEntryLink as clink where user.userId = ? and clink.entry = entry and clink.channel = ? " 
-			+ " and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user " 
+		
+		List<Object> temp = Entry.executeQuery( "select distinct entry, link from Entry as entry, User as user, UserEntryScoreLink as link, " 
+			+ "Channel as channel, ChannelEntryLink as clink where user.userId = ? and clink.entry = entry and " 
+			+ " ( clink.channel in elements(channel.aggregateChannels) or clink.channel = channel) "
+			+ " and channel = ? and entry not in elements(user.hiddenEntries)  and link.entry = entry and link.user = user " 
 			+ " order by entry.dateCreated desc", [user.userId, channel], [max:maxResults, offset:offset] );
 		
 		for( Object o : temp )

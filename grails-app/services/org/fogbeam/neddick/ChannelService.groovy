@@ -16,6 +16,12 @@ class ChannelService {
 		return channel;
 	}
 
+	public Channel findById( final Long id )
+	{
+		Channel channel = Channel.findById( id );
+		return channel;
+	}
+	
 	public List<Channel> getAllChannels()
 	{
 		List<Channel> allChannels = new ArrayList<Channel>();
@@ -26,6 +32,75 @@ class ChannelService {
 		return allChannels;
 	}
 
+	public List<Channel> getEligibleAggregateChannels( final User user )
+	{
+		List<Channel> eligibleChannels = new ArrayList<Channel>();
+	
+		List<Channel> queryResults = 
+			Channel.
+				executeQuery( 	"select channel from Channel as channel where " + 
+								"channel.name <> :defaultName and " + 
+								"(channel.privateChannel = false OR " + 
+								"(channel.privateChannel = true and channel.owner = :owner ))", [defaultName:"default", owner:user] );
+				
+		if( queryResults != null )
+		{
+			eligibleChannels.addAll( queryResults );
+		}
+		
+		
+		return eligibleChannels;
+	}
+
+	
+	public List<Channel> getEligibleAggregateChannels( final User user, final Channel theChannel )
+	{
+		List<Channel> eligibleChannels = new ArrayList<Channel>();
+	
+		/* if aggregateChannels is empty in the query below, the HQL blows up due to
+		 * the empty in () expression.  So we have to do it slightly differently in this case
+		 */
+		List<Channel> queryResults = null;
+		
+		Set<Channel> selectedChannels = theChannel.aggregateChannels;
+		if( selectedChannels == null || selectedChannels.isEmpty())
+		{
+
+			queryResults = Channel.
+			executeQuery( 	"select channel from Channel as channel where " +
+							"channel.name <> :defaultName and " +
+							"channel <> :theChannel and " +
+							// "channel not in :selectedChannels and " +
+							"(channel.privateChannel = false OR " +
+							"(channel.privateChannel = true and channel.owner = :owner ))",
+								[defaultName:"default", owner:user, theChannel:theChannel] );
+							
+
+		}
+		else
+		{
+		
+			queryResults = Channel.
+				executeQuery( 	"select channel from Channel as channel where " +
+								"channel.name <> :defaultName and " +
+								"channel <> :theChannel and " +
+								"channel not in :selectedChannels and " + 
+								"(channel.privateChannel = false OR " +
+								"(channel.privateChannel = true and channel.owner = :owner ))", 
+									[defaultName:"default", owner:user, theChannel:theChannel, selectedChannels:selectedChannels] );
+								
+		}
+										
+		if( queryResults != null )
+		{
+			eligibleChannels.addAll( queryResults );
+		}
+		
+		
+		return eligibleChannels;
+	}
+	
+		
 	public void updateFromDatasource( Channel channel )
 	{
 	

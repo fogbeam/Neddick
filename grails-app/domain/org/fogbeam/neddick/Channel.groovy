@@ -15,7 +15,7 @@ class Channel implements Comparable {
 	}
 	
 	
-	static hasMany = [ feeds : RssFeed];
+	static hasMany = [ feeds : RssFeed, aggregateChannels:Channel ];
 
 	static constraints =
 	{
@@ -25,7 +25,6 @@ class Channel implements Comparable {
    	@Override
 	public int compareTo(Object o) 
    	{
-		// TODO: switch this to use uuid
    		Channel otherChannel = (Channel)o;
    		return ( this.name.compareToIgnoreCase( otherChannel.name ) );
 	}                   
