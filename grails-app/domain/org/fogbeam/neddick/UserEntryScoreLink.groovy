@@ -16,6 +16,12 @@ class UserEntryScoreLink {
 	double entryHotness;
 	double entryControversy;
 	
+	
+	public String toString()
+	{
+		return "User: [${user.userId}], Entry: [${entry.id}], entryBaseScore: [${entryBaseScore}], entryHotness: [${entryHotness}], entryControversy: [${entryControversy}]";
+	}
+	
 }
 
 

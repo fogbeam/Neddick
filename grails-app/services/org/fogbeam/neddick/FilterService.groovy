@@ -126,19 +126,127 @@ class FilterService
 	
 	public List<Entry> getAllNonHiddenEntriesForFilter(final BaseFilter filter, final int maxResults, final int offset )
 	{
+		println "getAllNonHiddenEntriesForFilter";
+		
 		List<Entry> entries = new ArrayList<Entry>();
 		
 		
-		List<Entry> queryResults = Entry.
-			executeQuery( "select e from Entry as e, BaseFilter as f, User as u where e in elements(f.entries) " + 
-						  " and f = :filter and e not in elements(u.hiddenEntries) and u = :user", 
+		List<Object> queryResults = Entry.
+			executeQuery( "select e, link from Entry as e, BaseFilter as f, User as u, UserEntryScoreLink as link where e in elements(f.entries) " + 
+						  " and f = :filter and e not in elements(u.hiddenEntries) and u = :user "
+						  + " and link.entry = e and link.user = u order by e.dateCreated desc", 
 						  [filter:filter, user: filter.owner], 
 						  [max:maxResults, offset:offset]);
 		
 		
 		if( queryResults != null )
 		{
-			entries.addAll( queryResults );
+			for( Object o : queryResults )
+			{
+				// object array with Entry and Link
+				Entry e = o[0];
+				UserEntryScoreLink link = o[1];
+				e.link = link;
+				entries.add( e );
+			}
+		}
+		
+		return entries;
+	}
+	
+	public List<Entry> getHotNonHiddenEntriesForFilter( final BaseFilter filter, final int maxResults, final int offset )
+	{
+		println "getHotNonHiddenEntriesForFilter";
+		
+		List<Entry> entries = new ArrayList<Entry>();
+		
+		
+		List<Object> queryResults = Entry.
+			executeQuery( "select e, link from Entry as e, BaseFilter as f, User as u, UserEntryScoreLink as link where e in elements(f.entries) " + 
+						  " and f = :filter and e not in elements(u.hiddenEntries) and u = :user "
+						  + " and link.entry = e and link.user = u order by link.entryHotness desc", 
+						  [filter:filter, user: filter.owner], 
+						  [max:maxResults, offset:offset]);
+		
+		
+		if( queryResults != null )
+		{
+			for( Object o : queryResults )
+			{
+				// object array with Entry and Link
+				Entry e = o[0];
+				UserEntryScoreLink link = o[1];
+				
+				println "adding UserEntryScoreLink: ${link}";
+				
+				e.link = link;
+				entries.add( e );
+			}
+		}
+		
+		return entries;
+	}
+	
+	public List<Entry> getTopNonHiddenEntriesForFilter( final BaseFilter filter, final int maxResults, final int offset )
+	{
+		
+		println "getTopNonHiddenEntriesForFilter";
+		
+		List<Entry> entries = new ArrayList<Entry>();
+		
+		List<Object> queryResults = Entry.
+			executeQuery( "select e, link from Entry as e, BaseFilter as f, User as u, UserEntryScoreLink as link where e in elements(f.entries) " + 
+						  " and f = :filter and e not in elements(u.hiddenEntries) and u = :user "
+						  + " and link.entry = e and link.user = u order by link.entryBaseScore desc", 
+						  [filter:filter, user: filter.owner], 
+						  [max:maxResults, offset:offset]);
+		
+		
+		if( queryResults != null )
+		{
+			for( Object o : queryResults )
+			{
+				// object array with Entry and Link
+				Entry e = o[0];
+				UserEntryScoreLink link = o[1];
+				
+				println "adding UserEntryScoreLink: ${link}";
+				
+				e.link = link;
+				entries.add( e );
+			}
+		}		
+		return entries;
+	}
+	
+	public List<Entry> getControversialNonHiddenEntriesForFilter( final BaseFilter filter, final int maxResults, final int offset )
+	{
+		
+		println "getControversialNonHiddenEntriesForFilter";
+		
+		List<Entry> entries = new ArrayList<Entry>();
+		
+		List<Object> queryResults = Entry.
+			executeQuery( "select e, link from Entry as e, BaseFilter as f, User as u, UserEntryScoreLink as link where e in elements(f.entries) " + 
+						  " and f = :filter and e not in elements(u.hiddenEntries) and u = :user "
+						  + " and link.entry = e and link.user = u order by link.entryControversy desc", 
+						  [filter:filter, user: filter.owner], 
+						  [max:maxResults, offset:offset]);
+		
+		
+		if( queryResults != null )
+		{
+			for( Object o : queryResults )
+			{
+				// object array with Entry and Link
+				Entry e = o[0];
+				UserEntryScoreLink link = o[1];
+				
+				println "adding UserEntryScoreLink: ${link}";
+				
+				e.link = link;
+				entries.add( e );
+			}
 		}
 		
 		return entries;

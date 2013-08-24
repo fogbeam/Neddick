@@ -288,55 +288,110 @@ class HomeController {
 		}		
 		
 		
-		// select count Entries for this channel
-		int dataSize = 0;
-		if( user != null ) {
-			
-			dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
-		}
-		else 
+		// check if there is a Filter for this channel, for this User
+		// if there is, only render the entries from the Filter
+		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
+		
+		if( filter )
 		{
-			dataSize = entryService.getCountAllEntries( theChannel );
+			/* there's a filter in place, which may have some entries associated with it.  We've been asked
+			 * for "hot" entries.  So we need to request the entries from the filter, but sorted by hotness.  
+			 */
 			
-		}
+			// select count Entries for this channel
+			int dataSize = filterService.getCountNonHiddenEntriesForFilter( filter );
+			
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			log.debug( "calculated available pages as: ${pages}");
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+			
+			log.debug( "After allowing for overflow, availablePages now: ${availablePages}");
+			
+			if( pageNumber < 1 )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = 1;
+			}
+			if( pageNumber > availablePages )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = availablePages;
+			}
 
-		int pages = dataSize / itemsPerPage;
-		pages = Math.max( pages, 1 );
+			
+			log.debug( "calling getHotNonHiddenEntriesForFilter" );
+			List<Entry> entries;
+			entries = filterService.getHotNonHiddenEntriesForFilter(filter, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			
+			
+			def model = [allEntries: entries,
+						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+						 requestType:"index"];
+	
+			render(view:"index", model:model);	
+			
+		}
+		else
+		{
 		
-		if( dataSize > (pages*itemsPerPage) )
-		{
-			pages += 1;
-		}
-		availablePages = pages;
-    	
-    	if( pageNumber < 1 )
-    	{
-    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-    		pageNumber = 1;
-    	}
-    	if( pageNumber > availablePages )
-    	{
-    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-    		pageNumber = availablePages;
-    	}		      	
-    	
-		List<Entry> entries = null;
-		if( user != null ) 
-		{
-			entries = entryService.getHotEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-		else 
-		{
-			entries = entryService.getHotEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
+			// select count Entries for this channel
+			int dataSize = 0;
+			if( user != null ) {
+				
+				dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			}
+			else 
+			{
+				dataSize = entryService.getCountAllEntries( theChannel );
+				
+			}
+	
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+	    	
+	    	if( pageNumber < 1 )
+	    	{
+	    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+	    		pageNumber = 1;
+	    	}
+	    	if( pageNumber > availablePages )
+	    	{
+	    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+	    		pageNumber = availablePages;
+	    	}		      	
+	    	
+			List<Entry> entries = null;
+			if( user != null ) 
+			{
+				entries = entryService.getHotEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+			else 
+			{
+				entries = entryService.getHotEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
 		
-    	
-    	def model = [allEntries: entries, 
+		
+		    	
+			def model = [allEntries: entries, 
     	             channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
     	             requestType:"hotEntries"];
 		
-    	render(view:"index", model:model);
-    }	
+			render(view:"index", model:model);
+		}	
+    }
 	
 	
     def newEntries = 
@@ -406,53 +461,107 @@ class HomeController {
 		}	
 		
 		
-		// select count Entries for this channel
-		int dataSize = 0;
-		if( user != null ) {
+		// check if there is a Filter for this channel, for this User
+		// if there is, only render the entries from the Filter
+		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
+		
+		if( filter )
+		{
+			/* there's a filter in place, which may have some entries associated with it.  We've been asked
+			 * for "hot" entries.  So we need to request the entries from the filter, but sorted by hotness.
+			 */
 			
-			dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			// select count Entries for this channel
+			int dataSize = filterService.getCountNonHiddenEntriesForFilter( filter );
+			
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			log.debug( "calculated available pages as: ${pages}");
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+			
+			log.debug( "After allowing for overflow, availablePages now: ${availablePages}");
+			
+			if( pageNumber < 1 )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = 1;
+			}
+			if( pageNumber > availablePages )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = availablePages;
+			}
+
+			
+			log.debug( "calling getAllNonHiddenEntriesForFilter" );
+			List<Entry> entries;
+			entries = filterService.getAllNonHiddenEntriesForFilter(filter, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			
+			
+			// def sortedEntries = entries.sort { it.dateCreated }.reverse();
+			def model = [allEntries: entries,
+						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+						 requestType:"index"];
+	
+			render(view:"index", model:model);
+				
 		}
 		else
 		{
-			dataSize = entryService.getCountAllEntries( theChannel );
+			// select count Entries for this channel
+			int dataSize = 0;
+			if( user != null ) {
+				
+				dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			}
+			else
+			{
+				dataSize = entryService.getCountAllEntries( theChannel );
+				
+			}
 			
-		}
-		
-		int pages = dataSize / itemsPerPage;
-		pages = Math.max( pages, 1 );
-		
-		if( dataSize > (pages*itemsPerPage) )
-		{
-			pages += 1;
-		}
-		availablePages = pages;
-    	
-    	if( pageNumber < 1 )
-    	{
-    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-    		pageNumber = 1;
-    	}
-    	if( pageNumber > availablePages )
-    	{
-    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-    		pageNumber = availablePages;
-    	}   	       	
-    	
-		List<Entry> entries = null;
-		if( user != null ) 
-		{
-			entries = entryService.getAllNonHiddenEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-		else 
-		{
-			entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-		    	
-        def model = [allEntries: entries, 
-                     channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
-                     requestType:"newEntries"];
-    	
-        render(view:"index", model:model);        
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+	    	
+	    	if( pageNumber < 1 )
+	    	{
+	    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+	    		pageNumber = 1;
+	    	}
+	    	if( pageNumber > availablePages )
+	    	{
+	    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+	    		pageNumber = availablePages;
+	    	}   	       	
+	    	
+			List<Entry> entries = null;
+			if( user != null ) 
+			{
+				entries = entryService.getAllNonHiddenEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+			else 
+			{
+				entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+			    	
+	        def model = [allEntries: entries, 
+	                     channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
+	                     requestType:"newEntries"];
+	    	
+	        render(view:"index", model:model);      
+    	}  
     }	
 	
 	
@@ -523,57 +632,110 @@ class HomeController {
 			}
 		}
 
+		// check if there is a Filter for this channel, for this User
+		// if there is, only render the entries from the Filter
+		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
 		
-		// select count Entries for this channel
-		int dataSize = 0;
-		if( user != null ) {
+		if( filter )
+		{
+			/* there's a filter in place, which may have some entries associated with it.  We've been asked
+			 * for "hot" entries.  So we need to request the entries from the filter, but sorted by hotness.
+			 */
 			
-			dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			// select count Entries for this channel
+			int dataSize = filterService.getCountNonHiddenEntriesForFilter( filter );
+			
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			log.debug( "calculated available pages as: ${pages}");
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+			
+			log.debug( "After allowing for overflow, availablePages now: ${availablePages}");
+			
+			if( pageNumber < 1 )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = 1;
+			}
+			if( pageNumber > availablePages )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = availablePages;
+			}
+
+			
+			log.debug( "calling getTopNonHiddenEntriesForFilter" );
+			List<Entry> entries;
+			entries = filterService.getTopNonHiddenEntriesForFilter(filter, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			
+			
+			// def sortedEntries = entries.sort { it.dateCreated }.reverse();
+			def model = [allEntries: entries,
+						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+						 requestType:"index"];
+	
+					 
+			render(view:"index", model:model);	
+			
 		}
 		else
 		{
-			dataSize = entryService.getCountAllEntries( theChannel );
-			
-		}		
+			// select count Entries for this channel
+			int dataSize = 0;
+			if( user != null ) {
 				
-    	int pages = dataSize / itemsPerPage;
-		pages = Math.max( pages, 1 );
-		
-		if( dataSize > (pages*itemsPerPage) )
-		{
-			pages += 1;
-		}
-		availablePages = pages;
-    	
-    	if( pageNumber < 1 )
-    	{
-    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-    		pageNumber = 1;
-    	}
-    	if( pageNumber > availablePages )
-    	{
-    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-    		pageNumber = availablePages;
-    	}		
-		
-    	
-		List<Entry> entries = null;
-		if( user != null ) 
-		{
-			entries = entryService.getTopEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-		else 
-		{
-			entries = entryService.getTopEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-    	
-        
-    	def model = [allEntries: entries, 
-                     channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
-                     requestType:"topEntries"];
-        
-        render(view:"index", model:model);
-  
+				dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			}
+			else
+			{
+				dataSize = entryService.getCountAllEntries( theChannel );
+				
+			}		
+					
+	    	int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+	    	
+	    	if( pageNumber < 1 )
+	    	{
+	    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+	    		pageNumber = 1;
+	    	}
+	    	if( pageNumber > availablePages )
+	    	{
+	    		flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+	    		pageNumber = availablePages;
+	    	}		
+			
+	    	
+			List<Entry> entries = null;
+			if( user != null ) 
+			{
+				entries = entryService.getTopEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+			else 
+			{
+				entries = entryService.getTopEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+	    	
+	        
+	    	def model = [allEntries: entries, 
+	                     channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
+	                     requestType:"topEntries"];
+	        
+	        render(view:"index", model:model);
+    	}  
     }
     	
 	def controversialEntries =
@@ -600,6 +762,7 @@ class HomeController {
 				pageNumber = 1;
 			}
 		}
+		
 		
 		log.debug( "requested pageNumber: ${pageNumber}" );
 		
@@ -644,59 +807,113 @@ class HomeController {
 			}
 		}
 		
-				
-		// select count Entries for this channel
-		int dataSize = 0;
-		if( user != null ) {
+		
+		// check if there is a Filter for this channel, for this User
+		// if there is, only render the entries from the Filter
+		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
+		
+		if( filter )
+		{
+			/* there's a filter in place, which may have some entries associated with it.  We've been asked
+			 * for "hot" entries.  So we need to request the entries from the filter, but sorted by hotness.
+			 */
 			
-			dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			// select count Entries for this channel
+			int dataSize = filterService.getCountNonHiddenEntriesForFilter( filter );
+			
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			log.debug( "calculated available pages as: ${pages}");
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+			
+			log.debug( "After allowing for overflow, availablePages now: ${availablePages}");
+			
+			if( pageNumber < 1 )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = 1;
+			}
+			if( pageNumber > availablePages )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = availablePages;
+			}
+
+			
+			log.debug( "calling getTopNonHiddenEntriesForFilter" );
+			List<Entry> entries;
+			entries = filterService.getControversialNonHiddenEntriesForFilter(filter, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			
+			
+			def sortedEntries = entries.sort { it.dateCreated }.reverse();
+			def model = [allEntries: sortedEntries,
+						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+						 requestType:"index"];
+	
+					 
+			render(view:"index", model:model);
+			
 		}
 		else
 		{
-			dataSize = entryService.getCountAllEntries( theChannel );
-			
-		}	
-		
-		
-		int pages = dataSize / itemsPerPage;
-		pages = Math.max( pages, 1 );
-		
-		if( dataSize > (pages*itemsPerPage) )
-		{
-			pages += 1;
-		}
-		availablePages = pages;
-		
-		if( pageNumber < 1 )
-		{
-			flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-			pageNumber = 1;
-		}
-		if( pageNumber > availablePages )
-		{
-			flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
-			pageNumber = availablePages;
-		}
-		
-		
-		List<Entry> entries = null;
-		if( user != null ) 
-		{
-			entries = entryService.getControversialEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-		else 
-		{
-			entries = entryService.getControversialEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-		}
-
+			// select count Entries for this channel
+			int dataSize = 0;
+			if( user != null ) {
 				
-		def model = [allEntries: entries,
-					 channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
-					 requestType:"controversialEntries"];
-
-			 
-		 render(view:"index", model:model);
-		
+				dataSize = entryService.getCountNonHiddenEntriesForUser( theChannel, user );
+			}
+			else
+			{
+				dataSize = entryService.getCountAllEntries( theChannel );
+				
+			}	
+			
+			
+			int pages = dataSize / itemsPerPage;
+			pages = Math.max( pages, 1 );
+			
+			if( dataSize > (pages*itemsPerPage) )
+			{
+				pages += 1;
+			}
+			availablePages = pages;
+			
+			if( pageNumber < 1 )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = 1;
+			}
+			if( pageNumber > availablePages )
+			{
+				flash.message = "Invalid Pagenumber ${requestedPageNumber} requested";
+				pageNumber = availablePages;
+			}
+			
+			
+			List<Entry> entries = null;
+			if( user != null ) 
+			{
+				entries = entryService.getControversialEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+			else 
+			{
+				entries = entryService.getControversialEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
+			}
+	
+					
+			def model = [allEntries: entries,
+						 channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
+						 requestType:"controversialEntries"];
+	
+				 
+			 render(view:"index", model:model);
+		}	
 	}
 	
 	
