@@ -104,4 +104,11 @@ channel {
 	defaultChannel = "default";
 }    
 
-security.shiro.redirect.uri = "/login/index";
+
+security.shiro.redirect.uri = "/login/index"
+security.shiro.filter.config = """\
+		[main]
+			authcBasic = org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter
+			authcBasic.applicationName = Neddick
+		[urls]
+		/r/**/rss/** = authcBasic"""
