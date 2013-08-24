@@ -177,9 +177,10 @@
             <li>
               <g:link controller="login" action="index">Login</g:link>                                                                                                            
             </li>
+            <!--
             <li>
             <g:link controller="user" action="create">Register</g:link>
-            </li>
+            </li> -->
             </g:else>
             </ul>
     </ul>
