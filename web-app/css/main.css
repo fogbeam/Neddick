@@ -34,6 +34,7 @@ body, #header {
 .headerNav ul.customNav h1,
 .headerNav ul.customNav a {
 	color: #fefefe;
+  font-weight:200;
 }
 
 .headerNav ul.customNav li {
