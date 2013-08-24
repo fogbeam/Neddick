@@ -47,7 +47,7 @@ body, #header {
 }
 .settingsNav li {
   font-size:12px;
-  margin:10px;
+  margin:12px 6px;
   display:block;
   float:left;
 }
