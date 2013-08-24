@@ -101,7 +101,7 @@ class BootStrap {
 			 
     		 if( !channel.save() )
     		 {
-    			 println.error( "Saving DEFAULT channel failed!" );
+    			 println( "Saving DEFAULT channel failed!" );
 				 channel.errors.allErrors.each { println it; };
     		 }
     	 }
@@ -345,12 +345,15 @@ class BootStrap {
 			 user.addToRoles( userRole );
 			 
 			 
-             if( !user.save() )
+             if( !user.save(flush:true) )
              {
                  println( "Saving ANONYMOUS user failed!");
              	 user.errors.allErrors.each { println it; };
 			 }
-             
+             else
+			 {
+				 println "Successfully created ANONYMOUS user";
+			 }
          }
          else
          {
