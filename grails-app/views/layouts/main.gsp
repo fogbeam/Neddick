@@ -75,7 +75,7 @@
     <div id="gbw" class="headerNavContainer navbar-top">
     <div class="container">
     <div class="headerNav row">
-    <ul class="customNav span7">
+    <ul class="customNav span6">
     <!-- TODO: replace this with a template gsp -->
       <li>
         <h1><a href="${createLink(controller:'home', action:'index')}">Neddick</a></h1>
@@ -115,11 +115,12 @@
       <li>
         <g:link controller="entry" action="create">Submit a Link</g:link>
       </li>
-      <li>
-        <g:link controller="entry" action="createQuestion">Ask a Question</g:link>
-      </li>
+      
+      <!-- <li>
+        <!-- <g:link controller="entry" action="createQuestion">Ask a Question</g:link>
+      </li> -->
     </ul>
-    <div id="gbg" class="span5 settingsNav navbar">
+    <div id="gbg" class="span6 settingsNav navbar">
     <ul>
     <li>
       <div class="dropdown">
