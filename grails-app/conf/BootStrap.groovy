@@ -82,23 +82,32 @@ class BootStrap {
      {
     	 if( !Channel.findByName( "default" ) )
     	 {
-    		 log.info( "Fresh Database, creating DEFAULT channel" );
+    		 println( "Fresh Database, creating DEFAULT channel" );
     		 Channel channel = new Channel(name:"default");
 			 channel.privateChannel = false;
 			 
 			 User userAnon = User.findByUserId( "anonymous" );
-			  
+			 
+			 if( userAnon )
+			 {
+				 println "found user \"anonymous\" ok ";
+			 }
+			 else
+			 {
+			 	println "could not find user \"anonymous\"";
+			 }
+			 
 			 channel.owner = userAnon;
 			 
     		 if( !channel.save() )
     		 {
-    			 log.error( "Saving DEFAULT channel failed!" );
+    			 println.error( "Saving DEFAULT channel failed!" );
 				 channel.errors.allErrors.each { println it; };
     		 }
     	 }
     	 else
     	 {
-    		 log.info( "Existing DEFAULT channel, skipping..." );
+    		 println.info( "Existing DEFAULT channel, skipping..." );
     	 }
      }
      
@@ -308,17 +317,24 @@ class BootStrap {
 		 {
 			 println "did not locate user role!";
 		 }
-		 
+		 else
+		 {
+			 println "found user role";
+		 }
 		 
 		 AccountRole adminRole = userService.findAccountRoleByName( "admin" );
 		 if( adminRole == null )
 		 {
 			 println "did not locate admin role!";
 		 }
+		 else
+		 {
+			 println "found admin role";
+		 }
 		 
          if( !User.findByUserId( "anonymous" ))
          {
-             log.info( "Fresh Database, creating ANONYMOUS user" );
+             println( "Fresh Database, creating ANONYMOUS user" );
              def user = new User();
 			 user.userId = "anonymous";
 			 user.password = "secret";
@@ -331,13 +347,14 @@ class BootStrap {
 			 
              if( !user.save() )
              {
-                 log.error( "Saving ANONYMOUS user failed!");
-             }
+                 println( "Saving ANONYMOUS user failed!");
+             	 user.errors.allErrors.each { println it; };
+			 }
              
          }
          else
          {
-             log.info( "Existing ANONYMOUS user, skipping..." );
+             println( "Existing ANONYMOUS user, skipping..." );
          }    	 
      }
      
