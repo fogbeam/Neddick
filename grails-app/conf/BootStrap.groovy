@@ -107,7 +107,7 @@ class BootStrap {
     	 }
     	 else
     	 {
-    		 println.info( "Existing DEFAULT channel, skipping..." );
+    		 println( "Existing DEFAULT channel, skipping..." );
     	 }
      }
      
