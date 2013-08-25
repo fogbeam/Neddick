@@ -80,108 +80,118 @@
       <li>
         <h1><a href="${createLink(controller:'home', action:'index')}">Neddick</a></h1>
       </li>
-      <li class="navigation_active navigation_first">
-        <g:if test="${channelName == null }">
-          <a href="${resource(dir:'', file:'')}"><i class="icon-asterisk"></i> New</a>
-        </g:if>
-        <g:else>
-          <a href="${resource(dir:'r', file:channelName)}"><i class="icon-asterisk"></i> New</a>
-        </g:else>
-      </li>
-      <li class="navigation_active">
-        <g:if test="${channelName == null }">
-          <a href="${resource(dir:'home', file:'hotEntries')}"><i class="icon-fire"></i> Hot</a>
-        </g:if>
-        <g:else>
-          <a href="${resource(dir:'r/'+channelName, file:'hotEntries')}"><i class="icon-fire"></i> Hot</a>
-        </g:else>
-      </li>
-      <li class="navigation_active">
-        <g:if test="${channelName == null }">
-          <a href="${resource(dir:'home', file:'topEntries')}"><i class="icon-star"></i> Top</a>
-        </g:if>
-        <g:else>
-          <a href="${resource(dir:'r/'+channelName, file:'topEntries')}"><i class="icon-star"></i> Top</a>
-        </g:else>
-      </li>
-      <li class="navigation_active">
-        <g:if test="${channelName == null }">
-          <a href="${resource(dir:'home', file:'controversialEntries')}"><i class="icon-comments"></i>Controversial</a>
-        </g:if>
-        <g:else>
-          <a href="${resource(dir:'r/'+channelName, file:'controversialEntries')}"><i class="icon-comments"></i> Controversial</a>
-        </g:else>
-      </li>
-      <li>
-        <g:link controller="entry" action="create">Submit a Link</g:link>
-      </li>
       
+      
+      <shiro:authenticated>
+	      <li class="navigation_active navigation_first">
+	        <g:if test="${channelName == null }">
+	          <a href="${resource(dir:'', file:'')}"><i class="icon-asterisk"></i> New</a>
+	        </g:if>
+	        <g:else>
+	          <a href="${resource(dir:'r', file:channelName)}"><i class="icon-asterisk"></i> New</a>
+	        </g:else>
+	      </li>
+	      <li class="navigation_active">
+	        <g:if test="${channelName == null }">
+	          <a href="${resource(dir:'home', file:'hotEntries')}"><i class="icon-fire"></i> Hot</a>
+	        </g:if>
+	        <g:else>
+	          <a href="${resource(dir:'r/'+channelName, file:'hotEntries')}"><i class="icon-fire"></i> Hot</a>
+	        </g:else>
+	      </li>
+	      <li class="navigation_active">
+	        <g:if test="${channelName == null }">
+	          <a href="${resource(dir:'home', file:'topEntries')}"><i class="icon-star"></i> Top</a>
+	        </g:if>
+	        <g:else>
+	          <a href="${resource(dir:'r/'+channelName, file:'topEntries')}"><i class="icon-star"></i> Top</a>
+	        </g:else>
+	      </li>
+	      <li class="navigation_active">
+	        <g:if test="${channelName == null }">
+	          <a href="${resource(dir:'home', file:'controversialEntries')}"><i class="icon-comments"></i>Controversial</a>
+	        </g:if>
+	        <g:else>
+	          <a href="${resource(dir:'r/'+channelName, file:'controversialEntries')}"><i class="icon-comments"></i> Controversial</a>
+	        </g:else>
+	      </li>
+	      <li>
+	        <g:link controller="entry" action="create">Submit a Link</g:link>
+	      </li>
+      </shiro:authenticated>
       <!-- <li>
         <!-- <g:link controller="entry" action="createQuestion">Ask a Question</g:link>
       </li> -->
     </ul>
     <div id="gbg" class="span6 settingsNav navbar">
     <ul>
-    <li>
-      <div class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Settings <i class="icon-sort-down"></i></a>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            <li>
-            	<g:link controller="channel" action="list">Channels</g:link>
-            </li>
-            
-            <g:if test="${session.user}">
-            	<li>
-            		<a href="${resource(dir:'home', file:'savedEntries')}">Saved Entries</a></li>
-            	<li>
-            		<g:link controller="tag" action="list">Tags</g:link>
-            	</li>
-            	<li>
-            		<g:link controller="trigger" action="index">Triggers</g:link>
-            	</li>
-            	
-            	<li>
-            		<g:link controller="filter" action="index">Filters</g:link>
-            	</li>            	
-            	    
-            </g:if>
-            <g:if test="${session.user}">
-            	<li>
-              		<g:link controller="channel" action="create">Create New Channel</g:link>
-            	</li>
-            
-            	<li>
-              		<g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
-            	</li>
-            	
-            	<!--  TODO: hide this if user does not have "admin" role -->
-            	<li>
-            		<g:link controller="admin" action="index">Admin</g:link>
-            	</li>
-            	
-            </g:if>
-          </ul>
-      </div>
-    </li>
+    
+    <shiro:authenticated>
+	    <li>
+	      <div class="dropdown">
+	        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Settings <i class="icon-sort-down"></i></a>
+	          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+	            <li>
+	            	<g:link controller="channel" action="list">Channels</g:link>
+	            </li>
+	            
+	            <g:if test="${session.user}">
+	            	<li>
+	            		<a href="${resource(dir:'home', file:'savedEntries')}">Saved Entries</a></li>
+	            	<li>
+	            		<g:link controller="tag" action="list">Tags</g:link>
+	            	</li>
+	            	<li>
+	            		<g:link controller="trigger" action="index">Triggers</g:link>
+	            	</li>
+	            	
+	            	<li>
+	            		<g:link controller="filter" action="index">Filters</g:link>
+	            	</li>            	
+	            	    
+	            </g:if>
+	            <g:if test="${session.user}">
+	            	<li>
+	              		<g:link controller="channel" action="create">Create New Channel</g:link>
+	            	</li>
+	            
+	            	<li>
+	              		<g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
+	            	</li>
+	            	
+	            	<!--  TODO: hide this if user does not have "admin" role -->
+	            	<li>
+	            		<g:link controller="admin" action="index">Admin</g:link>
+	            	</li>
+	            	
+	            </g:if>
+	          </ul>
+	      </div>
+	    </li>
+    </shiro:authenticated>
     </ul>
     <ul class="user">
-            <g:if test="${session.user}">
+            <shiro:authenticated>
               <li><g:link controller="userHome" action="index" id="${session.user.userId}">${session.user.userId}</g:link></li>
-            </g:if>
+            </shiro:authenticated>
             </li>
             <li>
-            <g:if test="${session.user}">
+            <shiro:authenticated>
               <g:link controller="login" action="logout">Logout</g:link>
-            </g:if>
-            <g:else>
+            </shiro:authenticated>
+            
+            <!-- 
+            <shiro:notAuthenticated>
             <li>
               <g:link controller="login" action="index">Login</g:link>                                                                                                            
             </li>
+            </shiro:notAuthenticated>
+     		-->        
             <!--
             <li>
             <g:link controller="user" action="create">Register</g:link>
             </li> -->
-            </g:else>
+            
             </ul>
     </ul>
     <g:render template="/sidebar" />
