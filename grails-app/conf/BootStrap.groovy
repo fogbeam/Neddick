@@ -33,6 +33,12 @@ class BootStrap {
 	             break;
 	         case Environment.PRODUCTION:
 	             log.info( "No special configuration required" );
+				 createRoles();
+				 createAdminUser();
+				 createSomeUsers();
+				 createAnonymousUser();
+				 createDefaultChannel();
+				 createSomeChannels();
 	             break;
 	     }
 	
