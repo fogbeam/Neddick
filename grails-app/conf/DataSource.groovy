@@ -20,19 +20,19 @@ environments {
 		dataSource {
 			dbCreate = "update" // one of 'create', 'create-drop','update'
 			// url = "jdbc:hsqldb:mem:devDB"
-			url = "jdbc:postgresql:neddick1"
+			url = "jdbc:postgresql:neddick_dev"
 		}
 	}
 	test {
 		dataSource {
 			dbCreate = "update"
-			url = "jdbc:hsqldb:mem:testDb"
+			url = "jdbc:hsqldb:mem:neddick_test"
 		}
 	}
 	production {
 		dataSource {
 			dbCreate = "update"
-			url = "jdbc:hsqldb:file:prodDb;shutdown=true"
+			url = "jdbc:postgresql:neddick"
 		}
 	}
 }

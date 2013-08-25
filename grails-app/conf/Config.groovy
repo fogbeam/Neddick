@@ -35,7 +35,7 @@ grails.enable.native2ascii = true
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
-        grails.serverURL = "http://www.changeme.com"
+        grails.serverURL = "http://localhost:8080/${appName}"
     }
 }
 
@@ -96,8 +96,8 @@ chat {
     serviceName = "gmail.com"
     host = "talk.google.com"
     port = 5222
-    username = "motley.crue.fan@gmail.com"
-    password = "7400seriesIC"
+    username = "testuser@example.com"
+    password = "password"
 }
 
 channel {
