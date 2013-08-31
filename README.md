@@ -1,13 +1,15 @@
 Neddick
 ========
 
-Neddick is an Open Source Information Discovery Platform, based on Groovy & Grails, and making up one component 
-of the [Fogcutter Suite](http://code.google.com/p/fogcutter).   Neddick shares an approach to information discovery
-with consumer facing websites like [Reddit](http://www.reddit.com), [Digg](http://www.digg.com), and other aggregator
-applications.  You could call Neddick "Reddit for the Enterprise" but that would be oversimplifying a bit.  
-Neddick is intended mainly for organizational use and therefore has features that Reddit lacks, but, in turn, 
-lacks certain things that Reddit has.  But Reddit was absolutely our inspiration for Neddick and you'll notice 
-the commonality almost immediately.
+Neddick is an Open Source Information Discovery Platform, which shares an approach to information discovery with 
+consumer facing websites like [Reddit](http://www.reddit.com), [Digg](http://www.digg.com), and other aggregator 
+applications.  Neddick makes up one component of the [Fogcutter Suite](http://code.google.com/p/fogcutter) and is 
+based on Groovy & Grails.   
+
+Neddick could be termed "Reddit for the Enterprise" but that would be oversimplifying a bit.  Neddick 
+is intended mainly for organizational use and therefore has features that Reddit lacks, but, in turn, 
+lacks certain things that Reddit has.  But Reddit was absolutely our inspiration for Neddick and you'll 
+notice the commonality almost immediately.
 
 
 Why "Neddick?"
