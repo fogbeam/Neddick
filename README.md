@@ -29,7 +29,7 @@ Relative to Reddit, Neddick adds features like:
 * Channel Triggers - Triggers allow a user to specify actions to occur when Entry related events occur which match criteria which may include:  A new Entry is posted which matches a body keyword or title keyword, an Entry is voted up past a specified score threshold, or a specified tag is applied to an Entry.  
 * Trigger actions include sharing via email, XMPP and HTTP post, and in future releases will be extend to include sending JMS messages, launching workflows via BPM integration, and running user provided scripts.
 
-To see Neddick in action, visit [the demo site](http://demo.fogbeam.org:8080/neddick /). (login: testuser1/secret)  
+To see Neddick in action, visit [the demo site](http://demo.fogbeam.org:8080/neddick/). (login: testuser1/secret)  
 
 Building & Deploying Neddick
 ----------
