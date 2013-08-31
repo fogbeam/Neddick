@@ -1,16 +1,6 @@
 Neddick
 ========
 
-Neddick - an Open Source Information Discovery Platform -  is part of the Fogcutter suite of tools for building intelligent applications. Neddick provides tools for tagging, ranking, discussing and discovering various sources of knowledge: web-links, documents, people, etc.
-
-Why "Neddick?"
-----------------
-
-We like lighthouses, so Neddick is named after the famous Cape Neddick "Nubble" Lighthouse.
-
-Ok, but what does it do?
---------------------------
-
 Neddick is an Open Source Information Discovery Platform, based on Groovy & Grails, and making up one component 
 of the [Fogcutter Suite](http://code.google.com/p/fogcutter).   Neddick shares an approach to information discovery
 with consumer facing websites like [Reddit](http://www.reddit.com), [Digg](http://www.digg.com), and other aggregator
@@ -18,6 +8,16 @@ applications.  You could call Neddick "Reddit for the Enterprise" but that would
 Neddick is intended mainly for organizational use and therefore has features that Reddit lacks, but, in turn, 
 lacks certain things that Reddit has.  But Reddit was absolutely our inspiration for Neddick and you'll notice 
 the commonality almost immediately.
+
+
+Why "Neddick?"
+----------------
+
+We like lighthouses, so Neddick is named after the famous Cape Neddick "Nubble" Lighthouse.
+
+
+Features
+----------
 
 Relative to Reddit, Neddick adds features like:
 
@@ -36,12 +36,8 @@ Relative to Reddit, Neddick adds features like:
 * Entry is voted up past a specified score threshold, or a specified tag is applied to an Entry.  
 * Trigger actions include sharing via email, XMPP and HTTP post, and in future releases will be extend to include 
 * sending JMS messages, launching workflows via BPM integration, and running user provided scripts.
-
-
-Features
-----------
-
-TODO: Summary of already implemented features. To see Neddick in action, visit [the demo site](http://demo.fogbeam.org:8080/neddick /).
+* 
+* To see Neddick in action, visit [the demo site](http://demo.fogbeam.org:8080/neddick /). (login: testuser1/secret)  
 
 Building & Deploying Neddick
 ----------
