@@ -24,7 +24,14 @@ class CommentController {
 			newComment.text = params.commentText;
 			newComment.creator = user;
 			newComment.entry = entry;
-			newComment.save();
+			
+			if( !newComment.save(flush:true) )
+			{
+				println "Failed to save Comment!";
+				newComment.errors.allErrors.each { println it };
+				
+				return;
+			}
 			
 			entry.addToComments( newComment );
 			

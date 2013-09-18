@@ -11,14 +11,14 @@ class EntryService {
 
 	private static final long BEGINNING_OF_TIME = 1230786000000; // 01 01 2009 00:00:00
 
-	@Transactional(propagation = Propagation.REQUIRED)
+
 	public Entry findById( final String id )
 	{
 		Entry entry = Entry.findById( id );
 		return entry;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+
 	public Entry findByUuid( final String uuid )
 	{
 		Entry entry = Entry.findByUuid( uuid );
@@ -27,7 +27,6 @@ class EntryService {
 
 
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> findByUrl( final String url )
 	{
 		// check if we already have an Entry for this same link
@@ -37,7 +36,6 @@ class EntryService {
 	}
 
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> findByUrlAndChannel( final String url, final Channel channel )
 	{
 		// check if this channel already has an Entry for this same link
@@ -47,7 +45,6 @@ class EntryService {
 	}
 
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public Entry findByUuidAndChannel( final String entryUuid, final Channel channel )
 	{
 		// check if this channel already has an Entry for this same link
@@ -63,7 +60,6 @@ class EntryService {
 	}
 
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public boolean saveEntry( final Entry entry )
 	{
 		boolean success = false;
@@ -78,7 +74,6 @@ class EntryService {
 	}
 
 	// give me everything for this channel, as long this user has not asked to hide it.
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllNonHiddenEntriesForUser( final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -97,7 +92,6 @@ class EntryService {
 	}
 
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public long getCountNonHiddenEntriesForUser( final Channel channel, final User user )
 	{
 		long numEntries = 0l;
@@ -112,7 +106,6 @@ class EntryService {
 		return numEntries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -135,7 +128,6 @@ class EntryService {
 	}
 
 	// give me everything for this channel, as long this user has not asked to hide it.
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllNonHiddenEntriesForUser( final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -152,7 +144,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -176,7 +168,6 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllEntries()
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -185,7 +176,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+
 	public List<Entry> getAllEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -198,7 +189,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+
 	public List<Entry> getAllEntries( final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -215,7 +206,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+
 	public long getCountAllEntries( final Channel channel )
 	{
 		long numEntries = 0l;
@@ -225,7 +216,7 @@ class EntryService {
 		return numEntries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getAllEntries( final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -234,7 +225,6 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getAllEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -244,7 +234,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getAllEntries( final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -263,7 +253,6 @@ class EntryService {
 
 
 	/* get hot entries */
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getHotEntriesForUser( final Channel channel, final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -284,7 +273,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getHotEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -296,7 +285,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getHotEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -317,7 +306,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getHotEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -330,7 +319,6 @@ class EntryService {
 	}
 
 	/* get new entries */
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getNewEntriesForUser(final Channel channel, final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -353,7 +341,6 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getNewEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -365,7 +352,6 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getNewEntriesForUser(final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -388,7 +374,6 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getNewEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -402,7 +387,6 @@ class EntryService {
 
 
 	/* get top entries */
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getTopEntriesForUser(final Channel channel, final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -436,7 +420,6 @@ class EntryService {
 
 	// note: get "top" with no user specified basically means that the user defaults to the "anonymous" user.  This way we can still use the
 	// UEL table normally... same for hotness and controversy...
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getTopEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -454,7 +437,6 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getTopEntriesForUser(final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -477,7 +459,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+
 	public List<Entry> getTopEntries(final Channel channel, final int maxResults, final int offset )
 	{
 
@@ -500,7 +482,6 @@ class EntryService {
 
 
 	/* get controversial entries */
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getControversialEntriesForUser( final Channel channel, final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -521,7 +502,6 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getControversialEntries(final Channel channel)
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -541,7 +521,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+
 	public List<Entry> getControversialEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -562,7 +542,7 @@ class EntryService {
 		return entries;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getControversialEntries(final Channel channel, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -583,7 +563,6 @@ class EntryService {
 
 
 	/* get saved entries */
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getSavedEntriesForUser( final User user )
 	{
 		log.debug("called getSavedEntriesForUser( final User user )" );
@@ -607,7 +586,6 @@ class EntryService {
 
 
 	/* get hidden entries */
-	@Transactional(propagation = Propagation.REQUIRED)
 	public List<Entry> getHiddenEntriesForUser( final User user )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
@@ -620,7 +598,7 @@ class EntryService {
 
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	
 	public List<Entry> getCommentsForUser( final User user )
 	{
 		List<Comment> comments = new ArrayList<Comment>();
@@ -648,6 +626,4 @@ class EntryService {
 		return entries;
 
 	}
-
-
 }
