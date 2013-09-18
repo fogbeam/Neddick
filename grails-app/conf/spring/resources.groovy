@@ -2,11 +2,10 @@
 beans = {
     
 	mailSender(org.springframework.mail.javamail.JavaMailSenderImpl) {
-	   // host = 'mail.cpphacker.co.uk'
 	   host='smtp.gmail.com'
 	   port='587'
-	   username = "motley.crue.fan"
-	   password = "7400seriesIC"
+	   username = "user@gmail.com"
+	   password = "password"
 	   javaMailProperties = ['mail.smtp.auth': 'true',
 	      'mail.smtp.starttls.enable':'true',
 	      'mail.smtp.starttls.required':'true',
@@ -20,7 +19,7 @@ beans = {
 		// You can set default email bean properties here, 
 		// eg: from/to/subject mailMessage(org.springframework.mail.SimpleMailMessage) { from = 'myapp@maurice.co.uk' }
 		mailMessage(org.springframework.mail.SimpleMailMessage) {
-			   from = 'mindcrime@cpphacker.co.uk'
+			   from = 'neddick@example.com'
 			}
 
 		jmsConnectionFactory(org.springframework.jndi.JndiObjectFactoryBean) {
