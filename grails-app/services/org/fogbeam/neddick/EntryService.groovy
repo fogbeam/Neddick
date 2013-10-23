@@ -60,16 +60,22 @@ class EntryService {
 	}
 
 
+	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean saveEntry( final Entry entry )
 	{
+		// println "#############################\nSaving Entry";
 		boolean success = false;
 
+		
 		if( ! ( success = entry.save(validate:false,flush:true)) )
 		{
-			log.error( "Updating entry: ${entry.id} FAILED");
-			// entry.errors.allErrors.each { p rintln it };
+			println( "Updating entry: ${entry.id} FAILED");
+			entry.errors.allErrors.each { println it };
 		}
 
+		// println "committing transaction";
+		sessionFactory.currentSession.connection().commit()
+		
 		return success;
 	}
 

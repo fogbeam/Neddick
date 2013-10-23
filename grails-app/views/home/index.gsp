@@ -11,7 +11,11 @@
                </div>
           </g:if>
     
-          <div class="allEntries" id="allEntries" style="margin-left:35px;padding-top:20px;">
+          <div class="well allEntries" id="allEntries" style="margin-left:35px;padding-top:10px;min-height:750px;">
+               <!-- <button class="btn btn-primary" style="position:relative;top:10px;left:405px;">Add to My Channels</button> -->
+               <g:remoteLink class="btn btn-primary" style="position:relative;top:10px;left:405px;width:125px;" controller="channel" action="addChannelToFavorites" params='[channelId:"${theChannel.id}"]' >Favorite Channel</g:remoteLink>
+               
+               
                <g:each in="${allEntries}" var="entry">
                     <div style="padding:10px;">
                          <div style="float:left;">
@@ -58,7 +62,7 @@
                                         </span>
                                         <span><g:remoteLink controller="entry" action="hideEntry" 
                                                                  params="[entryId:entry.id]" onComplete="afterHide(e);">hide</g:remoteLink></span>
-                                        <span><a href="#" id="showHideTagbox.${entry.id}" onClick="return toggleTagbox(${entry.id});" >Tag</a></span>
+                                        <span><a href="#" id="showHideTagbox.${entry.id}" onClick="return toggleTagbox(${entry.id});" >tag</a></span>
                                         <div id="tagbox.${entry.id}" style="display:none;" >
                                              <g:formRemote onSuccess="addTag(${entry.id})" name="tagForm" url="[ controller: 'tag', action: 'addTag']">
                                                   <g:textField id="tagNameField.${entry.id}" name="tagName" />

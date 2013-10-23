@@ -1,5 +1,8 @@
 package org.fogbeam.neddick
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional
+
 import com.sun.syndication.feed.synd.SyndEntry
 import com.sun.syndication.feed.synd.SyndFeed
 import com.sun.syndication.io.SyndFeedInput
@@ -9,19 +12,23 @@ import com.sun.syndication.io.XmlReader
 class ChannelService {
 
 	def entryService;
+	static transactional = false;
 	
+	@Transactional(propagation=Propagation.REQUIRED)
 	public Channel findByName( final String channelName )
 	{
 		Channel channel = Channel.findByName( channelName );
 		return channel;
 	}
 
+	@Transactional(propagation=Propagation.REQUIRED)
 	public Channel findById( final Long id )
 	{
 		Channel channel = Channel.findById( id );
 		return channel;
 	}
 	
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Channel> getAllChannels()
 	{
 		List<Channel> allChannels = new ArrayList<Channel>();
@@ -32,6 +39,7 @@ class ChannelService {
 		return allChannels;
 	}
 
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Channel> getEligibleAggregateChannels( final User user )
 	{
 		List<Channel> eligibleChannels = new ArrayList<Channel>();
@@ -52,7 +60,7 @@ class ChannelService {
 		return eligibleChannels;
 	}
 
-	
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Channel> getEligibleAggregateChannels( final User user, final Channel theChannel )
 	{
 		List<Channel> eligibleChannels = new ArrayList<Channel>();
@@ -100,7 +108,9 @@ class ChannelService {
 		return eligibleChannels;
 	}
 	
-		
+	
+	// Explicitly NOT transactional, but the nested call to entryService.save() should be
+	@Transactional(propagation=Propagation.REQUIRED)
 	public void updateFromDatasource( Channel channel )
 	{
 	
@@ -155,6 +165,10 @@ class ChannelService {
 					
 					for( SyndEntry entry in entries )
 					{
+						// TODO: wrap this in a try/catch so one bad
+						// link doesn't fail the entire feed.
+						
+						
 						String linkUrl = entry.getLink();
 						String linkTitle = entry.getTitle();
 						
@@ -183,11 +197,13 @@ class ChannelService {
 								log.debug( "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}" );
 					
 								Entry newEntry = new Entry( url: linkUrl, title: linkTitle, submitter: anonymous );
-								entryService.saveEntry( newEntry );
-								newEntry.addToChannels( channel );
 								
-								if( newEntry )
+								boolean success = entryService.saveEntry( newEntry );
+							
+								if( success )
 								{
+									newEntry.addToChannels( channel );
+									
 									good++;
 									log.debug( "saved new Entry with id: ${newEntry.id}" );
 									// send JMS message saying "new entry submitted"
@@ -206,7 +222,7 @@ class ChannelService {
 								{
 									bad++;
 									// failed to save newEntry
-									log.debug( "Failed to save newEntry!" );
+									println( "Failed to save newEntry!" );
 								}
 							}
 						}
@@ -235,6 +251,7 @@ class ChannelService {
 		}
 	}
 
+	@Transactional(propagation=Propagation.REQUIRED)
 	public List<Channel> findChannelsWithDatasource()
 	{
 		List<Channel> channels = new ArrayList<Channel>();
@@ -245,5 +262,4 @@ class ChannelService {
 		
 		return channels;	
 	}
-		
 }

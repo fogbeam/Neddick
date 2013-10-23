@@ -16,7 +16,15 @@ class ChannelController {
 			
     	if( itemsPerPage == -1 )
     	{
-    		itemsPerPage = Integer.parseInt( siteConfigService.getSiteConfigEntry( "itemsPerPage" ));
+			def itemsPerPageValue = siteConfigService.getSiteConfigEntry( "itemsPerPage" );
+    		if( itemsPerPageValue )
+			{
+				itemsPerPage = Integer.parseInt( itemsPerPageValue );
+			}
+			else
+			{
+				itemsPerPage = Integer.parseInt( "25" );
+			}
     	}
     	
     	String requestedPageNumber = params.pageNumber;
@@ -359,5 +367,18 @@ class ChannelController {
 		
 		redirect(controller:"channel", action:"list");
 	}
-	
+
+	/* add channel to User's favorite channels list */
+	def addChannelToFavorites =
+	{
+		def channelId = params.channelId;
+		Channel channel = channelService.findById( Long.parseLong(channelId ));
+		
+		User user = userService.findUserByUserId( session.user.userId );
+		
+		userService.addChannelToUserFavorites( user, channel );
+		
+		render( status:200, text:"OK" );
+	}
+		
 }

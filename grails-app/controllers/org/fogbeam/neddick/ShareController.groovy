@@ -160,7 +160,7 @@ class ShareController
 				
 				ResponseEntity<String> response =
 					restTemplate.postForEntity(
-							"http://localhost:8080/quoddy2/api/activitystreamentry",
+							"http://localhost:8180/quoddy2/api/activitystreamentry",
 							newEntry, String.class );
 				
 				String responseText = response.getBody();

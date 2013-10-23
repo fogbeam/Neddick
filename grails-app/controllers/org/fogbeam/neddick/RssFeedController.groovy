@@ -96,11 +96,13 @@ class RssFeedController {
 		RssFeed newFeed = new RssFeed();
 		newFeed.feedUrl = params.feedUrl;
 		newFeed.description = params.description;
-		
-		if( !newFeed.save(flush:true, validate:true) )
-		{
-			log.error( "Error saving Feed" );
-			// newFeed.errors.allErrors.each { p rintln it };
+		RssFeed.withTransaction { status -> 
+			
+			if( !newFeed.save(flush:true, validate:true) )
+			{
+				log.error( "Error saving Feed" );
+				// newFeed.errors.allErrors.each { p rintln it };
+			}
 		}
 		
 		redirect( controller:"rssFeed", action:"list" );

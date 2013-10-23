@@ -12,6 +12,7 @@ class HomeController {
 	def channelService;
 	def siteConfigService;	
 	def filterService;
+	def tagService;
 	
 	int itemsPerPage = -1;
 	
@@ -107,6 +108,18 @@ class HomeController {
 		}
 		
 		
+		// get a list of the distinct tags that I have used
+		def	tagList = tagService.getTagListForUser( user );
+		
+		def myChannels = new ArrayList<Channel>();
+		
+		def popularTags = new ArrayList<Channel>();
+
+		def model = [ myTags: tagList,
+			myChannels:myChannels,
+			popularTags:popularTags];
+
+				
 		// check if there is a Filter for this channel, for this User
 		// if there is, only render the entries from the Filter
 		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
@@ -146,15 +159,16 @@ class HomeController {
 			log.debug( "calling getAllNonHiddenEntriesForFilter" );
 			List<Entry> entries;
 			entries = filterService.getAllNonHiddenEntriesForFilter(filter, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
-			
-			
+						
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
-			def model = [allEntries: sortedEntries,
-						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+			def model2 = [allEntries: sortedEntries,
+						 channelName: channelName, currentPageNumber: pageNumber, 
+						 availablePages: availablePages,
+						 theChannel:theChannel,
 						 requestType:"index"];
 	
+			model.putAll( model2 );
 			render(view:"index", model:model);
-			
 						
 		}
 		else
@@ -171,7 +185,9 @@ class HomeController {
 				dataSize = entryService.getCountAllEntries( theChannel );
 				
 			}
-			
+	
+			println "dataSize: ${dataSize}";
+					
 			int pages = dataSize / itemsPerPage;
 			pages = Math.max( pages, 1 );
 			
@@ -208,11 +224,17 @@ class HomeController {
 				entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 			}
 			
+			println "returning ${entries.size()} entries";
+			
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
-			def model = [allEntries: sortedEntries,
-						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
+			def model2 = [allEntries: sortedEntries,
+						 channelName: channelName, currentPageNumber: pageNumber, 
+						 availablePages: availablePages,
+						 theChannel:theChannel,
 						 requestType:"index"];
 	
+			model.putAll( model2 );		 
+					 
 			render(view:"index", model:model);
 		}
 	}

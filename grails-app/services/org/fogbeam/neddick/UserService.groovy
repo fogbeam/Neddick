@@ -58,5 +58,10 @@ class UserService {
 		return role;
 	}
 	
+	
+	public void addChannelToUserFavorites( final User user, final Channel channel )
+	{
+		UserFavoriteChannelLink.link( channel, user );
+	}
 		
 }

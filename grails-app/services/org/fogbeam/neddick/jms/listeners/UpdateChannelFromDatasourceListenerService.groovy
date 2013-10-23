@@ -6,6 +6,7 @@ class UpdateChannelFromDatasourceListenerService
 {
 	def siteConfigService;
 	def channelService;
+	static transactional = false;
 	
 	static expose = ['jms']
 	static destination = "datasourceQueue"

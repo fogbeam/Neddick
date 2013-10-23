@@ -2,7 +2,7 @@
      
     <head>
         <title>Welcome to Neddick</title>
-          <meta name="layout" content="main" />
+          <meta name="layout" content="admin" />
           <nav:resources />
     </head>
      

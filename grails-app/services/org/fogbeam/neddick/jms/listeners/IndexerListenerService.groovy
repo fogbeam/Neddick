@@ -156,6 +156,12 @@ public class IndexerListenerService {
 				
 				Entry entry = entryService.findByUuid( msg['uuid']);
 				
+				if( entry == null )
+				{
+					println "WARN: No such entry: ${msg['uuid']}";
+					return;
+				}
+				
 				// add document to index
 				log.info( "adding document to index: ${msg['uuid']}" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
@@ -523,11 +529,37 @@ public class IndexerListenerService {
 	private void rebuildIndex()
 	{
 
-		log.debug( "doing rebuildIndex" );
+		println( "doing rebuildIndex" );
 		List<Entry> allEntries = entryService.getAllEntries();
 
 		// add document to index
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		println "using indexDirLocation: ${indexDirLocation}";
+		
+		// check if there's an initialized index yet.  If not, initialize empty index
+		File indexFile = new java.io.File( indexDirLocation );
+		String[] indexFileChildren = indexFile.list();
+		boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
+		if( ! indexIsInitialized )
+		{
+			println( "Index not previously initialized, creating empty index" );
+			/* initialize empty index */
+			Directory indexDir = new NIOFSDirectory( indexFile );
+			IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
+			Document doc = new Document();
+			writer.addDocument(doc);
+			writer.close();
+		}
+		else
+		{   
+		   println( "Index already initialized..." );
+		   println "indexFileChildren.length = ${indexFileChildren.length}";
+		   
+		   indexFileChildren.each { println it; }
+		   println "********";
+		}
+		
+		
 		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 		IndexWriter writer = null;
 
@@ -629,8 +661,18 @@ public class IndexerListenerService {
 					Metadata metadata = new Metadata();
 
 					Parser parser = new AutoDetectParser();
-					parser.parse(input, textHandler, metadata);
-
+					try
+					{
+						parser.parse(input, textHandler, metadata);
+					}
+					catch( Exception e )
+					{
+						log.error( "Unable to parse content", e );
+						println "Unable to parse content: continuing...";
+						e.printStackTrace();
+						continue;	
+					}
+					
 					String content = textHandler.toString();
 					doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 				}

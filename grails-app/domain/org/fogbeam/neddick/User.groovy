@@ -33,6 +33,7 @@ class User {
     
     static mapping = {
     	table 'uzer'
+		userFavoriteChannels lazy: false;
     }
 
     static hasMany = [	savedEntries : Entry, 
@@ -40,12 +41,14 @@ class User {
 						childUserLinks:UserToUserLink, 
 						parentUserLinks: UserToUserLink, 
 						userEntryScoreLinks:UserEntryScoreLink,
+						userFavoriteChannels:UserFavoriteChannelLink,
 						roles: AccountRole, 
-						permissions: String,
-						channels: Channel ];
+						permissions: String ];
 					
-    static mappedBy = [savedEntries : "savers", hiddenEntries:"hiders", userProfile:"owner", childUserLinks:"owner", parentUserLinks:"target"  ];
-
+    static mappedBy = [ userFavoriteChannels: 'user', savedEntries : "savers", hiddenEntries:"hiders", userProfile:"owner", childUserLinks:"owner", parentUserLinks:"target"  ];
+	// ,
+	
+	
     public void setUuid( String uuid ){
     	
     	// never overwrite existing uuid value with NULL

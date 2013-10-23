@@ -212,47 +212,13 @@
   	
   	</div>
   	
-    <div class="row">   
-    <div class="span8" style="margin-top:10px;">     
+                         
+    <div class="span12">     
     	<!-- layout main content area -->
         <g:layoutBody />             
                                     
     </div>
-	<div class="span4" style="margin-top:10px;">
-	
-		<div class="well" style="margin-bottom:20px; min-height:140px; padding-left:35px;">
-			<h5>Favorite Channels</h5>
-			<hr></hr>
-			<ul>
-				<g:each in="${session.user.userFavoriteChannels}" var="myChannelLink">
-					<li style="list-style-type:none;">${myChannelLink.channel.name}</li>
-				</g:each>
-			</ul>
-		</div>
-		
-		<div class="well" style="margin-top:20px;min-height:140px; padding-left:35px;">
-			<h5>My Tags</h5>
-			<hr></hr>
-			<ul>
-				<g:each in="${myTags}" var="myTag">
-					<li style="list-style-type:none;"><a href="${createLink(controller:'tags', action:myTag.name)}">${myTag.name}</a></li>
-				</g:each>			
-			</ul>
-		</div>
-
-		<div class="well" style="margin-top:20px; min-height:140px;padding-left:35px;">
-			<h5>Popular Tags</h5>
-			<hr></hr>
-			<ul>
-				<g:each in="${popularTags}" var="popularTag">
-					<li style="list-style-type:none;">${popularTag}</li>
-				</g:each>			
-			</ul>
-		</div>
-		
-	</div>                     
-    </div>
-    <div class="row">
+           
     <div class="span12" id="ft">
          
          <!-- TODO: replace this with a template gsp -->
@@ -262,7 +228,7 @@
               <center>Footer for Neddick</center>
          </div>
     </div> 
-    </div>      
+          
           
           		 <!--  hidden div, not shown until somebody clicks the "share" button -->
 				 <div id="shareDialog" title="Share this Item">

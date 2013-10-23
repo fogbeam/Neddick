@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>Welcome to Neddick</title>
-          <meta name="layout" content="main" />
+          <meta name="layout" content="admin" />
           <g:javascript src="editChannel.js"/>
           <nav:resources />
     </head>

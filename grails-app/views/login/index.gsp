@@ -2,7 +2,7 @@
 
 	<head>
 		<title>Neddick: Login</title>
-		<meta name="layout" content="main" />
+		<meta name="layout" content="login" />
 	     <nav:resources />
 	</head>
 	

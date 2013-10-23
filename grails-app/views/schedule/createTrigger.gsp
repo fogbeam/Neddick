@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>Welcome to Grails</title>
-        <meta name="layout" content="main" />
+        <meta name="layout" content="admin" />
         <nav:resources />
     </head>
     <body>

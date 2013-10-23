@@ -229,7 +229,7 @@ class TriggerController
 			case "TagTriggerCriteria":
 			
 				println "creating TagTriggerCriteria";
-				criteria = new TagTriggerCriteria();
+				newCriteria = new TagTriggerCriteria();
 				String tag = params.get( "criteriaValue-1");
 				if( tag != null && !tag.isEmpty())
 				{
