@@ -217,7 +217,7 @@ class BootStrap {
 			 adminRole.addToPermissions( "user:*" );
 			 adminRole.addToPermissions( "userHome:*" );
 			 adminRole.addToPermissions( "vote:*" );
-			 
+			 adminRole.addToPermissions( "dataSource:*");
 			 
 			 adminRole = userService.createAccountRole( adminRole );
 		 

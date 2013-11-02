@@ -1,23 +1,17 @@
 package org.fogbeam.neddick
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer 
-import org.apache.lucene.document.Document 
-import org.apache.lucene.queryParser.MultiFieldQueryParser 
-import org.apache.lucene.queryParser.QueryParser 
-import org.apache.lucene.search.IndexSearcher 
-import org.apache.lucene.search.Query 
-import org.apache.lucene.search.ScoreDoc 
-import org.apache.lucene.search.TopDocs 
-import org.apache.lucene.store.Directory 
-import org.apache.lucene.store.FSDirectory 
-import org.apache.lucene.util.Version 
+import org.fogbeam.neddick.controller.mixins.SidebarPopulatorMixin
 
+
+@Mixin(SidebarPopulatorMixin)
 class SearchController {
 
 	def entryService;
 	def siteConfigService;
 	def searchService;
-	
+	def userService;
+	def tagService;
+	def channelService;
 	
 	def doSearch = {
 			
@@ -34,7 +28,15 @@ class SearchController {
 			entries.addAll( searchResults );
 		}
 		
-		render( view:'displaySearchResults', model:[searchResults:entries]);
+		
+		User user = userService.findUserByUserId( session.user.userId );
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
+		def model = [searchResults:entries];
+		
+		model.putAll( sidebarCollections );
+		
+		render( view:'displaySearchResults', model:model);
 	}
 
 	def reindexAll = {

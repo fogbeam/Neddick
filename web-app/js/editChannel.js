@@ -1,34 +1,34 @@
-/* for RSS feeds */
+/* for DataSources */
 
-function addToSelectedFeeds() {
-	// alert( "addToSelected" );
+function addToSelectedDatasources() {
+	alert( "addToSelected" );
 	
-	$j( 'select#availablefeeds :selected' ).each( function(i, selected )
+	$j( 'select#availableDatasources :selected' ).each( function(i, selected )
 		{
 		
-			// check if this feed is already in "feedsToRemove".  If it is, somebody
+			// check if this DataSource is already in "datasourcesToRemove".  If it is, somebody
 			// clicked "remove" then re-added it.  But since the net-net of that
 			// is the same settings we currently have, we don't actually want to do
 			// anything.
 			var checkValue = $j(selected).attr('value');
 			// alert( "checkValue: " + checkValue );
-			var existingOption = $j("select#feedsToRemove option[value='" + checkValue + "']");
+			var existingOption = $j("select#datasourcesToRemove option[value='" + checkValue + "']");
 			// alert( "existing option length: " + existingOption.length );
 			if( existingOption.length > 0 )
 			{		
-				// don't add to feedsToAdd,  but we do need to re-add it back 
-				// to the "feeds" list, so it "looks" selected
+				// don't add to datasourcesToAdd,  but we do need to re-add it back 
+				// to the "datasources" list, so it "looks" selected
 				var newOption2 = $j(selected).clone();
-				newOption2.appendTo( "select#feeds" );
+				newOption2.appendTo( "select#datasources" );
 			}
 			else
 			{
 				// do everything as normal
 				var newOption = $j(selected).clone();
 				newOption.attr('selected', 'selected');
-				newOption.appendTo( "select#feedsToAdd" );
+				newOption.appendTo( "select#datasourcesToAdd" );
 				var newOption2 = $j(selected).clone();
-				newOption2.appendTo( "select#feeds" );				
+				newOption2.appendTo( "select#datasources" );				
 			
 			}
 			
@@ -36,9 +36,9 @@ function addToSelectedFeeds() {
 			$j(selected).remove();
 			
 			// if this had previously been selected for removal (and then added
-			// back) , then it's in feedsToRemove now.  We need to remove it from there, since
+			// back) , then it's in datasourcesToRemove now.  We need to remove it from there, since
 			// we've decided not to remove it.				
-			var removeMe = $j("select#feedsToRemove option[value='" + removeMeId + "']");
+			var removeMe = $j("select#datasourcesToRemove option[value='" + removeMeId + "']");
 			if( removeMe )
 			{
 				removeMe.remove();
@@ -48,33 +48,33 @@ function addToSelectedFeeds() {
 	);
 }
 
-function addAllToSelectedFeeds() {
-	// alert( "addAllToSelected" );
+function addAllToSelectedDatasources() {
+	alert( "addAllToSelected" );
 	
-	$j( 'select#availablefeeds option' ).each( function(i, selected )
+	$j( 'select#availableDatasources option' ).each( function(i, selected )
 		{	
 
-			// check if this feed is already in "feeds".  If it is, somebody
+			// check if this DataSource is already in "datasources".  If it is, somebody
 			// clicked "remove" then re-added it.  But since the net-net of that
 			// is the same settings we currently have, we don't actually want to do
 			// anything.
-			var existingOption = $j("select#feedsToRemove option[value='" + $j(selected).attr('value') + "']");
+			var existingOption = $j("select#datasourcesToRemove option[value='" + $j(selected).attr('value') + "']");
 			// alert( "existing option length: " + existingOption.length );
 			if( existingOption.length > 0 )
 			{		
-				// don't add to feedsToAdd,  but we do need to re-add it back 
-				// to the "feeds" list, so it "looks" selected
+				// don't add to datasourcesToAdd,  but we do need to re-add it back 
+				// to the "datasources" list, so it "looks" selected
 				var newOption2 = $j(selected).clone();
-				newOption2.appendTo( "select#feeds" );
+				newOption2.appendTo( "select#datasources" );
 			}
 			else
 			{
 				// do everything as normal
 				var newOption = $j(selected).clone();
 				newOption.attr('selected', 'selected');
-				newOption.appendTo( "select#feedsToAdd" );
+				newOption.appendTo( "select#datasourcesToAdd" );
 				var newOption2 = $j(selected).clone();
-				newOption2.appendTo( "select#feeds" );				
+				newOption2.appendTo( "select#datasources" );				
 			
 			}
 			
@@ -82,9 +82,9 @@ function addAllToSelectedFeeds() {
 			$j(selected).remove();
 			
 			// if this had previously been selected for removal (and then added
-			// back) , then it's in feedsToRemove now.  We need to remove it from there, since
+			// back) , then it's in datasourcesToRemove now.  We need to remove it from there, since
 			// we've decided not to remove it.				
-			var removeMe = $j("select#feedsToRemove option[value='" + removeMeId + "']");
+			var removeMe = $j("select#datasourcesToRemove option[value='" + removeMeId + "']");
 			if( removeMe )
 			{
 				removeMe.remove();
@@ -95,24 +95,24 @@ function addAllToSelectedFeeds() {
 	);	
 }
 
-function removeFromSelectedFeeds() {
-	// alert( "removeFromSelected" );
-	$j( 'select#feeds :selected' ).each( function(i, selected )
+function removeFromSelectedDatasources() {
+	alert( "removeFromSelected" );
+	$j( 'select#datasources :selected' ).each( function(i, selected )
 		{
 			var newOption = $j(selected).clone();
 			newOption.attr('selected', 'selected');
-			newOption.appendTo( "select#feedsToRemove" );
+			newOption.appendTo( "select#datasourcesToRemove" );
 			
 			var newOption2 = $j(selected).clone();
-			newOption2.appendTo( "select#availablefeeds" );
+			newOption2.appendTo( "select#availableDatasources" );
 			// remove this from the original list
 			var removeMeId = $j(selected).attr('value');
 			$j(selected).remove();
 			
-			// if this had previously been added from availablefeeds, then
-			// it's in feedsToAdd now.  We need to remove it from there, since
+			// if this had previously been added from availableDatasources, then
+			// it's in datasourcesToAdd now.  We need to remove it from there, since
 			// we've decided not to add it.				
-			var removeMe = $j("select#feedsToAdd option[value='" + removeMeId + "']");
+			var removeMe = $j("select#datasourcesToAdd option[value='" + removeMeId + "']");
 			if( removeMe )
 			{
 				removeMe.remove();
@@ -122,25 +122,25 @@ function removeFromSelectedFeeds() {
 
 }
 
-function removeAllFromSelectedFeeds() {
-	// alert( "removeAllFromSelected" );
+function removeAllFromSelectedDatasources() {
+	alert( "removeAllFromSelected" );
 	
-	$j( 'select#feeds option' ).each( function(i, selected )
+	$j( 'select#datasources option' ).each( function(i, selected )
 		{	
 			var newOption = $j(selected).clone();
 			newOption.attr('selected', 'selected');
-			newOption.appendTo( "select#feedsToRemove" );
+			newOption.appendTo( "select#datasourcesToRemove" );
 			var newOption2 = $j(selected).clone();
-			newOption2.appendTo( "select#availablefeeds" );
+			newOption2.appendTo( "select#availableDatasources" );
 			
 			$j(selected).remove();					
 		}
 	);	
 
-	// if we've said "remove all" from selected feeds, then we definitely
-	// aren't adding any feeds.  So blow away anything that might be
-	// in feedsToAdd
-	$j( 'select#feedsToAdd option' ).each( function(i, selected )
+	// if we've said "remove all" from selected datasources, then we definitely
+	// aren't adding any datasources.  So blow away anything that might be
+	// in datasourcesToAdd
+	$j( 'select#datasourcesToAdd option' ).each( function(i, selected )
 		{	
 			$j(selected).remove();			
 		}
@@ -167,8 +167,6 @@ function addToSelectedChannels()
 			// alert( "existing option length: " + existingOption.length );
 			if( existingOption.length > 0 )
 			{		
-				// don't add to feedsToAdd,  but we do need to re-add it back 
-				// to the "feeds" list, so it "looks" selected
 				var newOption2 = $j(selected).clone();
 				newOption2.appendTo( "select#aggregateChannels" );
 			}

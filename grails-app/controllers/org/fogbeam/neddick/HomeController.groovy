@@ -1,9 +1,11 @@
 package org.fogbeam.neddick
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.fogbeam.neddick.controller.mixins.SidebarPopulatorMixin
 import org.fogbeam.neddick.filters.BaseFilter
 
 
+@Mixin(SidebarPopulatorMixin)
 class HomeController {
 
 	def userService;
@@ -107,18 +109,9 @@ class HomeController {
 			}
 		}
 		
-		
-		// get a list of the distinct tags that I have used
-		def	tagList = tagService.getTagListForUser( user );
-		
-		def myChannels = new ArrayList<Channel>();
-		
-		def popularTags = new ArrayList<Channel>();
-
-		def model = [ myTags: tagList,
-			myChannels:myChannels,
-			popularTags:popularTags];
-
+			
+		Map sidebarCollections = populateSidebarCollections( this, user );
+			
 				
 		// check if there is a Filter for this channel, for this User
 		// if there is, only render the entries from the Filter
@@ -161,13 +154,13 @@ class HomeController {
 			entries = filterService.getAllNonHiddenEntriesForFilter(filter, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 						
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
-			def model2 = [allEntries: sortedEntries,
+			def model = [allEntries: sortedEntries,
 						 channelName: channelName, currentPageNumber: pageNumber, 
 						 availablePages: availablePages,
 						 theChannel:theChannel,
 						 requestType:"index"];
 	
-			model.putAll( model2 );
+			model.putAll( sidebarCollections );
 			render(view:"index", model:model);
 						
 		}
@@ -227,13 +220,13 @@ class HomeController {
 			println "returning ${entries.size()} entries";
 			
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
-			def model2 = [allEntries: sortedEntries,
+			def model = [allEntries: sortedEntries,
 						 channelName: channelName, currentPageNumber: pageNumber, 
 						 availablePages: availablePages,
 						 theChannel:theChannel,
 						 requestType:"index"];
 	
-			model.putAll( model2 );		 
+			model.putAll( sidebarCollections );		 
 					 
 			render(view:"index", model:model);
 		}
@@ -309,6 +302,8 @@ class HomeController {
 			}
 		}		
 		
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
 		
 		// check if there is a Filter for this channel, for this User
 		// if there is, only render the entries from the Filter
@@ -357,6 +352,8 @@ class HomeController {
 						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
 						 requestType:"index"];
 	
+			model.putAll( sidebarCollections );		 
+					 
 			render(view:"index", model:model);	
 			
 		}
@@ -411,6 +408,8 @@ class HomeController {
     	             channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
     	             requestType:"hotEntries"];
 		
+			model.putAll( sidebarCollections );	 
+				 
 			render(view:"index", model:model);
 		}	
     }
@@ -483,6 +482,8 @@ class HomeController {
 		}	
 		
 		
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
 		// check if there is a Filter for this channel, for this User
 		// if there is, only render the entries from the Filter
 		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
@@ -531,6 +532,8 @@ class HomeController {
 						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
 						 requestType:"index"];
 	
+			model.putAll( sidebarCollections );		 
+					 
 			render(view:"index", model:model);
 				
 		}
@@ -582,6 +585,8 @@ class HomeController {
 	                     channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
 	                     requestType:"newEntries"];
 	    	
+			model.putAll( sidebarCollections );		 
+					 
 	        render(view:"index", model:model);      
     	}  
     }	
@@ -654,6 +659,8 @@ class HomeController {
 			}
 		}
 
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
 		// check if there is a Filter for this channel, for this User
 		// if there is, only render the entries from the Filter
 		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
@@ -702,7 +709,8 @@ class HomeController {
 						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
 						 requestType:"index"];
 	
-					 
+			model.putAll( sidebarCollections );
+					 		 
 			render(view:"index", model:model);	
 			
 		}
@@ -756,6 +764,8 @@ class HomeController {
 	                     channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
 	                     requestType:"topEntries"];
 	        
+			model.putAll( sidebarCollections );		 
+					 
 	        render(view:"index", model:model);
     	}  
     }
@@ -830,6 +840,8 @@ class HomeController {
 		}
 		
 		
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
 		// check if there is a Filter for this channel, for this User
 		// if there is, only render the entries from the Filter
 		BaseFilter filter = filterService.findFilterByUserAndChannel( user, theChannel );
@@ -874,6 +886,9 @@ class HomeController {
 			
 			
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
+			
+			model.putAll( sidebarCollections );
+			
 			def model = [allEntries: sortedEntries,
 						 channelName: channelName, currentPageNumber: pageNumber, availablePages: availablePages,
 						 requestType:"index"];
@@ -933,8 +948,10 @@ class HomeController {
 						 channelName: ( defaultChannel ? null : channelName ), currentPageNumber: pageNumber, availablePages: availablePages,
 						 requestType:"controversialEntries"];
 	
-				 
-			 render(view:"index", model:model);
+			
+			model.putAll( sidebarCollections );		 
+					 	 
+			render(view:"index", model:model);
 		}	
 	}
 	
@@ -1028,9 +1045,13 @@ class HomeController {
 			subList = new ArrayList<Entry>();	
 		}
 		
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
     	def model = [allEntries:subList, currentPageNumber: pageNumber, availablePages: availablePages,
                      requestType:"savedEntries"];
-    	    	
+    	 
+		model.putAll( sidebarCollections );		 
+				    	
     	render(view:"index", model:model);
     }
    
@@ -1125,9 +1146,13 @@ class HomeController {
 			subList = new ArrayList<Entry>();	
 		}
     	
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
 		def model = [allEntries:hiddenEntries, currentPageNumber: pageNumber, availablePages: availablePages,
                      requestType:"hiddenEntries"];
     	
+		model.putAll( sidebarCollections );
+				 
     	render(view:"index", model:model);
     
     }

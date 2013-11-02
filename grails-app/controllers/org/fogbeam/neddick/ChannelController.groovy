@@ -116,14 +116,16 @@ class ChannelController {
 	
 	def create = {
 		
-		List<RssFeed> availableFeeds = RssFeed.list();
+		// List<RssFeed> availableFeeds = RssFeed.list();
+		List<DataSource> availableDatasources = DataSource.list();
 		
 		User user = userService.findUserByUserId( session.user.userId );
 		
 		List<Channel> availableChannels = channelService.getEligibleAggregateChannels( user );
 		
 		
-		[ availableFeeds:availableFeeds,
+		[ // availableFeeds:availableFeeds,
+		  availableDatasources:availableDatasources,
 		  availableChannels:availableChannels];
 	}
 	
@@ -136,6 +138,8 @@ class ChannelController {
 		channel.name = params.channelName;
 		channel.description = params.channelDescription;
 		
+		/* TODO: change this to manipulate DataSources */
+		/* 
 		List<RssFeed> feeds = new ArrayList<RssFeed>();
 		String[] feedsToAdd = params.feeds;
 		for( String feedToAdd : feedsToAdd ) 
@@ -146,7 +150,7 @@ class ChannelController {
 		}
 		
 		channel.feeds = feeds;
-		
+		*/
 		
 		String[] aggregateChannelsToAdd = params.aggregateChannels;
 		List<Channel> aggregateChannels = new ArrayList<Channel>();
@@ -233,15 +237,17 @@ class ChannelController {
 		
 		
 		
-		List<RssFeed> availableFeeds = RssFeed.executeQuery( "select feed from RssFeed as feed, Channel as channel where channel = ? and feed not in elements(channel.feeds)", [theChannel] );
-		println "Found ${availableFeeds.size()} available feeds";
-		
+		// List<RssFeed> availableFeeds = RssFeed.executeQuery( "select feed from RssFeed as feed, Channel as channel where channel = ? and feed not in elements(channel.feeds)", [theChannel] );
+		// println "Found ${availableFeeds.size()} available feeds";
+		List<DataSource> availableDatasources = DataSource.executeQuery( "select datasource from DataSource as datasource, Channel as channel where channel = ? and datasource not in elements(channel.dataSources)", [theChannel] );
+		println "Found ${availableDatasources.size()} available datasources";
 		
 		List<Channel> availableChannels = channelService.getEligibleAggregateChannels( user, theChannel );
 		
 		
 		[ 	channel: theChannel,
-			availableFeeds:availableFeeds,
+			// availableFeeds:availableFeeds,
+			availableDatasources:availableDatasources,
 			availableChannels:availableChannels];
 	}
 	
@@ -277,47 +283,48 @@ class ChannelController {
 			theChannel.privateChannel = false;
 		}
 		
+		// TODO: change all of the following to work with DataSources, not RssFeed instances
 				
-		def feedsToRemove = params.list('feedsToRemove');
-		for( String feedToRemove : feedsToRemove )
+		def datasourcesToRemove = params.list('datasourcesToRemove');
+		for( String datasourceToRemove : datasourcesToRemove )
 		{
 			
-			log.debug( "removing feed: ${feedToRemove}" );
+			log.debug( "removing datasource: ${datasourceToRemove}" );
 			// RssFeed feed = RssFeed.findById( feedToRemove );
-			RssFeed feed = theChannel.feeds.find { it.id == Integer.parseInt(feedToRemove) }
-			if( feed )
+			DataSource datasource = theChannel.dataSource.find { it.id == Integer.parseInt(datasourceToRemove) }
+			if( datasource )
 			{
-				log.debug( "calling removeFromFeeds using feed: ${feed}");
-				theChannel.removeFromFeeds( feed );
+				log.debug( "calling removeFromDataSource using datasource: ${datasource}");
+				theChannel.removeFromDataSources( datasource );
 			}
 			else
 			{
-				log.warn( "problem finding feed instance for ${feedToRemove}" );	
+				log.warn( "problem finding datasource instance for ${datasourceToRemove}" );	
 			}
 		
 			log.debug( "about to theChannel.save()" );
 			if( !theChannel.save(flush:true, validate:true) )
 			{	
 				log.error( "Error saving channel" );
-				// theChannel.errors.allErrors.each { p rintln it };
+				theChannel.errors.allErrors.each { println it };
 			}			
 				
 		}
 	
 	
-		log.debug( "dealing with feeds to add" );
-		def feedsToAdd = params.list( 'feedsToAdd');
-		for( String feedToAdd : feedsToAdd ) 
+		log.debug( "dealing with datasources to add" );
+		def datasourcesToAdd = params.list( 'datasourcesToAdd');
+		for( String datasourceToAdd : datasourcesToAdd ) 
 		{	
-			log.debug( "adding feed: ${feedToAdd}" );
-			RssFeed feed = RssFeed.findById( feedToAdd );
-			theChannel.addToFeeds( feed );
+			println( "adding datasource: ${datasourceToAdd}" );
+			DataSource datasource = DataSource.findById( Integer.parseInt( datasourceToAdd ) );
+			theChannel.addToDataSources( datasource );
 		}
 	
 		if( !theChannel.save() )
 		{
 			log.error( "Error saving channel" );
-			// theChannel.errors.allErrors.each { p rintln it };
+			theChannel.errors.allErrors.each { println it };
 		}
 
 		

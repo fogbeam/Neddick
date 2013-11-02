@@ -16,11 +16,11 @@
           <g:form action="update" controller="channel">
                <g:hiddenField name="channelId" value="${channel.id}" />
                
-               <g:select id="feedsToAdd" name="feedsToAdd" 
-                    from="${availableFeeds}" optionKey="id" optionValue="feedUrl"
+               <g:select id="datasourcesToAdd" name="datasourcesToAdd" 
+                    from="${availableDatasources}" optionKey="id" optionValue="description"
                	    multiple="true" style="display:none;" />
-               <g:select id="feedsToRemove" name="feedsToRemove" 
-               	 from="${channel.feeds}" optionKey="id" optionValue="feedUrl"
+               <g:select id="datasourcesToRemove" name="datasourcesToRemove" 
+               	 from="${channel.dataSources}" optionKey="id" optionValue="description"
                  multiple="true" style="display:none;" />
 
 
@@ -39,7 +39,7 @@
                          <g:textField name="channelName" value="${channel.name}"></g:textField>
                     </div>
                     <div style="margin-top:7px;">
-                         <label for="feeds">Description:</label>
+                         <label for="channelDescription">Description:</label>
                     </div>
                     <div>
                          <g:textField name="channelDescription" value="${channel.description}"></g:textField>
@@ -53,30 +53,30 @@
                     </div>                     
                  
                     
-                    <!--  pair of selects for adding and removing feeds -->
+                    <!--  pair of selects for adding and removing DataSources -->
                     <div style="margin-top:20px;">
-                         <label for="feeds">Selected Feeds</label></div>
+                         <label for="datasources">Selected DataSources</label></div>
                     <div style="float:left;margin-top:7px;">                               
-                         <g:select name="feeds" from="${channel.feeds}" optionKey="id" optionValue="feedUrl" multiple="true"></g:select> 
+                         <g:select name="datasources" from="${channel.dataSources}" optionKey="id" optionValue="description" multiple="true"></g:select> 
                     </div>
                     
                     <div style="margin-left:245px;margin-top:7px;">
-                    <a href="#" onclick="removeFromSelectedFeeds();return false;" style="color:red;text-decoration:none;">&gt;</a>
+                    <a href="#" onclick="removeFromSelectedDatasources();return false;" style="color:red;text-decoration:none;">&gt;</a>
                     <br />
-                    <a href="#" onclick="removeAllFromSelectedFeeds(); return false;" style="color:red;text-decoration:none;">&gt;&gt;</a>
+                    <a href="#" onclick="removeAllFromSelectedDatasources(); return false;" style="color:red;text-decoration:none;">&gt;&gt;</a>
                     <br />
-                    <a href="#" onclick="addToSelectedFeeds(); return false;" style="color:red;text-decoration:none;">&lt;</a>
+                    <a href="#" onclick="addToSelectedDatasources(); return false;" style="color:red;text-decoration:none;">&lt;</a>
                     <br />
-                    <a href="#" onclick="addAllToSelectedFeeds(); return false;" style="color:red;text-decoration:none;">&lt;&lt;</a>
+                    <a href="#" onclick="addAllToSelectedDatasources(); return false;" style="color:red;text-decoration:none;">&lt;&lt;</a>
                     <br />
                     </div>
                     
                      
                     <div style="margin-left:370px;margin-top:-87px;">
-                         <label for="availablefeeds">Available Feeds</label>
+                         <label for="availableDatasources">Available Datasources</label>
                     </div>
                     <div style="margin-left:320px;margin-top:7px;">                               
-                         <g:select name="availablefeeds" from="${availableFeeds}" optionKey="id" optionValue="feedUrl" multiple="true"></g:select> 
+                         <g:select name="availableDatasources" from="${availableDatasources}" optionKey="id" optionValue="description" multiple="true"></g:select> 
                     </div> 
 
 

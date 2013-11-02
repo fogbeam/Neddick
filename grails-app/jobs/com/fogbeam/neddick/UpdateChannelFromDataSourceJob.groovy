@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 
 import org.fogbeam.neddick.Channel
 
-class UpdateChannelFromRssJob 
+class UpdateChannelFromDataSourceJob 
 {
 	def jmsService;
 	def channelService;
@@ -17,7 +17,7 @@ class UpdateChannelFromRssJob
 	
 	def execute(context)
 	{
-		log.debug( "Updating Channels from RSS" );
+		log.debug( "Updating Channels from DataSources" );
 		Date now = new Date();
 		SimpleDateFormat sdf = SimpleDateFormat.getDateTimeInstance();
 		
@@ -25,14 +25,14 @@ class UpdateChannelFromRssJob
 		{
 			log.debug( "found a JMS service..." )
 			// get a list of channels that have associated rss feeds
-			List<Channel> channelsWithRss = channelService.findChannelsWithDatasource();
-			if( channelsWithRss != null && channelsWithRss.size() > 0 )
+			List<Channel> channelsWithDataSources = channelService.findChannelsWithDatasource();
+			if( channelsWithDataSources != null && channelsWithDataSources.size() > 0 )
 			{
 				log.debug( "Found some channels to update" );
 			}
 			
 			// iterate over that list, sending a message for each channel, to update from RSS
-			for( Channel channel in channelsWithRss )
+			for( Channel channel in channelsWithDataSources )
 			{
 				String msg = "UPDATE_CHANNEL:${channel.name}";
 			

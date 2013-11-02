@@ -1,14 +1,9 @@
 package org.fogbeam.neddick
 
-class RssFeed 
+import org.fogbeam.neddick.interfaces.IRssFeed
+
+class RssFeed extends DataSource
 {
 	String feedUrl;
-	String description;
-	Date dateCreated;
 	
-	static constraints =
-	{
-		description( nullable:true, maxSize:2048 );
-	}
-
 }

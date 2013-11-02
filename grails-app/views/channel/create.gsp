@@ -21,7 +21,7 @@
                          <g:textField name="channelName"></g:textField>
                     </dd>
                     <dt style="margin-top:7px;">
-                         <label for="feeds">Description:</label>
+                         <label for="channelDescription">Description:</label>
                     </dt>
                     <dd>
                          <g:textField name="channelDescription"></g:textField>
@@ -35,17 +35,14 @@
                     </dd>                    
                     
                     <dt>
-                         <label for="feeds">Feeds</label></dt>
+                         <label for="datasources">DataSources</label></dt>
                     <dd>                               
-                         <g:select name="feeds" from="${availableFeeds}" optionKey="id" optionValue="feedUrl" multiple="true">
-                         </g:select> 
+                         <g:select name="datasources" from="${availableDatasources}" optionKey="id" optionValue="description" multiple="true"></g:select> 
                     </dd> 
-
                     <dt>
                          <label for="aggregateChannels">Aggregate Channels</label></dt>
                     <dd>                               
-                         <g:select name="aggregateChannels" from="${availableChannels}" optionKey="id" optionValue="name" multiple="true">
-                         </g:select> 
+                         <g:select name="aggregateChannels" from="${availableChannels}" optionKey="id" optionValue="name" multiple="true"></g:select> 
                     </dd> 
 
                     

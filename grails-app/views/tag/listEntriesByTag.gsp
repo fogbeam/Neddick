@@ -1,11 +1,11 @@
 <html>
     <head>
         <title>Welcome to Neddick</title>
-          <meta name="layout" content="admin" />
+          <meta name="layout" content="main" />
           <nav:resources />
     </head>
     <body>
-          <div class="searchResults" id="searchResults" style="margin-left:35px;padding-top:20px;">
+          <div class="well allEntries" id="searchResults" style="margin-left:35px;padding-top:10px;min-height:750px;">
                <g:each in="${allEntries}" var="entry">
                     
                     <div style="padding:10px;">

@@ -1,13 +1,16 @@
 package org.fogbeam.neddick
 
+import org.fogbeam.neddick.controller.mixins.SidebarPopulatorMixin
 
 
+@Mixin(SidebarPopulatorMixin)
 class TagController {
 
 	def tagService;
 	def entryService;
 	def userService;
 	def siteConfigService;
+	def channelService;
 	
 	def scaffold = true;
 
@@ -93,7 +96,17 @@ class TagController {
 			subList = new ArrayList<Tag>();	
 		}
 		
-		[allTags:subList, currentPageNumber: pageNumber, availablePages: availablePages ];
+		
+		User user = userService.findUserByUserId( session.user.userId );
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
+		def model = [allTags:subList, currentPageNumber: pageNumber, availablePages: availablePages ];
+		
+		model.putAll( sidebarCollections );
+		
+		return model;
+		
+		
 	}
 	
 	def addTag = {
@@ -176,7 +189,14 @@ class TagController {
 			}
 		}
 		
-		render(view:"listEntriesByTag", model:[allEntries:taggedEntries]); 
+		User user = userService.findUserByUserId( session.user.userId );
+		Map sidebarCollections = populateSidebarCollections( this, user );
+		
+		def model = [allEntries:taggedEntries];
+		
+		model.putAll( sidebarCollections );
+		
+		render(view:"listEntriesByTag", model:model); 
 	
 	}
 
