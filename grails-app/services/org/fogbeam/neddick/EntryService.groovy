@@ -154,7 +154,8 @@ class EntryService {
 	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		log.debug( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
+		println( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
+		println "called with channel: ${channel}, user: ${user}, maxResults: ${maxResults}, offset: ${offset}";
 
 		List<Object> temp = Entry.executeQuery( "select distinct entry, link from Entry as entry, User as user, UserEntryScoreLink as link, "
 				+ "Channel as channel, ChannelEntryLink as clink where user.userId = ? and clink.entry = entry "

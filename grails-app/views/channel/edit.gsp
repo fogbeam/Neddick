@@ -20,7 +20,7 @@
                     from="${availableDatasources}" optionKey="id" optionValue="description"
                	    multiple="true" style="display:none;" />
                <g:select id="datasourcesToRemove" name="datasourcesToRemove" 
-               	 from="${channel.dataSources}" optionKey="id" optionValue="description"
+               	 from="${channel.dataSourceLinks}" optionKey="channelDataSourceId" optionValue="channelDataSourceDescription"
                  multiple="true" style="display:none;" />
 
 
@@ -57,7 +57,7 @@
                     <div style="margin-top:20px;">
                          <label for="datasources">Selected DataSources</label></div>
                     <div style="float:left;margin-top:7px;">                               
-                         <g:select name="datasources" from="${channel.dataSources}" optionKey="id" optionValue="description" multiple="true"></g:select> 
+                         <g:select name="datasources" from="${channel.dataSourceLinks}" optionKey="channelDataSourceId" optionValue="channelDataSourceDescription" multiple="true"></g:select> 
                     </div>
                     
                     <div style="margin-left:245px;margin-top:7px;">

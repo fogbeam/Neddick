@@ -10,7 +10,6 @@
                <p />
                <ul>
                     <li><g:link controller="channel" action="index">Manage Channels</g:link></li>
-                    <li><g:link controller="rssFeed" action="list">Manage Feeds</g:link></li>
                     <li><g:link controller="dataSource" action="index">Manage Datasources</g:link></li>
                     <li><g:link controller="schedule" action="index">Manage Jobs</g:link></li>
                     <li><g:link controller="siteConfigEntry" action="index">Manage Site Configuration</g:link></li>

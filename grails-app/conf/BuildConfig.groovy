@@ -24,7 +24,8 @@ grails.project.dependency.resolution = {
  		// runtime 'mysql:mysql-connector-java:5.1.5'
 	 	
 	 	compile "org.grails:grails-webflow:$grailsVersion"
-	 
+		compile ("org.apache.tika:tika-core:1.4")
+		compile ("org.apache.tika:tika-parsers:1.4") {excludes "asm-debug-all"}
 	  
 	}
  

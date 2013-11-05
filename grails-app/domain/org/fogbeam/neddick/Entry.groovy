@@ -10,21 +10,21 @@ class Entry
 		this.uuid = java.util.UUID.randomUUID().toString();
 	}
 	
-    static constraints = 
-    {
-    	url( nullable:true, maxSize:2048 );
-    }
 	
-    static transients = [ "score", "hotness", "controversy", "age", "siteConfigService", "link" ];
-    static mapping = {
+    static transients = [ "score", "hotness", "controversy", "age", "siteConfigService", "link", "templateName" ];
+    
+	
+	static mapping = {
 		submitter lazy:false;
-	}
-
+		tablePerHierarchy false
+	}	
+	
     
     String uuid;
     String title;
-    String url;
-    Date dateCreated;
+	    
+	
+	Date dateCreated;
     int score = 0;
     double hotness = 0.0;
     double controversy = 0.0;
@@ -33,9 +33,12 @@ class Entry
     // Channel channel;
     User submitter;
 	UserEntryScoreLink link;
-    
+    DataSource theDataSource;
+	
+	
     static hasMany = [ votes : Vote, savers: User, hiders: User, comments: Comment, channelEntryLinks: ChannelEntryLink, tagEntryLinks:TagEntryLink, userEntryScoreLinks:UserEntryScoreLink  ];
 
+		
     // NOTE: do we really want this?  Should deleting a User remove Entries from the system?
     static belongsTo = [User];
 
@@ -73,5 +76,8 @@ class Entry
 		return entries;
 	}
 	
-	     	
+	public String getTemplateName()
+	{
+		return "/renderRawEntry";
+	}
 }

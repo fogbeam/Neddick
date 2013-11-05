@@ -45,7 +45,7 @@
                          </div>
                          <div style="margin-left:70px;">
                               <dl>
-                                   <dd><a href="${entry.url}">${entry.title}</a></dd>
+                                   <dd><a href="${createLink( absolute:true, controller: 'entry', action:'e', id:entry.uuid)}">${entry.title}</a></dd>
                                    <dd>Submitted <span> <g:dateFromNow date="${entry.dateCreated}"/>
                                         </span> by <g:link controller="user" action="viewDetails" id="${entry.submitter.userId}" ><span>${entry.submitter.userId}</span></g:link>
                                    </dd>

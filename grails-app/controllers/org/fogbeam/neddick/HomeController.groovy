@@ -31,7 +31,7 @@ class HomeController {
 	
 	def index = {
 	
-		log.debug( "index" );
+		println( "index" );
 		
 		if( itemsPerPage == -1 )
 		{
@@ -48,7 +48,7 @@ class HomeController {
 			}
 		}
 		
-		log.debug( "itemsPerPage: ${itemsPerPage}");
+		println( "itemsPerPage: ${itemsPerPage}");
 		
 		String requestedPageNumber = params.pageNumber;
 		
@@ -86,6 +86,8 @@ class HomeController {
 		
 		Channel theChannel = channelService.findByName( channelName );
 		
+		println "theChannel: ${theChannel.name}";
+		
 		User user = null;
 		if( session.user )
 		{
@@ -119,7 +121,7 @@ class HomeController {
 		
 		if( filter )
 		{
-
+			println "there is a filter in effect for this channel";
 			
 			// select count Entries for this channel
 			int dataSize = filterService.getCountNonHiddenEntriesForFilter( filter );
@@ -166,6 +168,7 @@ class HomeController {
 		}
 		else
 		{
+			println "no filter for this channel";
 			
 			// select count Entries for this channel
 			int dataSize = 0;
@@ -184,7 +187,7 @@ class HomeController {
 			int pages = dataSize / itemsPerPage;
 			pages = Math.max( pages, 1 );
 			
-			log.debug( "calculated available pages as: ${pages}");
+			println( "calculated available pages as: ${pages}");
 			
 			if( dataSize > (pages*itemsPerPage) )
 			{
@@ -208,12 +211,12 @@ class HomeController {
 			List<Entry> entries = null;
 			if( user != null ) 
 			{
-				log.debug( "calling getAllNonHiddenEntriesForUser" );
+				println( "calling getAllNonHiddenEntriesForUser" );
 				entries = entryService.getAllNonHiddenEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 			}
 			else 
 			{
-				log.debug( "calling getAllEntries" );
+				println( "calling getAllEntries" );
 				entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 			}
 			

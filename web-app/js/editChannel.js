@@ -1,7 +1,7 @@
 /* for DataSources */
 
 function addToSelectedDatasources() {
-	alert( "addToSelected" );
+	// alert( "addToSelected" );
 	
 	$j( 'select#availableDatasources :selected' ).each( function(i, selected )
 		{
@@ -49,7 +49,7 @@ function addToSelectedDatasources() {
 }
 
 function addAllToSelectedDatasources() {
-	alert( "addAllToSelected" );
+	// alert( "addAllToSelected" );
 	
 	$j( 'select#availableDatasources option' ).each( function(i, selected )
 		{	
@@ -96,7 +96,7 @@ function addAllToSelectedDatasources() {
 }
 
 function removeFromSelectedDatasources() {
-	alert( "removeFromSelected" );
+	// alert( "removeFromSelected" );
 	$j( 'select#datasources :selected' ).each( function(i, selected )
 		{
 			var newOption = $j(selected).clone();
@@ -123,7 +123,7 @@ function removeFromSelectedDatasources() {
 }
 
 function removeAllFromSelectedDatasources() {
-	alert( "removeAllFromSelected" );
+	// alert( "removeAllFromSelected" );
 	
 	$j( 'select#datasources option' ).each( function(i, selected )
 		{	

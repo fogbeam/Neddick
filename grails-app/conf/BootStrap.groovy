@@ -58,7 +58,7 @@ class BootStrap {
 			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
 			 if( ! indexIsInitialized )
 			 {
-				 log.debug( "Index not previously initialized, creating empty index" );
+				 println( "Index not previously initialized, creating empty index" );
 				 /* initialize empty index */
 				 Directory indexDir = new NIOFSDirectory( indexFile );
 				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);

@@ -17,6 +17,7 @@
         
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
 		<g:javascript library="jquery-ui-1.10.3.custom/js/jquery-1.9.1" />
 		<g:javascript library="jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom" />
         
@@ -226,13 +227,18 @@
   	
     <div class="row">   
     <div class="span8" style="margin-top:10px;">     
+    	
     	<!-- layout main content area -->
-        <g:layoutBody />             
+        <div class="well" style="min-height:300px">
+        	<g:layoutBody />
+        </div>            
                                     
     </div>
 	<div class="span4" style="margin-top:10px;">
 	
-		<g:render template="/rightSidebar" />
+		<div style="min-height:300px;background-color:green;">
+		abcdefghijklmnopqrstuvwzyz
+		</div>
 		
 	</div>                     
     </div>

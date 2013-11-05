@@ -58,7 +58,7 @@ class EntryController {
 			else
 			{
 			
-		    	def entry = new Entry(params);
+		    	def entry = new WebpageEntry(params);
 		    	
 		    	if( session.user )
 		    	{

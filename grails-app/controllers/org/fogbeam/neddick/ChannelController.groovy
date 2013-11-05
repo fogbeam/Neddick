@@ -239,7 +239,8 @@ class ChannelController {
 		
 		// List<RssFeed> availableFeeds = RssFeed.executeQuery( "select feed from RssFeed as feed, Channel as channel where channel = ? and feed not in elements(channel.feeds)", [theChannel] );
 		// println "Found ${availableFeeds.size()} available feeds";
-		List<DataSource> availableDatasources = DataSource.executeQuery( "select datasource from DataSource as datasource, Channel as channel where channel = ? and datasource not in elements(channel.dataSources)", [theChannel] );
+		List<DataSource> availableDatasources = DataSource.executeQuery( "select datasource from DataSource as datasource " + 
+																		" where datasource not in (select cdsl.channelDataSource from ChannelDataSourceLink as cdsl where cdsl.channel = :theChannel )", [theChannel:theChannel] );
 		println "Found ${availableDatasources.size()} available datasources";
 		
 		List<Channel> availableChannels = channelService.getEligibleAggregateChannels( user, theChannel );
@@ -291,11 +292,12 @@ class ChannelController {
 			
 			log.debug( "removing datasource: ${datasourceToRemove}" );
 			// RssFeed feed = RssFeed.findById( feedToRemove );
-			DataSource datasource = theChannel.dataSource.find { it.id == Integer.parseInt(datasourceToRemove) }
+			DataSource datasource = DataSource.findById( Integer.parseInt(datasourceToRemove));
 			if( datasource )
 			{
 				log.debug( "calling removeFromDataSource using datasource: ${datasource}");
-				theChannel.removeFromDataSources( datasource );
+				// theChannel.removeFromDataSources( datasource );
+				ChannelDataSourceLink.unlink( theChannel, datasource );
 			}
 			else
 			{
@@ -318,7 +320,12 @@ class ChannelController {
 		{	
 			println( "adding datasource: ${datasourceToAdd}" );
 			DataSource datasource = DataSource.findById( Integer.parseInt( datasourceToAdd ) );
-			theChannel.addToDataSources( datasource );
+			
+			
+			// theChannel.addToDataSources( datasource );
+			ChannelDataSourceLink.link( theChannel, datasource );
+			
+			
 		}
 	
 		if( !theChannel.save() )

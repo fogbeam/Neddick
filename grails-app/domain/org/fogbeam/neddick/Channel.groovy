@@ -15,9 +15,9 @@ class Channel implements Comparable {
 	}
 	
 	
-	static hasMany = [ dataSources : DataSource, /* feeds : RssFeed,*/ aggregateChannels:Channel, userFavoriteChannels:UserFavoriteChannelLink];
+	static hasMany = [ dataSourceLinks : ChannelDataSourceLink, aggregateChannels:Channel, userFavoriteChannels:UserFavoriteChannelLink];
 
-	// static mappedBy = [userFavoriteChannels: "channel"];
+	// static mappedBy = [dataSourceLinks: "channel"];
 	
 	static constraints =
 	{
