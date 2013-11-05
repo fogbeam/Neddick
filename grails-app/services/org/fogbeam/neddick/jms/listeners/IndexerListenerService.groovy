@@ -1,5 +1,6 @@
 package org.fogbeam.neddick.jms.listeners
 
+import groovyx.net.http.RESTClient
 import javax.mail.BodyPart
 import javax.mail.Folder
 import javax.mail.Message
@@ -268,6 +269,35 @@ public class IndexerListenerService {
 		}
 	}
 
+	
+	private void doSemanticEnhancement( WebpageEntry entry, def msg )
+	{
+		// Hit Stanbol to get enrichmentData
+		// call Stanbol REST API to get enrichment data
+		RESTClient restClient = new RESTClient( "http://localhost:8080" )
+	
+		println "content submitted: ${content}";
+		def restResponse = restClient.post(	path:'enhancer',
+										body: params.statusText,
+										requestContentType : TEXT );
+	
+		def restResponseText = restResponse.getData();
+	}
+	
+	private void doSemanticEnhancement( EMailEntry entry, def msg )
+	{
+		// Hit Stanbol to get enrichmentData
+		// call Stanbol REST API to get enrichment data
+		RESTClient restClient = new RESTClient( "http://localhost:8080" )
+	
+		// println "content submitted: ${content}";
+		def restResponse = restClient.post(	path:'enhancer',
+										body: params.statusText,
+										requestContentType : TEXT );
+	
+		def restResponseText = restResponse.getData();
+	}
+	
 		
 	private void extractAndIndexContent( WebpageEntry entry, def msg )
 	{
