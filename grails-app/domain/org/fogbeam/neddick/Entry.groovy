@@ -19,10 +19,14 @@ class Entry
 		tablePerHierarchy false
 	}	
 	
+	static constraints =
+	{
+		enhancementJSON(nullable:true);
+	}
     
     String uuid;
     String title;
-	    
+	String enhancementJSON;
 	
 	Date dateCreated;
     int score = 0;

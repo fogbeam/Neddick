@@ -159,9 +159,43 @@ class EntryController {
     	
     	List<Entry> recommendedEntries = recommenderService.getRecommendedEntries( entry );
     	
-    	[theEntry: entry, recommendedEntries : recommendedEntries ];
+		
+		def comments = entry.comments;
+		List<Comment> commentsNewFirst = new ArrayList<Comment>();
+		List<Comment> commentsOldFirst = new ArrayList<Comment>();
+		List<Comment> recentComments = new ArrayList<Comment>();
+		
+		if( comments != null && !comments.isEmpty())
+		{
+			commentsNewFirst.addAll( comments.sort { a, b ->
+				b.dateCreated<=>a.dateCreated
+				
+				} );
+		
+		
+			commentsOldFirst.addAll( commentsNewFirst.reverse()); 
+		
+			// take the 5 most recent comments (the first 5 in the newestFirst list)
+			// and then sort them with the oldest first
+			int size = commentsNewFirst.size();
+			if( size > 5 )
+			{
+				size = 5;
+			}
+			
+			recentComments = commentsNewFirst.getAt( 0 .. size -1 );
+			recentComments = recentComments.reverse();
+			
+		}
+    	
+		
+		
+	
+    	[theEntry: entry, recommendedEntries : recommendedEntries, 
+					commentsNewFirst:commentsNewFirst, commentsOldFirst:commentsOldFirst,
+					recentComments:recentComments];
     }
-    
+    	
     
     def createQuestion = {
     	

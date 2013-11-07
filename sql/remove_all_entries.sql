@@ -2,6 +2,9 @@
 delete from user_entry_score_link;
 delete from tag_entry_link;
 delete from vote;
+delete from comment;
+delete from uzer_saved_entries;
+delete from uzer_hidden_entries;
 delete from email_entry_from_address;
 delete from email_entry_to_address;
 delete from entry;

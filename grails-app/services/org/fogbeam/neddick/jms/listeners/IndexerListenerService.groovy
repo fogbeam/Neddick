@@ -1,6 +1,8 @@
 package org.fogbeam.neddick.jms.listeners
 
+import static groovyx.net.http.ContentType.TEXT
 import groovyx.net.http.RESTClient
+
 import javax.mail.BodyPart
 import javax.mail.Folder
 import javax.mail.Message
@@ -38,7 +40,8 @@ import org.fogbeam.neddick.EMailEntry
 import org.fogbeam.neddick.Entry
 import org.fogbeam.neddick.IMAPAccount
 import org.fogbeam.neddick.WebpageEntry
-
+import org.hibernate.StaleObjectStateException
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException
 
 import de.l3s.boilerpipe.document.TextBlock
 import de.l3s.boilerpipe.document.TextDocument
@@ -46,8 +49,8 @@ import de.l3s.boilerpipe.document.TextDocument
 
 
 
-
-public class IndexerListenerService {
+public class IndexerListenerService 
+{
 
 	def siteConfigService;
 	def entryService;
@@ -198,7 +201,7 @@ public class IndexerListenerService {
 				extractAndIndexContent( entry, msg );
 				
 				// and then a call to the Stanbol Enhancer
-				doSemanticEnhacement( entry, msg );
+				doSemanticEnhancement( entry, msg );
 				
 
 			}
@@ -276,12 +279,43 @@ public class IndexerListenerService {
 		// call Stanbol REST API to get enrichment data
 		RESTClient restClient = new RESTClient( "http://localhost:8080" )
 	
-		println "content submitted: ${content}";
+		// println "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
-										body: params.statusText,
+										body: entry.pageContent,
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
+		
+		
+		entry.enhancementJSON = restResponseText;
+		
+		try
+		{
+			if( !entry.save(flush:true))
+			{
+				entry.errors.allErrors.each{ println it;}
+			}
+		}
+		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
+		{
+			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!":
+			
+			entry = Entry.get( entry.id );
+			entry.enhancementJSON = restResponseText;
+			
+			try
+			{
+				if( !entry.save(flush:true))
+				{
+					entry.errors.allErrors.each{ println it;}
+				}
+			}
+			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
+			{
+				throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!" );
+			}
+		}
+		
 	}
 	
 	private void doSemanticEnhancement( EMailEntry entry, def msg )
@@ -292,10 +326,40 @@ public class IndexerListenerService {
 	
 		// println "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
-										body: params.statusText,
+										body: entry.bodyContent,
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
+		
+		entry.enhancementJSON = restResponseText;
+		
+		try
+		{
+			if( !entry.save(flush:true))
+			{
+				entry.errors.allErrors.each{ println it;}
+			}
+		}
+		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
+		{
+			
+			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!":
+
+			entry = Entry.get( entry.id );
+			entry.enhancementJSON = restResponseText;
+			
+			try
+			{
+				if( !entry.save(flush:true))
+				{
+					entry.errors.allErrors.each{ println it;}
+				}
+			}
+			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
+			{
+				throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!" );
+			}
+		}
 	}
 	
 		
@@ -467,17 +531,55 @@ public class IndexerListenerService {
 			 * We should be able to make up for that by doing a refetch, and then re-persist the updated
 			 * object.
 			 */
-			if( entry.save(flush:true))
+			try
 			{
-				println "saved entry with bodyContent, adding to Lucene index";
-				
-				doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
-				writer.addDocument( doc );
-				writer.optimize();
+			
+				if( entry.save(flush:true))
+				{
+					println "saved entry with bodyContent, adding to Lucene index";
+					
+					doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+					writer.addDocument( doc );
+					writer.optimize();
+				}
+				else
+				{
+					entry.errors.allErrors.each {println it;}
+				}
 			}
-			else
+			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 			{
-				entry.errors.allErrors.each {println it;}
+				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+				
+				// requery the object from the db
+				
+				entry = Entry.get( entry.id );
+				if( !entry )
+				{
+					throw new RuntimeException( "Failed to locate Entry for uuid: ${uuid}");
+				}	
+				
+				entry.pageContent = bodyContent;
+				
+				try
+				{
+					if( entry.save(flush:true))
+					{
+						println "saved entry with bodyContent, adding to Lucene index";
+					
+						doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+						writer.addDocument( doc );
+						writer.optimize();
+					}
+					else
+					{
+						entry.errors.allErrors.each {println it;}
+					}
+				}
+				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
+				{
+					throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!");
+				}	
 			}
 			
 		}
@@ -695,7 +797,7 @@ public class IndexerListenerService {
 						formattedContent += "</p>";
 					}
 										
-					println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
+					// println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
 					
 					entry.bodyContent = formattedContent;
 					
@@ -703,20 +805,61 @@ public class IndexerListenerService {
 					 * get the same fix as mentioned above:  If we get that exception, reload
 					 * the object by ID, then re-persist it.
 					 */
-					if( entry.save())
+					try
 					{
-						println "saved entry with bodyContent, adding to Lucene index";
-						
-						doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
-						writer.addDocument( doc );
-						writer.optimize();
+					
+						if( entry.save())
+						{
+							println "saved entry with bodyContent, adding to Lucene index";
+							
+							doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+							writer.addDocument( doc );
+							writer.optimize();
+							
+						}
+						else
+						{
+							
+							println "failed to save EMailEntry with updated bodyContent";
+						}
 						
 					}
-					else
+					catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 					{
+						println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 						
-						println "failed to save EMailEntry with updated bodyContent";
+						// requery the object from the db
+						entry = Entry.get( entry.id );
+						if( !entry )
+						{
+							throw new RuntimeException( "Failed to locate Entry for uuid: ${uuid}");
+						}
+						
+						entry.bodyContent = formattedContent;
+						
+						
+						try
+						{
+							if( entry.save(flush:true))
+							{
+								println "saved entry with bodyContent, adding to Lucene index";
+							
+								doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+								writer.addDocument( doc );
+								writer.optimize();
+							}
+							else
+							{
+								entry.errors.allErrors.each {println it;}
+							}
+						}
+						catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
+						{
+							throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!");
+						}
+						
 					}
+							
 				}
 				else
 				{

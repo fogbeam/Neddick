@@ -988,9 +988,10 @@ class HomeController {
     	
     	
     	def savedEntries = null;
-    	if( session.user ) 
+		User user = null;
+		if( session.user ) 
     	{
-    		User user = userService.findUserByUserId( session.user.userId);
+    		user = userService.findUserByUserId( session.user.userId);
     		savedEntries = entryService.getSavedEntriesForUser( user );
     	}	
     	else
@@ -1055,7 +1056,7 @@ class HomeController {
     	 
 		model.putAll( sidebarCollections );		 
 				    	
-    	render(view:"index", model:model);
+    	render(view:"savedEntries", model:model);
     }
    
     
@@ -1088,10 +1089,10 @@ class HomeController {
     	
     	
     	def hiddenEntries = null;
-    	
+		User user = null;
     	if( session.user ) 
     	{   
-    		User user = userService.findUserByUserId( session.user.userId);
+    		user = userService.findUserByUserId( session.user.userId);
     		hiddenEntries = entryService.getHiddenEntriesForUser( user );
     		
     	}
@@ -1156,7 +1157,7 @@ class HomeController {
     	
 		model.putAll( sidebarCollections );
 				 
-    	render(view:"index", model:model);
+    	render(view:"hiddenEntries", model:model);
     
     }
      

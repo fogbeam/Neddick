@@ -41,7 +41,6 @@
 		<script type="text/javascript" src="${createLinkTo(dir:'js', file:'bootstrap.js')}" >
 		</script>
 
-
         <g:javascript>
            function addTag(id ) {
                toggleTagbox(id);
@@ -236,9 +235,41 @@
     </div>
 	<div class="span4" style="margin-top:10px;">
 	
-		<div style="min-height:300px;background-color:green;">
-		abcdefghijklmnopqrstuvwzyz
+		<div class="well" style="min-height:300px;">
+			<h3>Recent Comments</h3>
+			<hr />
+			<ul>
+				<g:each in="${recentComments}" var="recentComment">
+					<li style="list-style-type:none;margin-top:7px;">
+					<a href="#comment-${recentComment.uuid}">
+					${recentComment.text}
+					</a>
+					</li>
+				</g:each>
+			</ul>
+			
 		</div>
+		
+
+		<div class="well" style="min-height:300px;">
+			<h3>Related Links</h3>
+			<hr />
+			<ul>
+				<g:each in="${recommendedEntries}" var="recommendedEntry">
+					<li style="list-style-type:none;margin-top:7px;">
+						<g:link controller="entry" action="e" id="${recommendedEntry.uuid}" >${recommendedEntry.title}</g:link>
+					</li>
+				</g:each>
+			</ul>
+		</div>
+		
+		
+		<div class="well" style="min-height:300px;">
+			<h3>Faceted Browser</h3>
+			<hr />
+		</div>				
+		
+		
 		
 	</div>                     
     </div>
