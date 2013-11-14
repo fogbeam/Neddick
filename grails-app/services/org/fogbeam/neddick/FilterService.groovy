@@ -379,10 +379,8 @@ class FilterService
 	
 	public void fireContentFilterCriteria( final String entryUuid )
 	{
-		println "processing content triggers..."
+		// println "processing content triggers..."
 	
-		
-		
 		Entry theEntry = entryService.findByUuid( entryUuid );
 		List<Channel> entryChannels = theEntry.channels;
 	
@@ -394,18 +392,18 @@ class FilterService
 		
 			if( bodyKeywordFilterCriteria != null )
 			{
-				println "bodyKeywordFilterCriteria object is valid";
+				// println "bodyKeywordFilterCriteria object is valid";
 			
 				for( BodyKeywordFilterCriteria criteria : bodyKeywordFilterCriteria )
 				{
 					
 					String keyword = criteria.bodyKeyword;
 				
-					println "found a body filterCriteria with keyword: ${keyword}";
+					// println "found a body filterCriteria with keyword: ${keyword}";
 					
 					List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND content: ${keyword}" );
 					
-					println "did search for entry_uuid: ${entryUuid}";
+					// println "did search for entry_uuid: ${entryUuid}";
 									
 					// does this criteria fire?
 					if( searchResults != null && !searchResults.isEmpty() )
@@ -428,18 +426,18 @@ class FilterService
 			List<TitleKeywordFilterCriteria> titleKeywordFilterCriteria = this.findTitleKeywordFilterCriteriaByChannel( channel );
 			if( titleKeywordFilterCriteria != null )
 			{
-				println "titleKeywordFilterCriteria object is valid";
+				// println "titleKeywordFilterCriteria object is valid";
 			
 				for( TitleKeywordFilterCriteria criteria : titleKeywordFilterCriteria )
 				{
 					
 					String keyword = criteria.titleKeyword;
 				
-					println "found a title filterCriteria with keyword: ${keyword}";
+					// println "found a title filterCriteria with keyword: ${keyword}";
 					
 					List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND title: ${keyword}" );
 					
-					println "did search for entry_uuid: ${entryUuid}";
+					// println "did search for entry_uuid: ${entryUuid}";
 									
 					// does this criteria fire?
 					if( searchResults != null && !searchResults.isEmpty() )

@@ -1,0 +1,123 @@
+				log.debug( "NOT an instanceof Question!" );
+
+				Document doc = new Document();
+
+				doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+				doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "id", Long.toString(entry.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "subject", entry.subject, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+				doc.add( new Field( "title", entry.title, Field.Store.YES, Field.Index.ANALYZED ) );
+
+				String tagString = "";
+				entry.tags.each { tagString += it.name + " " };
+				doc.add( new Field( "tags", tagString, Field.Store.YES, Field.Index.ANALYZED ) );
+
+				String channelUuidString = "";
+				entry.channels.each { channelUuidString += it.uuid + " " };
+				doc.add( new Field( "channel_uuids", channelUuidString, Field.Store.YES, Field.Index.ANALYZED ));
+
+
+				// comments on the entry
+				entry.comments.each {
+
+					Document commentDoc = new Document();
+
+					commentDoc.add( new Field( "docType", "docType.comment", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+
+					commentDoc.add( new Field( "entry_id", Long.toString( entry.id ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					commentDoc.add( new Field( "entry_uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+
+					commentDoc.add( new Field( "id", Long.toString( it.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					commentDoc.add( new Field( "uuid", it.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					commentDoc.add( new Field( "content", it.text, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+					writer.addDocument( commentDoc );
+				}
+
+
+				/* TODO: use HttpClient to load the page, then extract the content and index it.
+				 * We'll assume HTTP only links for now... */
+
+				if( !(entry instanceof org.fogbeam.neddick.Question) )
+				{
+
+					HttpClient client = new HttpClient();
+					log.debug( "establishing httpClient object to download content for indexing" );
+
+					//establish a connection within 10 seconds
+					client.getHttpConnectionManager().getParams().setConnectionTimeout(10000);
+					String url = entry.url;
+					HttpMethod method = new GetMethod(url);
+
+					String responseBody = null;
+					try
+					{
+						log.debug( "executing http request" );
+						client.executeMethod(method);
+					}
+					catch (HttpException he)
+					{
+						log.error("Http error connecting to '" + url + "'");
+						log.error(he.getMessage());
+						continue;
+					}
+					catch (IOException ioe)
+					{
+						log.error( "Unable to connect to '" + url + "'" );
+						continue;
+					}
+
+					// extract text with Tika
+					InputStream input = method.getResponseBodyAsStream();
+					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
+					Metadata metadata = new Metadata();
+
+					Parser parser = new AutoDetectParser();
+					try
+					{
+						parser.parse(input, textHandler, metadata);
+					}
+					catch( Exception e )
+					{
+						log.error( "Unable to parse content", e );
+						println "Unable to parse content: continuing...";
+						e.printStackTrace();
+						continue;	
+					}
+					
+					String content = textHandler.toString();
+					doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+				}
+
+				log.debug( "adding document to writer" );
+				writer.addDocument( doc );
+				
+				
+				
+/* ********************************************************************************************/
+			try
+			{
+				if( input != null )
+				{
+					input.close();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+			}
+
+			try
+			{
+				if( client != null )
+				{
+					log.debug( "calling connectionManager.shutdown()" );
+					client.getConnectionManager().shutdown();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+			}				
+				
+				
+				

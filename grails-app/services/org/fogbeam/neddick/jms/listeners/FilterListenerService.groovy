@@ -14,9 +14,8 @@ class FilterListenerService
 	def onMessage( msg )
 	{
 		
-		println "FilterListenerService received message: ${msg}";
-		
-		
+		// println "FilterListenerService received message: ${msg}";
+	
 		String msgType = msg.msgType;
 		
 		switch( msgType )

@@ -39,9 +39,15 @@ import org.apache.tika.sax.BodyContentHandler
 import org.fogbeam.neddick.EMailEntry
 import org.fogbeam.neddick.Entry
 import org.fogbeam.neddick.IMAPAccount
+import org.fogbeam.neddick.TwitterEntry
 import org.fogbeam.neddick.WebpageEntry
 import org.hibernate.StaleObjectStateException
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException
+
+import com.hp.hpl.jena.query.Dataset
+import com.hp.hpl.jena.query.ReadWrite
+import com.hp.hpl.jena.rdf.model.Model
+import com.hp.hpl.jena.tdb.TDBFactory
 
 import de.l3s.boilerpipe.document.TextBlock
 import de.l3s.boilerpipe.document.TextDocument
@@ -272,22 +278,78 @@ public class IndexerListenerService
 		}
 	}
 
+
 	
-	private void doSemanticEnhancement( WebpageEntry entry, def msg )
+	static String convertStreamToString(java.io.InputStream is) {
+		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+		return s.hasNext() ? s.next() : "";
+	}
+	
+	private void doSemanticEnhancement( TwitterEntry entry, def msg )
 	{
-		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
 		RESTClient restClient = new RESTClient( "http://localhost:8080" )
 	
 		// println "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
-										body: entry.pageContent,
+										body: entry.tweetContent,
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
-		
-		
+		entry.refresh();
 		entry.enhancementJSON = restResponseText;
+		
+		
+		// OK, this sucks donkey balls, but make a *second* call to Stanbol
+		// to retrieve the *same* data in RDF/XML format.  Why? Because the Jena
+		// support for ingesting JSON-LD seems to be having issues at the moment.
+		// and we don't want to try to rework our client-side Javascript to work with
+		// RDF/XML.  So for now, we'll retrieve both.  Once Jena can consume JSON-LD
+		// this will go away.
+		
+		/* def restResponseXml = restClient.post(	path:'enhancer',
+			body: entry.tweetContent,
+			headers: ['Accept':'application/rdf+xml'],
+			requestContentType : TEXT );
+		
+		ByteArrayInputStream restResponseXmlStream = restResponseXml.getData();
+		
+		String restResponseXmlText = convertStreamToString( restResponseXmlStream );
+		*/
+								
+		// println "restResponseText:\n ${restResponseText}\n\n";
+	
+		
+		// TODO: extract the Entity entries that we got from Stanbol and associate each of them to
+		// this Neddick Entry using the entry UUID.
+		
+		// Statement s = ResourceFactory.createStatement(subject, predicate, object);
+		// model.add(s); // add the statement (triple) to the model
+		
+		
+		
+		
+		
+		// Make a TDB-backed dataset
+		// String directory = "/opt/fogcutter/neddick/jena-tdb" ;
+		// Dataset dataset = TDBFactory.createDataset(directory) ;
+		
+		// dataset.begin(ReadWrite.READ) ;
+		// Get model inside the transaction
+		// Model model = dataset.getDefaultModel() ;
+		// dataset.end() ;
+
+		// dataset.begin(ReadWrite.WRITE) ;
+		// model = dataset.getDefaultModel() ;
+		
+		// StringReader reader = new StringReader( restResponseText );
+		
+		// model.read( reader, "http://www.example.com", "RDF/XML" );
+		
+		// dataset.commit();
+		
+		// dataset.end();
+		
 		
 		try
 		{
@@ -298,9 +360,12 @@ public class IndexerListenerService
 		}
 		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 		{
-			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!":
+			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+			
+			Thread.sleep(5000 );
 			
 			entry = Entry.get( entry.id );
+			entry.refresh();
 			entry.enhancementJSON = restResponseText;
 			
 			try
@@ -312,7 +377,132 @@ public class IndexerListenerService
 			}
 			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
 			{
-				throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!" );
+				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
+				
+				Thread.sleep( 15000 );
+				
+				entry = Entry.get( entry.id );
+				entry.refresh();
+				entry.enhancementJSON = restResponseText;
+				
+				try
+				{
+					if( !entry.save(flush:true))
+					{
+						entry.errors.allErrors.each{ println it;}
+					}
+				}
+				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose3 )
+				{
+					throw new RuntimeException( "Failed Third Attempt To Persist Stale Object Instance!" );
+				}
+			}
+		}
+	}
+	
+		
+	private void doSemanticEnhancement( WebpageEntry entry, def msg )
+	{
+		// Hit Stanbol to get enrichmentData
+		// call Stanbol REST API to get enrichment data
+		RESTClient restClient = new RESTClient( "http://localhost:8080" )
+	
+		// println "content submitted: ${content}";
+		def restResponse = restClient.post(	path:'enhancer',
+										body: entry.pageContent,
+										requestContentType : TEXT );
+	
+		def restResponseText = restResponse.getData();	
+		entry.refresh();
+		entry.enhancementJSON = restResponseText;
+		
+		
+		// OK, this sucks donkey balls, but make a *second* call to Stanbol
+		// to retrieve the *same* data in RDF/XML format.  Why? Because the Jena
+		// support for ingesting JSON-LD seems to be having issues at the moment.
+		// and we don't want to try to rework our client-side Javascript to work with
+		// RDF/XML.  So for now, we'll retrieve both.  Once Jena can consume JSON-LD
+		// this will go away.
+		
+		/* def restResponseXml = restClient.post(	path:'enhancer',
+			body: entry.pageContent,
+			headers: ['Accept':'application/rdf+xml'],
+			requestContentType : TEXT );
+
+		ByteArrayInputStream restResponseXmlStream = restResponseXml.getData();
+		
+		String restResponseXmlText = convertStreamToString( restResponseXmlStream );
+		*/
+							
+		// println "restResponseText:\n ${restResponseText}\n\n";
+	
+		
+		// Make a TDB-backed dataset
+		// String directory = "/opt/fogcutter/neddick/jena-tdb" ;
+		// Dataset dataset = TDBFactory.createDataset(directory) ;
+		
+		// dataset.begin(ReadWrite.READ) ;
+		// Get model inside the transaction
+		// Model model = dataset.getDefaultModel() ;
+		// dataset.end() ;
+
+		// dataset.begin(ReadWrite.WRITE) ;
+		// model = dataset.getDefaultModel() ;
+		
+		// StringReader reader = new StringReader( restResponseText );
+		
+		// model.read( reader, "http://www.example.com", "RDF/XML" );
+		
+		// dataset.commit();
+		
+		// dataset.end();
+		
+		
+		try
+		{
+			if( !entry.save(flush:true))
+			{
+				entry.errors.allErrors.each{ println it;}
+			}
+		}
+		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
+		{
+			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+			
+			Thread.sleep( 5000 );
+			
+			entry = Entry.get( entry.id );
+			entry.refresh();
+			entry.enhancementJSON = restResponseText;
+			
+			try
+			{
+				if( !entry.save(flush:true))
+				{
+					entry.errors.allErrors.each{ println it;}
+				}
+			}
+			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
+			{
+				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
+						
+				Thread.sleep( 15000 );
+				
+				entry = Entry.get( entry.id );
+				entry.refresh();
+				entry.enhancementJSON = restResponseText;
+				
+				try
+				{
+					if( !entry.save(flush:true))
+					{
+						entry.errors.allErrors.each{ println it;}
+					}
+				}
+				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose3 )
+				{
+					throw new RuntimeException( "Failed Third Attempt To Persist Stale Object Instance!" );
+				}
 			}
 		}
 		
@@ -330,8 +520,49 @@ public class IndexerListenerService
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
-		
+		entry.refresh();
 		entry.enhancementJSON = restResponseText;
+		
+		// OK, this sucks donkey balls, but make a *second* call to Stanbol
+		// to retrieve the *same* data in RDF/XML format.  Why? Because the Jena
+		// support for ingesting JSON-LD seems to be having issues at the moment.
+		// and we don't want to try to rework our client-side Javascript to work with
+		// RDF/XML.  So for now, we'll retrieve both.  Once Jena can consume JSON-LD
+		// this will go away.
+		
+		/* def restResponseXml = restClient.post(	path:'enhancer',
+			body: entry.bodyContent,
+			headers: ['Accept':'application/rdf+xml'],
+			requestContentType : TEXT );
+
+		ByteArrayInputStream restResponseXmlStream = restResponseXml.getData();
+		
+		String restResponseXmlText = convertStreamToString( restResponseXmlStream );
+		*/
+							
+		// println "restResponseText:\n ${restResponseText}\n\n";
+	
+		
+		// Make a TDB-backed dataset
+		// String directory = "/opt/fogcutter/neddick/jena-tdb" ;
+		// Dataset dataset = TDBFactory.createDataset(directory) ;
+		
+		// dataset.begin(ReadWrite.READ) ;
+		// Get model inside the transaction
+		// Model model = dataset.getDefaultModel() ;
+		// dataset.end() ;
+
+		// dataset.begin(ReadWrite.WRITE) ;
+		// model = dataset.getDefaultModel() ;
+		
+		// StringReader reader = new StringReader( restResponseText );
+		
+		// model.read( reader, "http://www.example.com", "RDF/XML" );
+		
+		// dataset.commit();
+		
+		// dataset.end();
+		
 		
 		try
 		{
@@ -343,9 +574,12 @@ public class IndexerListenerService
 		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 		{
 			
-			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!":
+			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 
+			Thread.sleep( 5000 );
+			
 			entry = Entry.get( entry.id );
+			entry.refresh();
 			entry.enhancementJSON = restResponseText;
 			
 			try
@@ -357,11 +591,126 @@ public class IndexerListenerService
 			}
 			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
 			{
-				throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!" );
+				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";				
+				
+				Thread.sleep( 15000 );
+				
+				entry = Entry.get( entry.id );
+				entry.refresh();
+				entry.enhancementJSON = restResponseText;
+				
+				try
+				{
+					if( !entry.save(flush:true))
+					{
+						entry.errors.allErrors.each{ println it;}
+					}
+				}
+				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose3 )
+				{
+					throw new RuntimeException( "Failed Third Attempt To Persist Stale Object Instance!" );
+				}
 			}
 		}
 	}
 	
+	private void extractAndIndexContent( TwitterEntry entry, def msg )
+	{
+		// println "extractAndIndexContent for TwitterEntry!";
+		
+		
+		// add document to index
+		log.info( "adding document to index: ${msg['uuid']}" );
+		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		log.info ( "got indexDirLocation as: ${indexDirLocation}");
+		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
+		IndexWriter writer = null;
+
+		// TODO: fix this so it will eventually give up, to deal with the pathological case
+		// where we never do get the required lock.
+		int count = 0;
+		while( writer == null )
+		{
+			count++;
+			if( count > 3 ) {
+				log.debug( "tried to obtain Lucene lock 3 times, giving up..." );
+				return;
+			}
+			try
+			{
+				writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), false, MaxFieldLength.UNLIMITED );
+			}
+			catch( org.apache.lucene.store.LockObtainFailedException lfe )
+			{
+				Thread.sleep( 1200 );
+			}
+		}
+		
+		
+		try
+		{
+			writer.setUseCompoundFile(true);
+
+			Document doc = new Document();
+
+			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+			doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
+
+			// add channels
+			String channelUuidString = "";
+			entry.channels.each { channelUuidString += it.uuid + " " };
+			doc.add( new Field( "channel_uuids", channelUuidString, Field.Store.YES, Field.Index.ANALYZED ));
+		
+			doc.add( new Field( "content", entry.tweetContent, Field.Store.YES, Field.Index.ANALYZED ) );
+			
+			writer.addDocument( doc );	
+			
+			writer.optimize();
+			
+		}
+		finally
+		{
+			try
+			{
+				if( writer != null )
+				{
+					writer.close();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+				e.printStackTrace();
+			}
+
+			try
+			{
+				if( indexDir != null )
+				{
+					indexDir.close();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+				e.printStackTrace();
+			}
+		}
+		
+		
+		// send JMS message saying "content indexed"
+		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
+
+		// send notifications
+		sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
+		sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
+		
+		
+		
+	}
 		
 	private void extractAndIndexContent( WebpageEntry entry, def msg )
 	{
@@ -458,7 +807,7 @@ public class IndexerListenerService
 			
 			if( contentType.contains( "html" ) || contentType.contains( "xhtml" ))
 			{
-				textHandler = new BoilerpipeContentHandler( bodyContentHandler ); 
+				textHandler = new BoilerpipeContentHandler( bodyContentHandler );
 				textHandler.setIncludeMarkup( true );
 				
 				input = method.getResponseBodyAsStream();
@@ -488,7 +837,7 @@ public class IndexerListenerService
 					
 				}
 				
-				// bodyContent = bodyContentHandler.toString(); // tDoc.getContent(); // bodyContentHandler.toString(); 
+				// bodyContent = bodyContentHandler.toString(); // tDoc.getContent(); // bodyContentHandler.toString();
 				
 				if( bodyContent != null && !bodyContent.isEmpty())
 				{
@@ -551,13 +900,16 @@ public class IndexerListenerService
 			{
 				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 				
+				
+				Thread.sleep( 2000 );
+				
 				// requery the object from the db
 				
 				entry = Entry.get( entry.id );
 				if( !entry )
 				{
 					throw new RuntimeException( "Failed to locate Entry for uuid: ${uuid}");
-				}	
+				}
 				
 				entry.pageContent = bodyContent;
 				
@@ -579,7 +931,7 @@ public class IndexerListenerService
 				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
 				{
 					throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!");
-				}	
+				}
 			}
 			
 		}
@@ -697,6 +1049,7 @@ public class IndexerListenerService
 			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 			doc.add( new Field( "messageId", msg['messageId'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "subject", msg['subject'], Field.Store.YES, Field.Index.ANALYZED ) );
 			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
 			// add channels
@@ -828,6 +1181,8 @@ public class IndexerListenerService
 					{
 						println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 						
+						Thread.sleep( 2000 );
+						
 						// requery the object from the db
 						entry = Entry.get( entry.id );
 						if( !entry )
@@ -864,7 +1219,7 @@ public class IndexerListenerService
 				else
 				{
 					println "Message not found, or too many matching messages found!";
-				}				
+				}
 			
 			}
 			catch (NoSuchProviderException e)
@@ -938,6 +1293,7 @@ public class IndexerListenerService
 		sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
 		
 	}
+
 	
 	private void addTag( final String uuid, final String tagName )
 	{
@@ -1145,98 +1501,7 @@ public class IndexerListenerService
 			{
 				log.debug( "processing entry with id: ${entry.id} and title: ${entry.title} and uuid: ${entry.uuid}" );
 
-				log.debug( "NOT an instanceof Question!" );
-
-				Document doc = new Document();
-
-				doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-				doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "id", Long.toString(entry.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "subject", entry.subject, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-				doc.add( new Field( "title", entry.title, Field.Store.YES, Field.Index.ANALYZED ) );
-
-				String tagString = "";
-				entry.tags.each { tagString += it.name + " " };
-				doc.add( new Field( "tags", tagString, Field.Store.YES, Field.Index.ANALYZED ) );
-
-				String channelUuidString = "";
-				entry.channels.each { channelUuidString += it.uuid + " " };
-				doc.add( new Field( "channel_uuids", channelUuidString, Field.Store.YES, Field.Index.ANALYZED ));
-
-
-				// comments on the entry
-				entry.comments.each {
-
-					Document commentDoc = new Document();
-
-					commentDoc.add( new Field( "docType", "docType.comment", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-
-					commentDoc.add( new Field( "entry_id", Long.toString( entry.id ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					commentDoc.add( new Field( "entry_uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-
-					commentDoc.add( new Field( "id", Long.toString( it.id), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					commentDoc.add( new Field( "uuid", it.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					commentDoc.add( new Field( "content", it.text, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
-					writer.addDocument( commentDoc );
-				}
-
-
-				/* TODO: use HttpClient to load the page, then extract the content and index it.
-				 * We'll assume HTTP only links for now... */
-
-				if( !(entry instanceof org.fogbeam.neddick.Question) )
-				{
-
-					HttpClient client = new HttpClient();
-					log.debug( "establishing httpClient object to download content for indexing" );
-
-					//establish a connection within 10 seconds
-					client.getHttpConnectionManager().getParams().setConnectionTimeout(10000);
-					String url = entry.url;
-					HttpMethod method = new GetMethod(url);
-
-					String responseBody = null;
-					try
-					{
-						log.debug( "executing http request" );
-						client.executeMethod(method);
-					}
-					catch (HttpException he)
-					{
-						log.error("Http error connecting to '" + url + "'");
-						log.error(he.getMessage());
-						continue;
-					}
-					catch (IOException ioe)
-					{
-						log.error( "Unable to connect to '" + url + "'" );
-						continue;
-					}
-
-					// extract text with Tika
-					InputStream input = method.getResponseBodyAsStream();
-					org.xml.sax.ContentHandler textHandler = new BodyContentHandler(-1);
-					Metadata metadata = new Metadata();
-
-					Parser parser = new AutoDetectParser();
-					try
-					{
-						parser.parse(input, textHandler, metadata);
-					}
-					catch( Exception e )
-					{
-						log.error( "Unable to parse content", e );
-						println "Unable to parse content: continuing...";
-						e.printStackTrace();
-						continue;	
-					}
-					
-					String content = textHandler.toString();
-					doc.add( new Field( "content", content, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
-				}
-
-				log.debug( "adding document to writer" );
-				writer.addDocument( doc );
+				extractAndIndexContent( entry, writer );
 
 			}
 
@@ -1245,32 +1510,7 @@ public class IndexerListenerService
 		}
 		finally
 		{
-
-			try
-			{
-				if( input != null )
-				{
-					input.close();
-				}
-			}
-			catch( Exception e )
-			{
-				// ignore this for now, but add a log message at least
-			}
-
-			try
-			{
-				if( client != null )
-				{
-					log.debug( "calling connectionManager.shutdown()" );
-					client.getConnectionManager().shutdown();
-				}
-			}
-			catch( Exception e )
-			{
-				// ignore this for now, but add a log message at least
-			}
-
+			
 			try
 			{
 				if( writer != null )
@@ -1295,5 +1535,497 @@ public class IndexerListenerService
 			}
 		}
 
+	}
+	
+	
+	private void extractAndIndexContent( TwitterEntry entry, Writer writer )
+	{
+		println "extractAndIndexContent for TwitterEntry!";
+		
+		try
+		{
+			Document doc = new Document();
+
+			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+			doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
+
+			// add channels
+			String channelUuidString = "";
+			entry.channels.each { channelUuidString += it.uuid + " " };
+			doc.add( new Field( "channel_uuids", channelUuidString, Field.Store.YES, Field.Index.ANALYZED ));
+		
+			doc.add( new Field( "content", entry.tweetContent, Field.Store.YES, Field.Index.ANALYZED ) );
+			
+			writer.addDocument( doc );
+		
+		}
+		finally
+		{
+		}
+	}
+		
+	private void extractAndIndexContent( WebpageEntry entry, Writer writer )
+	{
+		// add document to index
+		log.info( "adding document to index: ${entry.uuid}" );
+	
+		
+		InputStream input = null;
+		HttpMethod method = null;
+		try
+		{
+			Document doc = new Document();
+
+			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+			doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( entry.id ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "url", entry.url, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", entry.title, Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
+
+			// add channels
+			String channelUuidString = "";
+			entry.channels.each { channelUuidString += it.uuid + " " };
+			doc.add( new Field( "channel_uuids", channelUuidString, Field.Store.YES, Field.Index.ANALYZED ));
+							
+			/* use HttpClient to load the page, then extract the content and index it.
+			 * We'll assume HTTP only links for now... */
+
+
+			HttpClient client = new HttpClient();
+
+			//establish a connection within 10 seconds
+			client.getHttpConnectionManager().getParams().setConnectionTimeout(10000);
+			String url = entry.url;
+			method = new GetMethod(url);
+
+			String responseBody = null;
+			try
+			{
+				client.executeMethod(method);
+				responseBody = method.getResponseBodyAsString();
+			}
+			catch (HttpException he) {
+				log.error("Http error connecting to '" + url + "'");
+				log.error(he.getMessage());
+				return;
+			} 
+			catch (IOException ioe){
+				// ioe.printStackTrace();
+				log.error("Unable to connect to '" + url + "'");
+				log.error( ioe );
+				return;
+			}
+
+			// extract text with Tika
+			// detect HTML responses and use the BoilerpipeContentHandler
+			// in those cases.  Continue to use BodyContentHandler elsewhere
+			Header contentTypeHeader = method.getResponseHeader( "Content-Type" );
+			
+			String contentType = "html";
+			if( contentTypeHeader != null )
+			{
+				contentType = contentTypeHeader.toString();
+			}
+			
+			println "Got Content-Type as: ${contentType}";
+			
+			org.xml.sax.ContentHandler textHandler = null;
+			
+			org.xml.sax.ContentHandler bodyContentHandler = new BodyContentHandler(-1);
+			String bodyContent = "";
+			
+			if( contentType.contains( "html" ) || contentType.contains( "xhtml" ))
+			{
+				textHandler = new BoilerpipeContentHandler( bodyContentHandler );
+				textHandler.setIncludeMarkup( true );
+				
+				input = method.getResponseBodyAsStream();
+				
+				Metadata metadata = new Metadata();
+				HtmlParser parser = new HtmlParser();
+				parser.parse(input, textHandler, metadata);
+   
+				TextDocument tDoc = textHandler.toTextDocument();
+				
+				bodyContent = "";
+				List<TextBlock> blocks = tDoc.getTextBlocks();
+				
+				for( TextBlock block : blocks )
+				{
+					
+					
+					println "**********************************\n ${block.getText()}\n**************************";
+					
+					if( block.isContent())
+					{
+					
+						bodyContent += "<p>";
+						bodyContent += block.getText();
+						bodyContent += "</p>";
+					}
+					
+				}
+				
+				// bodyContent = bodyContentHandler.toString(); // tDoc.getContent(); // bodyContentHandler.toString();
+				
+				if( bodyContent != null && !bodyContent.isEmpty())
+				{
+				   println "bodyContent: ${bodyContent}";
+				}
+				else
+				{
+				   println "No BodyContent!!! WTF???";
+				}
+			   
+				entry.pageContent = bodyContent;
+				
+				
+			}
+			else
+			{
+				textHandler = bodyContentHandler;
+
+				input = method.getResponseBodyAsStream();
+				
+				Metadata metadata = new Metadata();
+				Parser parser = new AutoDetectParser();
+				parser.parse(input, textHandler, metadata);
+   
+				bodyContent = bodyContentHandler.toString();
+				if( bodyContent != null && !bodyContent.isEmpty())
+				{
+				   println "bodyContent: ${bodyContent}";
+				}
+				else
+				{
+				   println "No BodyContent!!! WTF???";
+				}
+			   
+				entry.pageContent = bodyContent;
+			}
+			
+			/* Hmmm... we can somehow get a StaleObjectState exception here, possibly because the thread
+			 * that originally created this Entry was delayed in committing its transaction for some reason.
+			 * We should be able to make up for that by doing a refetch, and then re-persist the updated
+			 * object.
+			 */
+			try
+			{
+			
+				if( entry.save(flush:true))
+				{
+					println "saved entry with bodyContent, adding to Lucene index";
+					
+					doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+					writer.addDocument( doc );
+				}
+				else
+				{
+					entry.errors.allErrors.each {println it;}
+				}
+			}
+			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
+			{
+				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+				
+				
+				Thread.sleep( 2000 );
+				
+				// requery the object from the db
+				
+				entry = Entry.get( entry.id );
+				if( !entry )
+				{
+					throw new RuntimeException( "Failed to locate Entry for uuid: ${uuid}");
+				}
+				
+				entry.pageContent = bodyContent;
+				
+				try
+				{
+					if( entry.save(flush:true))
+					{
+						println "saved entry with bodyContent, adding to Lucene index";
+					
+						doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+						writer.addDocument( doc );
+					}
+					else
+					{
+						entry.errors.allErrors.each {println it;}
+					}
+				}
+				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
+				{
+					throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!");
+				}
+			}
+			
+		}
+		finally
+		{
+			try
+			{
+				if( input != null )
+				{
+					input.close();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+				e.printStackTrace();
+			}
+
+			try
+			{
+				if( method != null )
+				{
+					log.debug( "calling method.releaseConnection()" );
+					method.releaseConnection();
+				}
+			}
+			catch( Exception e )
+			{
+				// ignore this for now, but add a log message at least
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	
+	private void extractAndIndexContent( EMailEntry entry, Writer writer )
+	{
+		println "INDEXING EMAIL ENTRY HERE!!!!!!!!!!!!!!!!!!";
+		
+		// we need to look up the datasource used to generate this
+		// entry, so we can connect and download the content
+		// add document to index
+		IMAPAccount imapAccount = entry.theDataSource;
+		
+		log.info( "adding document to index: ${entry.uuid}" );
+
+		try
+		{
+			// connect and download the message for indexing...
+			Document doc = new Document();
+
+			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
+			doc.add( new Field( "uuid", entry.uuid, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( entry.id ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "messageId", entry.messageId, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", entry.subject, Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "subject", entry.subject, Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
+
+			// add channels
+			String channelUuidString = "";
+			entry.channels.each { channelUuidString += it.uuid + " " };
+			doc.add( new Field( "channel_uuids", channelUuidString, Field.Store.YES, Field.Index.ANALYZED ));
+		
+		
+		
+			Properties props = System.getProperties();
+			props.setProperty("mail.store.protocol", "imaps");
+			Folder inboxFolder = null;
+			Store store = null;
+			try
+			{
+				Session session = Session.getDefaultInstance(props, null);
+				store = session.getStore("imaps");
+			
+				
+				// TODO: deal with failure to connect...
+				store.connect(imapAccount.server, imapAccount.username, imapAccount.password);
+			 
+				
+				inboxFolder = store.getFolder( imapAccount.folder );
+				if( inboxFolder != null )
+				{
+					inboxFolder.open(Folder.READ_ONLY);
+					println "Folder: ${inboxFolder.fullName}";
+				}
+				else
+				{
+					println "no inboxFolder!!!";
+				}
+				
+				// search on message id
+				MessageIDTerm searchTerm = new MessageIDTerm( entry.messageId );
+				Message[] messages = inboxFolder.search( searchTerm );
+				
+				println "found ${messages.length} matching messages";
+				
+				if( messages.length == 1 )
+				{
+				
+				
+					MimeMessage mimeMessage = messages[0];
+					
+					String formattedContent = "<p>";
+					
+					Object bodyContent = mimeMessage.getContent();
+					if( bodyContent instanceof MimeMultipart )
+					{
+						MimeMultipart mimeMulti = bodyContent;
+						int partCount = mimeMulti.getCount();
+						Map partsKeyedByType = [:];
+						
+						for( int i = 0; i < partCount; i++ )
+						{
+							BodyPart part = mimeMulti.getBodyPart( i );
+							if( part.getContentType().contains( "plain" ))
+							{
+								partsKeyedByType.textPart = part;
+								break;
+							}
+							else if( part.getContentType().contains("html"))
+							{
+								partsKeyedByType.htmlPart = part;
+							}
+						}
+					
+					
+						// try plain text first
+						if( partsKeyedByType.containsKey( "textPart" ))
+						{
+							bodyContent = partsKeyedByType.textPart.getContent();
+						}
+						else if( partsKeyedByType.containsKey("htmlPart"))
+						{
+							// TODO: extract the raw text from the HTML
+							bodyContent = "HTML ONLY, Come back to this one";
+						}
+						else
+						{
+							// nothing here we can process...
+							println "Multipart Message had nothing we could process!";
+							bodyContent = "Multipart Message had nothing we could process!";
+						}
+					}
+					
+					/* NOTE: What follows is really formatting / presentational logic and
+					 * ultimately needs to be moved elsewhere.  Whether or not we even
+					 * want to persist a formatted version or not, or whether all formatting
+					 * should be done "on the fly" is an open question.
+					 */
+					
+					formattedContent += bodyContent.replace( "[\r\n]+", "</p>");
+					if( ! formattedContent.endsWith("</p>") )
+					{
+						formattedContent += "</p>";
+					}
+										
+					// println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
+					
+					entry.bodyContent = formattedContent;
+					
+					/* NOTE: This is also susceptible to the StaleObjectState problem, and should
+					 * get the same fix as mentioned above:  If we get that exception, reload
+					 * the object by ID, then re-persist it.
+					 */
+					try
+					{
+					
+						if( entry.save())
+						{
+							println "saved entry with bodyContent, adding to Lucene index";
+							
+							doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+							writer.addDocument( doc );
+							
+						}
+						else
+						{
+							
+							println "failed to save EMailEntry with updated bodyContent";
+						}
+						
+					}
+					catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
+					{
+						println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+						
+						Thread.sleep( 2000 );
+						
+						// requery the object from the db
+						entry = Entry.get( entry.id );
+						if( !entry )
+						{
+							throw new RuntimeException( "Failed to locate Entry for uuid: ${uuid}");
+						}
+						
+						entry.bodyContent = formattedContent;
+						
+						
+						try
+						{
+							if( entry.save(flush:true))
+							{
+								println "saved entry with bodyContent, adding to Lucene index";
+							
+								doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+								writer.addDocument( doc );
+							}
+							else
+							{
+								entry.errors.allErrors.each {println it;}
+							}
+						}
+						catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
+						{
+							throw new RuntimeException( "Failed Second Attempt To Persist Stale Object Instance!");
+						}
+						
+					}
+							
+				}
+				else
+				{
+					println "Message not found, or too many matching messages found!";
+				}
+			
+			}
+			catch (NoSuchProviderException e)
+			{
+				e.printStackTrace();
+				// System.exit(1);
+			}
+			catch (MessagingException e) {
+				e.printStackTrace();
+				// System.exit(2);
+			}
+			finally
+			{
+				if( inboxFolder != null )
+				{
+					if( inboxFolder.isOpen() )
+					{
+						inboxFolder.close( false );
+					}
+				}
+				
+				if( store != null )
+				{
+					if( store.isConnected())
+					{
+						store.close();
+					}
+				}
+				
+			}
+		
+		
+		}
+		finally
+		{
+			
+		}
+		
 	}
 }

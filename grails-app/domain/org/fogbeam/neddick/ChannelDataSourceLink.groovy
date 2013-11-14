@@ -11,6 +11,8 @@ public class ChannelDataSourceLink
 	
 	Date dateLastPolled;
 	
+	String sinceId; // mainly used for Twitter, but no use
+					// specializing the class just yet...
 
 	static transients = ['channelDataSourceId', 'channelDataSourceDescription'];
 	
@@ -41,6 +43,8 @@ public class ChannelDataSourceLink
 		   // println "setting datasource";
 		   newlink.channelDataSource = dataSource;
 
+		   newlink.sinceId = "0";
+		   
 		   // println "saving...";
 		   newlink.dateLastPolled = new Date(0);
 		   
@@ -63,7 +67,7 @@ public class ChannelDataSourceLink
 	   if ( links != null && links.size() == 1 )
 	   {
 		   def alink = links.get(0);
-		   channel.removeFromChannelDataSourceLinks(alink);
+		   channel.removeFromDataSourceLinks(alink);
 		   alink.delete();
 	   }
    }

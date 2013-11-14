@@ -130,7 +130,7 @@ class AlphanumericChannelComparator<T> extends AlphanumericComparator
 	
 	int compare( T arg0,  T arg1)
 	{
-		println "arg0: ${arg0.name}, arg1: ${arg1.name}";
+		// println "arg0: ${arg0.name}, arg1: ${arg1.name}";
 		return super.compare( arg0.name, arg1.name );
 	};
 }
@@ -149,7 +149,7 @@ class AlphanumericTagComparator<T> extends AlphanumericComparator
 	
 	int compare( T arg0,  T arg1)
 	{
-		println "arg0: ${arg0.name}, arg1: ${arg1.name}";
+		// println "arg0: ${arg0.name}, arg1: ${arg1.name}";
 		return super.compare( arg0.name, arg1.name );
 	};
 }

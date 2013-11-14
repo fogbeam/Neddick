@@ -1,6 +1,8 @@
 package org.fogbeam.neddick
 
 
+import groovy.json.JsonSlurper
+
 import javax.mail.Address
 import javax.mail.Folder
 import javax.mail.Message
@@ -12,6 +14,13 @@ import javax.mail.internet.MimeMessage
 import javax.mail.search.ComparisonTerm
 import javax.mail.search.ReceivedDateTerm
 
+import org.scribe.builder.ServiceBuilder
+import org.scribe.builder.api.TwitterApi
+import org.scribe.model.OAuthRequest
+import org.scribe.model.Response
+import org.scribe.model.Token
+import org.scribe.model.Verb
+import org.scribe.oauth.OAuthService
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
@@ -286,6 +295,188 @@ class ChannelService {
 		}
 	}
 
+	private void updateFromDataSource( TwitterAccount twitterAccount, Channel channel, User anonymous)
+	{
+		
+		println "Updating Channel from TwitterAccount";
+						
+		OAuthService service = new ServiceBuilder()
+		.provider(TwitterApi.class)
+		// .apiKey("bwUbU865CNQtt2Xdb62FpQ")
+		// .apiSecret("opkW7kQEqJP1YMHE0xYXhxXOD5XOfkVeaw2hTQPY")
+		.apiKey( "orGS7crqDqjS76B5RS2w" )
+		.apiSecret( "GdtSdh6YzrlqusCOJaFUDvelJtZHzUTELi0pn9DHqA" )
+		.build();
+
+		// for proper timeline managment using since_id and max_id, blah..
+		ChannelDataSourceLink link = ChannelDataSourceLink.getLink( channel, twitterAccount );
+		String sinceId = link.sinceId;
+		println "initial sinceId: ${sinceId}";
+		
+		String maxId = null; // no maxId for first iteration
+		
+		// call until we don't get anything else?
+		boolean keepLooping = true;
+		Long newSinceId = Long.parseLong( sinceId );
+		int loopCount = 1; 
+		while( keepLooping )
+		{
+			if( loopCount > 3 )
+			{ 
+				println "looped too many times, forced break";
+				break; 
+			}
+			
+			loopCount++;
+			
+			OAuthRequest oauthRequest = new OAuthRequest(Verb.GET, "https://api.twitter.com/1.1/statuses/home_timeline.json");
+			oauthRequest.addQuerystringParameter( "count", "200" );
+			if( Long.parseLong( sinceId ) > 0 )
+			{
+				println "setting sinceId for request to: ${sinceId}";
+				oauthRequest.addQuerystringParameter( "since_id", sinceId );
+			}
+			if( maxId != null )
+			{
+				println "setting maxId for request to: ${maxId}";
+				oauthRequest.addQuerystringParameter( "max_id", maxId );
+			}
+		
+		
+			Token accessToken = new Token(twitterAccount.accessToken, twitterAccount.tokenSecret);
+			println "got access token";
+			
+			service.signRequest(accessToken, oauthRequest);
+			
+			println "signed request";
+			
+			Response oauthResponse = oauthRequest.send();
+		
+			String responseJSON = oauthResponse.getBody();
+			
+			println "JSON response: \n ${responseJSON}";
+			
+			def slurper = new JsonSlurper();
+			def result = slurper.parseText( responseJSON );
+		
+			Long highTweetId = 0L;
+			Long lowTweetId = null;
+			
+			
+			/* after this loop, highTweetId will have the highest number (newest tweet) we saw.  The
+			 * highTweetId after every iteration of the outer loop, should become our new value of
+			 * sinceId.  
+			 * 
+			 * lowTweetId will be the lowest valued (oldest) tweet we saw, so it becomes the value of
+			 * maxId that is used in subsequent iterations of the outer loop, as we page our way
+			 * through the currently available tweets.  
+			 */
+			if( result.size > 0 )
+			{
+				println "got results to process, beginning Tweet processing loop";
+				
+				result.each 
+				{ 
+				
+					Long tweetId = Long.parseLong( it.id_str );
+	
+					println "current tweet id: ${tweetId}";
+	
+					// test if we already have this Tweet.  If we do, just return and let the each() iterator carry
+					// on to the next record.
+					TwitterEntry existingEntry = TwitterEntry.findByTweetId( tweetId );
+					if( existingEntry != null )
+					{
+						// Note: This is groovy and you can't do "continue" in a closure being iterated on by each().  You
+						// just return from the closure method call, and the iterator moves on, which has the same basic
+						// effect as "continue"ing from a Java style loop
+						return;
+					}
+									
+					if( lowTweetId == null )
+					{
+						lowTweetId = new Long( tweetId );	
+					}
+					else
+					{
+						if( tweetId < lowTweetId )
+						{
+							lowTweetId = new Long( tweetId );
+						}	
+					}
+	
+					if( tweetId > highTweetId )
+					{
+						highTweetId = new Long( tweetId );
+					}
+									
+				
+					Entry newEntry = new TwitterEntry( title: it.text, tweetContent: it.text, submitter: anonymous, theDataSource:twitterAccount );
+					newEntry.senderScreenName = it.user.screen_name;
+					newEntry.senderFullName = it.user.name;
+					newEntry.tweetId = tweetId;
+				
+					boolean success = entryService.saveEntry( newEntry );
+			
+					if( success )
+					{
+						newEntry.addToChannels( channel );
+					
+						// good++;
+						log.debug( "saved new Entry with id: ${newEntry.id}" );
+						// send JMS message saying "new entry submitted"
+						def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, title:newEntry.title ];
+	
+						log.debug( "sending new entry message to JMS entryQueue");
+						// send a JMS message to our entryQueue
+						sendJMSMessage("entryQueue", newEntryMessage );
+			
+						log.debug( "sending new entry message to JMS searchQueue" );
+						// send a JMS message to our searchQueue
+						sendJMSMessage("searchQueue", newEntryMessage );
+				
+					}
+					else
+					{
+						// bad++;
+						// failed to save newEntry
+						println( "Failed to save newEntry!" );
+					}
+
+				};
+		
+				println "finished Tweet processing loop";
+			
+				maxId = Long.toString( lowTweetId -1  ); // minus one because this is done
+													     // on an inclusive basis and we don't want the duplicated entry
+				println "lowTweetId was: ${maxId}";
+				
+				if( highTweetId > newSinceId )
+				{
+					println "highTweetId = ${highTweetId}, replacing old value of newSinceId: ${newSinceId}";
+					newSinceId = new Long( highTweetId );
+				}
+			}
+			else
+			{
+				println "got no tweets, nothing to do";
+				// we didn't get any results, so we've paged all the way down through
+				// everything new since the sinceId.  Stop this loop now.
+				keepLooping = false;
+			}
+		
+		} 
+		
+		// update sinceId if we got a new one 
+		if( newSinceId > Long.parseLong( sinceId ) )
+		{
+			println "Persisting new value for link.since_id: ${newSinceId}";
+			link.sinceId = Long.toString( newSinceId );
+			link.save();
+		}
+		
+	}
+	
 	private void updateFromDataSource( IMAPAccount imapAccount, Channel channel, User anonymous )
 	{
 		println "Updating Channel from IMAPAccount";

@@ -1,7 +1,23 @@
 package org.fogbeam.neddick
 
+import org.scribe.builder.ServiceBuilder
+import org.scribe.builder.api.TwitterApi
+import org.scribe.model.Token
+import org.scribe.model.Verifier
+import org.scribe.oauth.OAuthService
+
 class DataSourceController
-{
+{	
+	OAuthService service = new ServiceBuilder()
+	.provider(TwitterApi.class)
+	// .apiKey("bwUbU865CNQtt2Xdb62FpQ")
+	// .apiSecret("opkW7kQEqJP1YMHE0xYXhxXOD5XOfkVeaw2hTQPY")
+	.apiKey( "orGS7crqDqjS76B5RS2w" )
+	.apiSecret( "GdtSdh6YzrlqusCOJaFUDvelJtZHzUTELi0pn9DHqA" )
+	.callback( "http://localhost:8200/neddick/dataSource/finishTwitter" )
+	.build();
+	
+	
 	def index =
 	{
 		List<DataSource> allDataSources = DataSource.findAll();
@@ -11,7 +27,40 @@ class DataSourceController
 	}
 	
 	/* create wizard */
-	
+
+	def finishTwitterFlow =
+	{
+		start {
+			action {
+				
+				println "finishTwitterFlow: ${params}";
+				
+				/*
+				 finishTwitterFlow: [oauth_token:ygeG7wFvolBlPnIHrCL5VeFtj0xjYbud0NDVDhks, oauth_verifier:4dHR4yCWbnIPLm3R0i7YwOPceq74YfDRAlijdGhHKVQ, action:finishTwitter, controller:dataSource]
+
+				 */
+				
+				Verifier v = new Verifier(params.oauth_verifier);
+				Token accessToken = service.getAccessToken(session.requestToken, v); // the requestToken you had from step 2
+				
+				TwitterAccount accountToCreate = session.accountToCreate;
+				accountToCreate.accessToken = accessToken.token;
+				accountToCreate.tokenSecret = accessToken.secret;
+				
+				if( !accountToCreate.save(flush:true))
+				{
+					accountToCreate.errors.allErrors.each {println it;}
+				}
+			}
+			on("success").to("finishTwitterOne")
+		  }
+		
+		finishTwitterOne {
+			redirect( controller: "dataSource", action:"index");
+		}
+		
+	}
+		
 	def createWizardFlow =
 	{
 		start {
@@ -43,10 +92,46 @@ class DataSourceController
 				 println "imapAccount";
 				 createImapAccount();
 			 }
-			 
+			 else if( subscriptionType.equals( "twitterAccount" ) )
+			 {
+				 println "twitterAccount";
+				 createTwitterAccount();
+			 }
 		   }
 		   on( "createRssFeed" ).to("createRssFeedWizardOne")
 		   on( "createImapAccount" ).to("createImapAccountWizardOne")
+		   on( "createTwitterAccount" ).to("startTwitterFlow")
+		}
+		
+		
+		startTwitterFlow
+		{
+			action {
+			}
+			on("success").to("createTwitterAccountWizardOne")	
+		}
+		
+		createTwitterAccountWizardOne
+		{
+			on("twitterStage2")
+			{
+				TwitterAccount accountToCreate = new TwitterAccount();
+				accountToCreate.description = params.description;
+				
+				session.accountToCreate = accountToCreate;
+				
+				Token requestToken = service.getRequestToken();
+				session.requestToken = requestToken;
+				
+				String authUrl = service.getAuthorizationUrl(requestToken);
+				
+				[authUrl: authUrl];
+			}.to( "createTwitterAccountWizardTwo")
+		}
+		
+		createTwitterAccountWizardTwo
+		{
+			
 		}
 		
 		

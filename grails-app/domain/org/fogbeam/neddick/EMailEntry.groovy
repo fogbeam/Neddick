@@ -13,10 +13,15 @@ class EMailEntry extends Entry
 	{
 		messageId( nullable:false, maxSize:2048 );
 		
-		// TODO: deal with content of arbitrary size, which we won't really
-		// want to try to store directly and render like this.
-		bodyContent(nullable:true, maxSize:300000);
+		bodyContent(nullable:true);
 	}
+	
+	static mapping =
+	{
+		bodyContent type: 'text';
+	}
+	
+	
 	
 	public String getTemplateName()
 	{

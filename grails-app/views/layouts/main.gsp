@@ -37,9 +37,8 @@
         <g:javascript library="effects" />
         <g:javascript library="application" />
 
-		<!--  <script type="text/javascript" src="${createLinkTo(dir:'js', file:'bootstrap.js')}" >
+		<script type="text/javascript" src="${createLinkTo(dir:'js', file:'bootstrap.js')}" >
 		</script>
-		-->
 
 
         <g:javascript>

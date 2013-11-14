@@ -17,6 +17,7 @@ class Entry
 	static mapping = {
 		submitter lazy:false;
 		tablePerHierarchy false
+		enhancementJSON type: 'text'
 	}	
 	
 	static constraints =
@@ -25,7 +26,7 @@ class Entry
 	}
     
     String uuid;
-    String title;
+    String title = "";
 	String enhancementJSON;
 	
 	Date dateCreated;

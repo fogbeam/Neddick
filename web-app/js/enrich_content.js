@@ -1,6 +1,5 @@
-$j( function() 
-{
-				
+$j( document ).ready(function()
+{				
 	// alert( "Starting content enhancement...");
 	
 	// locate all the <script> elements with class "enhancementJSON"
@@ -17,7 +16,7 @@ $j( function()
 		
 		var jsonNode = $j( this );
 		var json = jsonNode.text();
-		
+		// alert( "json: " + json );
 		var obj = $j.parseJSON(json);
 		
 		// alert( obj['@graph']);
@@ -214,9 +213,9 @@ $j( function()
 				/* NOTE: this has to change to support the new approach */
 				
 				var enrichedContentDiv = jsonNode.siblings(".contentToEnhance");
-				// alert( enrichedContentDiv );
+				// alert( enrichedContentDiv.html() );
 				
-				
+				// alert( "textToReplace: " + textToReplace );
 				var re = new RegExp(textToReplace,"ig");
 				enrichedContentDiv.html( enrichedContentDiv.html().replace( re, '<a id="' + id + '" title="empty" href="' + dbPediaLink + '">' + textToReplace + '</a>' ));
 		

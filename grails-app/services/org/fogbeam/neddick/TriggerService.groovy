@@ -199,7 +199,7 @@ class TriggerService
 	// a new piece of content was delivered, process "content" (body and title keyword) triggers
 	public void fireContentTriggerCriteria( final String entryUuid )
 	{
-		println "processing content triggers..."
+		// println "processing content triggers..."
 			
 		List<BodyKeywordTriggerCriteria> bodyKeywordTriggerCriteria = BodyKeywordTriggerCriteria.findAll();
 		
@@ -207,7 +207,7 @@ class TriggerService
 		
 		if( bodyKeywordTriggerCriteria != null )
 		{
-			println "bodyKeywordTriggerCriteria object is valid";
+			// println "bodyKeywordTriggerCriteria object is valid";
 			
 			for( BodyKeywordTriggerCriteria triggerCrit : bodyKeywordTriggerCriteria )
 			{
@@ -215,7 +215,7 @@ class TriggerService
 				
 				String keyword = triggerCrit.bodyKeyword;
 				
-				println "found a triggerCriteria with keyword: ${keyword}";
+				// println "found a triggerCriteria with keyword: ${keyword}";
 				
 				List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND content: ${keyword}" );
 				

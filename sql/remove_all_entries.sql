@@ -10,3 +10,4 @@ delete from email_entry_to_address;
 delete from entry;
 delete from email_entry;
 delete from webpage_entry;
+delete from twitter_entry;
