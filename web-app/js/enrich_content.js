@@ -1,4 +1,4 @@
-$j( document ).ready(function()
+$j( function() 
 {				
 	// alert( "Starting content enhancement...");
 	
@@ -282,8 +282,8 @@ $j( document ).ready(function()
 				}
 			}
 		}
-	});
+	});	
 	
-	$j(document).tooltip();	
-					
+	$j(document).tooltip();
 });
+

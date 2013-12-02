@@ -23,6 +23,13 @@ class SearchService
 		List<Entry> entries = new ArrayList<Entry>();
 		
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		
+		if( indexDirLocation == null || indexDirLocation.isEmpty())
+		{
+			String neddickHome = System.getProperty( "neddick.home" );
+			indexDirLocation = neddickHome + "/index";
+		}
+		
 		File indexDir = new File( indexDirLocation );
 		Directory fsDir = FSDirectory.open( indexDir );
 		

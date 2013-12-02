@@ -18,7 +18,7 @@
 		</g:each>
 	</ul>
 </div>
-<div style="clear:both;margin-top:77px;">
+<div class="contentToEnhance" style="clear:both;margin-top:77px;">
 	<pre>
 		${entry.bodyContent}
 	</pre>

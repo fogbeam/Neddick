@@ -5,3 +5,4 @@ logs/
 spreadsheet.ods
 target-eclipse/
 target/
+lib/*.old

@@ -14,11 +14,14 @@ import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
 import javax.mail.search.MessageIDTerm
 
+import jenajsonld.JenaJSONLD
+
 import org.apache.commons.httpclient.Header
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.HttpException
 import org.apache.commons.httpclient.HttpMethod
 import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.jena.riot.RDFDataMgr
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.document.Field
@@ -47,12 +50,16 @@ import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureExcep
 import com.hp.hpl.jena.query.Dataset
 import com.hp.hpl.jena.query.ReadWrite
 import com.hp.hpl.jena.rdf.model.Model
+import com.hp.hpl.jena.rdf.model.ModelFactory
+import com.hp.hpl.jena.rdf.model.ResIterator
+import com.hp.hpl.jena.rdf.model.Resource
 import com.hp.hpl.jena.tdb.TDBFactory
+import com.hp.hpl.jena.vocabulary.DCTerms
+import com.hp.hpl.jena.vocabulary.OWL
+import com.hp.hpl.jena.vocabulary.RDF
 
 import de.l3s.boilerpipe.document.TextBlock
 import de.l3s.boilerpipe.document.TextDocument
-
-
 
 
 public class IndexerListenerService 
@@ -119,6 +126,13 @@ public class IndexerListenerService
 
 				log.debug( "adding document to index" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+				
+				if( indexDirLocation == null || indexDirLocation.isEmpty())
+				{
+					String neddickHome = System.getProperty( "neddick.home" );
+					indexDirLocation = neddickHome + "/index";
+				}
+				
 				Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 				IndexWriter writer = null;
 
@@ -206,6 +220,9 @@ public class IndexerListenerService
 				// First make a polymorphic call to extractAndIndexContent( entry );
 				extractAndIndexContent( entry, msg );
 				
+				entry = Entry.findByUuid( entry.uuid );
+				entry.refresh();
+				
 				// and then a call to the Stanbol Enhancer
 				doSemanticEnhancement( entry, msg );
 				
@@ -216,9 +233,13 @@ public class IndexerListenerService
 				// add document to index
 				log.debug( "adding document to index" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
-				Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
-				IndexWriter writer = null;
-
+				
+				if( indexDirLocation == null || indexDirLocation.isEmpty())
+				{
+					String neddickHome = System.getProperty( "neddick.home" );
+					indexDirLocation = neddickHome + "/index";
+				}
+				
 				// TODO: fix this so it will eventually give up, to deal with the pathological case
 				// where we never do get the required lock.
 				while( writer == null )
@@ -279,7 +300,6 @@ public class IndexerListenerService
 	}
 
 
-	
 	static String convertStreamToString(java.io.InputStream is) {
 		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : "";
@@ -296,59 +316,62 @@ public class IndexerListenerService
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
+		// println "restResponseText.class.name = ${restResponseText.class.name}";
+		
 		entry.refresh();
 		entry.enhancementJSON = restResponseText;
 		
+		println "restResponseText: \n${restResponseText}\n\n";
 		
-		// OK, this sucks donkey balls, but make a *second* call to Stanbol
-		// to retrieve the *same* data in RDF/XML format.  Why? Because the Jena
-		// support for ingesting JSON-LD seems to be having issues at the moment.
-		// and we don't want to try to rework our client-side Javascript to work with
-		// RDF/XML.  So for now, we'll retrieve both.  Once Jena can consume JSON-LD
-		// this will go away.
+		if( restResponseText != null && !restResponseText.isEmpty())
+		{
 		
-		/* def restResponseXml = restClient.post(	path:'enhancer',
-			body: entry.tweetContent,
-			headers: ['Accept':'application/rdf+xml'],
-			requestContentType : TEXT );
+			// create an empty Model
+			Model tempModel = ModelFactory.createDefaultModel();
+			
+			StringReader reader = new StringReader( restResponseText.toString() );
 		
-		ByteArrayInputStream restResponseXmlStream = restResponseXml.getData();
-		
-		String restResponseXmlText = convertStreamToString( restResponseXmlStream );
-		*/
-								
-		// println "restResponseText:\n ${restResponseText}\n\n";
+			RDFDataMgr.read(tempModel, reader, "http://www.example.com", JenaJSONLD.JSONLD);
+			
 	
+			// Make a TDB-backed dataset
+			String neddickHome = System.getProperty( "neddick.home" );
+			String directory = "${neddickHome}/jenastore/triples" ;
+			println "Opening TDB triplestore at: ${directory}";
+			Dataset dataset = TDBFactory.createDataset(directory) ;
+			
+			dataset.begin(ReadWrite.WRITE);
+			// Get model inside the transaction
+			Model model = dataset.getDefaultModel() ;
+			
+			// find all the "entity" entries in our graph and then associate each
+			// one with our "DocumentID"
+			ResIterator iter = tempModel.listSubjectsWithProperty( RDF.type, OWL.Thing );
+			
+			while( iter.hasNext() )
+			{
+	
+				Resource anEntity = iter.nextResource();
+			
+				println "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
+				
+				Resource newResource = model.createResource( "neddick:${entry.uuid}" );
+				newResource.addProperty( DCTerms.references, anEntity);
+	
+			}
+	
+			// now add all the triples from the Stanbol response to our canonical Model
+			model.add( tempModel );
+					
+			dataset.commit();
+			
+			dataset.end();
 		
-		// TODO: extract the Entity entries that we got from Stanbol and associate each of them to
-		// this Neddick Entry using the entry UUID.
-		
-		// Statement s = ResourceFactory.createStatement(subject, predicate, object);
-		// model.add(s); // add the statement (triple) to the model
-		
-		
-		
-		
-		
-		// Make a TDB-backed dataset
-		// String directory = "/opt/fogcutter/neddick/jena-tdb" ;
-		// Dataset dataset = TDBFactory.createDataset(directory) ;
-		
-		// dataset.begin(ReadWrite.READ) ;
-		// Get model inside the transaction
-		// Model model = dataset.getDefaultModel() ;
-		// dataset.end() ;
-
-		// dataset.begin(ReadWrite.WRITE) ;
-		// model = dataset.getDefaultModel() ;
-		
-		// StringReader reader = new StringReader( restResponseText );
-		
-		// model.read( reader, "http://www.example.com", "RDF/XML" );
-		
-		// dataset.commit();
-		
-		// dataset.end();
+		}
+		else
+		{
+			println "Can't process JSON -> TDB operation!";
+		}
 		
 		
 		try
@@ -362,11 +385,12 @@ public class IndexerListenerService
 		{
 			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 			
-			Thread.sleep(5000 );
+			Thread.sleep(15000 );
 			
 			entry = Entry.get( entry.id );
 			entry.refresh();
 			entry.enhancementJSON = restResponseText;
+			
 			
 			try
 			{
@@ -379,7 +403,7 @@ public class IndexerListenerService
 			{
 				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
 				
-				Thread.sleep( 15000 );
+				Thread.sleep( 60000 );
 				
 				entry = Entry.get( entry.id );
 				entry.refresh();
@@ -412,50 +436,64 @@ public class IndexerListenerService
 										body: entry.pageContent,
 										requestContentType : TEXT );
 	
-		def restResponseText = restResponse.getData();	
+		def restResponseText = restResponse.getData();
+		// println "restResponseText.class.name = ${restResponseText.class.name}";
+		
+			
 		entry.refresh();
 		entry.enhancementJSON = restResponseText;
 		
+		println "restResponseText: \n${restResponseText}\n\n";
 		
-		// OK, this sucks donkey balls, but make a *second* call to Stanbol
-		// to retrieve the *same* data in RDF/XML format.  Why? Because the Jena
-		// support for ingesting JSON-LD seems to be having issues at the moment.
-		// and we don't want to try to rework our client-side Javascript to work with
-		// RDF/XML.  So for now, we'll retrieve both.  Once Jena can consume JSON-LD
-		// this will go away.
+		if( restResponseText != null && !restResponseText.isEmpty())
+		{
 		
-		/* def restResponseXml = restClient.post(	path:'enhancer',
-			body: entry.pageContent,
-			headers: ['Accept':'application/rdf+xml'],
-			requestContentType : TEXT );
-
-		ByteArrayInputStream restResponseXmlStream = restResponseXml.getData();
-		
-		String restResponseXmlText = convertStreamToString( restResponseXmlStream );
-		*/
-							
-		// println "restResponseText:\n ${restResponseText}\n\n";
+			// create an empty Model
+			Model tempModel = ModelFactory.createDefaultModel();
+			
+			StringReader reader = new StringReader( restResponseText.toString() );
+			
+			RDFDataMgr.read(tempModel, reader, "http://www.example.com", JenaJSONLD.JSONLD);
+			
 	
+			// Make a TDB-backed dataset
+			String neddickHome = System.getProperty( "neddick.home" );
+			String directory = "${neddickHome}/jenastore/triples" ;
+			println "Opening TDB triplestore at: ${directory}";
+			Dataset dataset = TDBFactory.createDataset(directory) ;
+			
+			dataset.begin(ReadWrite.WRITE);
+			// Get model inside the transaction
+			Model model = dataset.getDefaultModel() ;
+			
+			// find all the "entity" entries in our graph and then associate each
+			// one with our "DocumentID"
+			ResIterator iter = tempModel.listSubjectsWithProperty( RDF.type, OWL.Thing );
+			
+			while( iter.hasNext() )
+			{
+	
+				Resource anEntity = iter.nextResource();
+			
+				println "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
+				
+				Resource newResource = model.createResource( "neddick:${entry.uuid}" );
+				newResource.addProperty( DCTerms.references, anEntity);
+	
+			}
+	
+			// now add all the triples from the Stanbol response to our canonical Model
+			model.add( tempModel );
+					
+			dataset.commit();
+			
+			dataset.end();
 		
-		// Make a TDB-backed dataset
-		// String directory = "/opt/fogcutter/neddick/jena-tdb" ;
-		// Dataset dataset = TDBFactory.createDataset(directory) ;
-		
-		// dataset.begin(ReadWrite.READ) ;
-		// Get model inside the transaction
-		// Model model = dataset.getDefaultModel() ;
-		// dataset.end() ;
-
-		// dataset.begin(ReadWrite.WRITE) ;
-		// model = dataset.getDefaultModel() ;
-		
-		// StringReader reader = new StringReader( restResponseText );
-		
-		// model.read( reader, "http://www.example.com", "RDF/XML" );
-		
-		// dataset.commit();
-		
-		// dataset.end();
+		}
+		else
+		{
+			println "Can't process JSON -> TDB operation!";
+		}
 		
 		
 		try
@@ -469,7 +507,7 @@ public class IndexerListenerService
 		{
 			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 			
-			Thread.sleep( 5000 );
+			Thread.sleep( 15000 );
 			
 			entry = Entry.get( entry.id );
 			entry.refresh();
@@ -486,7 +524,7 @@ public class IndexerListenerService
 			{
 				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
 						
-				Thread.sleep( 15000 );
+				Thread.sleep( 60000 );
 				
 				entry = Entry.get( entry.id );
 				entry.refresh();
@@ -520,50 +558,65 @@ public class IndexerListenerService
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
+		
+		// println "restResponseText.class.name = ${restResponseText.class.name}";
+		
 		entry.refresh();
 		entry.enhancementJSON = restResponseText;
 		
-		// OK, this sucks donkey balls, but make a *second* call to Stanbol
-		// to retrieve the *same* data in RDF/XML format.  Why? Because the Jena
-		// support for ingesting JSON-LD seems to be having issues at the moment.
-		// and we don't want to try to rework our client-side Javascript to work with
-		// RDF/XML.  So for now, we'll retrieve both.  Once Jena can consume JSON-LD
-		// this will go away.
+		println "restResponseText: \n${restResponseText}\n\n";
 		
-		/* def restResponseXml = restClient.post(	path:'enhancer',
-			body: entry.bodyContent,
-			headers: ['Accept':'application/rdf+xml'],
-			requestContentType : TEXT );
-
-		ByteArrayInputStream restResponseXmlStream = restResponseXml.getData();
+		if( restResponseText != null && !restResponseText.isEmpty())
+		{
 		
-		String restResponseXmlText = convertStreamToString( restResponseXmlStream );
-		*/
-							
-		// println "restResponseText:\n ${restResponseText}\n\n";
+			// create an empty Model
+			Model tempModel = ModelFactory.createDefaultModel();
+			
+			StringReader reader = new StringReader( restResponseText.toString() );
+			
+			RDFDataMgr.read(tempModel, reader, "http://www.example.com", JenaJSONLD.JSONLD);
+			
 	
+			// Make a TDB-backed dataset
+			String neddickHome = System.getProperty( "neddick.home" );
+			String directory = "${neddickHome}/jenastore/triples" ;
+			println "Opening TDB triplestore at: ${directory}";
+			Dataset dataset = TDBFactory.createDataset(directory) ;
+			
+			dataset.begin(ReadWrite.WRITE);
+			// Get model inside the transaction
+			Model model = dataset.getDefaultModel() ;
+			
+			// find all the "entity" entries in our graph and then associate each
+			// one with our "DocumentID"
+			ResIterator iter = tempModel.listSubjectsWithProperty( RDF.type, OWL.Thing );
+			
+			while( iter.hasNext() )
+			{
+	
+				Resource anEntity = iter.nextResource();
+			
+				println "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
+				
+				Resource newResource = model.createResource( "neddick:${entry.uuid}" );
+				newResource.addProperty( DCTerms.references, anEntity);
+	
+			}
+	
+			// now add all the triples from the Stanbol response to our canonical Model
+			model.add( tempModel );
+					
+			dataset.commit();
+			
+			dataset.end();
 		
-		// Make a TDB-backed dataset
-		// String directory = "/opt/fogcutter/neddick/jena-tdb" ;
-		// Dataset dataset = TDBFactory.createDataset(directory) ;
+		}
+		else
+		{
+			println "Can't process JSON -> TDB operation!";
+		}
 		
-		// dataset.begin(ReadWrite.READ) ;
-		// Get model inside the transaction
-		// Model model = dataset.getDefaultModel() ;
-		// dataset.end() ;
-
-		// dataset.begin(ReadWrite.WRITE) ;
-		// model = dataset.getDefaultModel() ;
-		
-		// StringReader reader = new StringReader( restResponseText );
-		
-		// model.read( reader, "http://www.example.com", "RDF/XML" );
-		
-		// dataset.commit();
-		
-		// dataset.end();
-		
-		
+				
 		try
 		{
 			if( !entry.save(flush:true))
@@ -576,7 +629,7 @@ public class IndexerListenerService
 			
 			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 
-			Thread.sleep( 5000 );
+			Thread.sleep( 15000 );
 			
 			entry = Entry.get( entry.id );
 			entry.refresh();
@@ -593,9 +646,9 @@ public class IndexerListenerService
 			{
 				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";				
 				
-				Thread.sleep( 15000 );
+				Thread.sleep( 60000 );
 				
-				entry = Entry.get( entry.id );
+				entry = Entry.findById( entry.id );
 				entry.refresh();
 				entry.enhancementJSON = restResponseText;
 				
@@ -717,6 +770,13 @@ public class IndexerListenerService
 		// add document to index
 		log.info( "adding document to index: ${msg['uuid']}" );
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		
+		if( indexDirLocation == null || indexDirLocation.isEmpty())
+		{
+			String neddickHome = System.getProperty( "neddick.home" );
+			indexDirLocation = neddickHome + "/index";
+		}
+		
 		log.info ( "got indexDirLocation as: ${indexDirLocation}");
 		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 		IndexWriter writer = null;
@@ -901,7 +961,7 @@ public class IndexerListenerService
 				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 				
 				
-				Thread.sleep( 2000 );
+				Thread.sleep( 10000 );
 				
 				// requery the object from the db
 				
@@ -910,6 +970,8 @@ public class IndexerListenerService
 				{
 					throw new RuntimeException( "Failed to locate Entry for uuid: ${uuid}");
 				}
+				
+				entry.refresh();
 				
 				entry.pageContent = bodyContent;
 				
@@ -1013,6 +1075,13 @@ public class IndexerListenerService
 		
 		log.info( "adding document to index: ${msg['uuid']}" );
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		
+		if( indexDirLocation == null || indexDirLocation.isEmpty())
+		{
+			String neddickHome = System.getProperty( "neddick.home" );
+			indexDirLocation = neddickHome + "/index";
+		}
+		
 		log.info ( "got indexDirLocation as: ${indexDirLocation}");
 		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 		IndexWriter writer = null;
@@ -1049,7 +1118,10 @@ public class IndexerListenerService
 			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 			doc.add( new Field( "messageId", msg['messageId'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
-			doc.add( new Field( "subject", msg['subject'], Field.Store.YES, Field.Index.ANALYZED ) );
+			if( msg['subject'] != null )
+			{
+				doc.add( new Field( "subject", msg['subject'], Field.Store.YES, Field.Index.ANALYZED ) );
+			}
 			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
 			// add channels
@@ -1117,6 +1189,10 @@ public class IndexerListenerService
 							{
 								partsKeyedByType.htmlPart = part;
 							}
+							else
+							{
+								println "part had type: ${part.getContentType()}";
+							}
 						}
 					
 					
@@ -1137,6 +1213,17 @@ public class IndexerListenerService
 							bodyContent = "Multipart Message had nothing we could process!";
 						}
 					}
+					else
+					{
+						// should probably be String.  If it's anything else, we don't know how to handle that yet.
+						if( ! ( bodyContent instanceof String ) )
+						{
+							println "message content was of class: ${bodyContent.class}";	
+						}
+					}
+					
+					
+					// println "Email bodyContent: \n ${bodyContent}";
 					
 					/* NOTE: What follows is really formatting / presentational logic and
 					 * ultimately needs to be moved elsewhere.  Whether or not we even
@@ -1150,7 +1237,7 @@ public class IndexerListenerService
 						formattedContent += "</p>";
 					}
 										
-					// println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
+					println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
 					
 					entry.bodyContent = formattedContent;
 					
@@ -1161,7 +1248,7 @@ public class IndexerListenerService
 					try
 					{
 					
-						if( entry.save())
+						if( entry.save(flush:true))
 						{
 							println "saved entry with bodyContent, adding to Lucene index";
 							
@@ -1174,6 +1261,7 @@ public class IndexerListenerService
 						{
 							
 							println "failed to save EMailEntry with updated bodyContent";
+							entry.errors.allErrors.each {println it}
 						}
 						
 					}
@@ -1181,15 +1269,17 @@ public class IndexerListenerService
 					{
 						println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 						
-						Thread.sleep( 2000 );
+						Thread.sleep( 10000 );
 						
 						// requery the object from the db
 						entry = Entry.get( entry.id );
+		
 						if( !entry )
 						{
 							throw new RuntimeException( "Failed to locate Entry for uuid: ${uuid}");
 						}
 						
+						entry.refresh();
 						entry.bodyContent = formattedContent;
 						
 						
@@ -1300,6 +1390,13 @@ public class IndexerListenerService
 		log.debug( "addTag called with uuid: ${uuid} and tagName: ${tagName}" );
 
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		
+		if( indexDirLocation == null || indexDirLocation.isEmpty())
+		{
+			String neddickHome = System.getProperty( "neddick.home" );
+			indexDirLocation = neddickHome + "/index";
+		}
+		
 		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 		IndexReader indexReader = IndexReader.open( indexDir, false );
 
@@ -1448,6 +1545,13 @@ public class IndexerListenerService
 
 		// add document to index
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		
+		if( indexDirLocation == null || indexDirLocation.isEmpty())
+		{
+			String neddickHome = System.getProperty( "neddick.home" );
+			indexDirLocation = neddickHome + "/index";
+		}
+		
 		println "using indexDirLocation: ${indexDirLocation}";
 		
 		// check if there's an initialized index yet.  If not, initialize empty index
@@ -1879,6 +1983,7 @@ public class IndexerListenerService
 						for( int i = 0; i < partCount; i++ )
 						{
 							BodyPart part = mimeMulti.getBodyPart( i );
+						
 							if( part.getContentType().contains( "plain" ))
 							{
 								partsKeyedByType.textPart = part;
@@ -1887,6 +1992,10 @@ public class IndexerListenerService
 							else if( part.getContentType().contains("html"))
 							{
 								partsKeyedByType.htmlPart = part;
+							}
+							else
+							{
+								println "part had type: ${part.getContentType()}";
 							}
 						}
 					
@@ -1921,7 +2030,7 @@ public class IndexerListenerService
 						formattedContent += "</p>";
 					}
 										
-					// println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
+					println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
 					
 					entry.bodyContent = formattedContent;
 					
@@ -1943,6 +2052,7 @@ public class IndexerListenerService
 						else
 						{
 							
+							entry.errors.allErrors.each{ println it }
 							println "failed to save EMailEntry with updated bodyContent";
 						}
 						

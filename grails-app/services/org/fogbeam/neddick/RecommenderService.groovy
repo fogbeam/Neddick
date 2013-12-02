@@ -35,6 +35,13 @@ class RecommenderService
 	{
 		
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
+		
+		if( indexDirLocation == null || indexDirLocation.isEmpty())
+		{
+			String neddickHome = System.getProperty( "neddick.home" );
+			indexDirLocation = neddickHome + "/index";
+		}
+		
 		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 		IndexSearcher searcher = new IndexSearcher( indexDir );
 		IndexReader reader = searcher.getIndexReader();

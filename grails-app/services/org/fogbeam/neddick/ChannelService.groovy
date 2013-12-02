@@ -344,17 +344,17 @@ class ChannelService {
 		
 		
 			Token accessToken = new Token(twitterAccount.accessToken, twitterAccount.tokenSecret);
-			println "got access token";
+			// println "got access token";
 			
 			service.signRequest(accessToken, oauthRequest);
 			
-			println "signed request";
+			// println "signed request";
 			
 			Response oauthResponse = oauthRequest.send();
 		
 			String responseJSON = oauthResponse.getBody();
 			
-			println "JSON response: \n ${responseJSON}";
+			// println "JSON response: \n ${responseJSON}";
 			
 			def slurper = new JsonSlurper();
 			def result = slurper.parseText( responseJSON );
@@ -447,9 +447,16 @@ class ChannelService {
 		
 				println "finished Tweet processing loop";
 			
-				maxId = Long.toString( lowTweetId -1  ); // minus one because this is done
+				if( lowTweetId != null )
+				{
+					maxId = Long.toString( lowTweetId -1  ); // minus one because this is done
 													     // on an inclusive basis and we don't want the duplicated entry
-				println "lowTweetId was: ${maxId}";
+					println "lowTweetId was: ${maxId}";
+				}
+				else
+				{
+					maxId = null;
+				}
 				
 				if( highTweetId > newSinceId )
 				{

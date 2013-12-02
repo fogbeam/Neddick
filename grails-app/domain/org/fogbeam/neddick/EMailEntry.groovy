@@ -12,7 +12,7 @@ class EMailEntry extends Entry
 	static constraints =
 	{
 		messageId( nullable:false, maxSize:2048 );
-		
+		subject( nullable: true );
 		bodyContent(nullable:true);
 	}
 	

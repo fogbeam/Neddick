@@ -19,6 +19,13 @@ class BootStrap {
 	 
      def init = { servletContext ->
      
+		 
+		 String neddickHome = System.getProperty( "neddick.home" );
+		 if( neddickHome == null || neddickHome.isEmpty())
+		 {
+			 throw new Exception( "No neddick.home configured!" );
+		 }
+		 
 		 // this.getClass().classLoader.rootLoader.URLs.each { p rintln it }
 		 
 	     switch( Environment.current )
@@ -74,7 +81,26 @@ class BootStrap {
 		 }
 		 else
 		 {
-		 	log.warn( "No indexDirLocation configured!!");
+		 	log.warn( "No explicit indexDirLocation configured.  Placing index under neddickHome at: ${neddickHome}/index");
+			 indexDirLocation = neddickHome + "/index";
+			 File indexFile = new java.io.File( indexDirLocation );
+			 String[] indexFileChildren = indexFile.list();
+			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
+			 if( ! indexIsInitialized )
+			 {
+				 println( "Index not previously initialized, creating empty index" );
+				 /* initialize empty index */
+				 Directory indexDir = new NIOFSDirectory( indexFile );
+				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
+				 Document doc = new Document();
+				 writer.addDocument(doc);
+				 writer.close();
+			}
+			else
+			{
+				
+				log.info( "Index already initialized, skipping..." );
+			}
 		 }
 		      
      }
