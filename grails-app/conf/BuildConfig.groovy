@@ -12,11 +12,12 @@ grails.project.dependency.resolution = {
 	// uncomment the below to enable remote dependency resolution 
 	// from public Maven repositories 
 	//mavenLocal() 
-	//mavenCentral() 
-	//mavenRepo "http://snapshots.repository.codehaus.org" 
-	//mavenRepo "http://repository.codehaus.org" 
-	//mavenRepo "http://download.java.net/maven/2/" 
-	//mavenRepo "http://repository.jboss.com/maven2/"
+	mavenCentral() 
+	mavenRepo "http://snapshots.repository.codehaus.org" 
+	mavenRepo "http://repository.codehaus.org" 
+	mavenRepo "http://download.java.net/maven/2/" 
+	mavenRepo "http://repository.jboss.com/maven2/"
+	mavenRepo "http://maven.restlet.org/"
  } 
  dependencies { 
 	    // specify dependencies here under either 'build', 'compile', ...
@@ -26,7 +27,7 @@ grails.project.dependency.resolution = {
 	 	compile "org.grails:grails-webflow:$grailsVersion"
 		compile ("org.apache.tika:tika-core:1.4")
 		compile ("org.apache.tika:tika-parsers:1.4") {excludes "asm-debug-all"}
-	  
+		compile "antlr:antlr:2.7.7"
 	}
  
  plugins {
