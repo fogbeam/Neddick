@@ -1,3 +1,5 @@
+import grails.util.Environment;
+
 // locations to search for config files that get merged into the main config
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -9,6 +11,51 @@
 // if(System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
+
+String neddickHome = System.getProperty( "neddick.home");
+
+if(!grails.config.locations || !(grails.config.locations instanceof List))
+{
+	grails.config.locations = []
+}
+
+switch( Environment.current  )
+{
+	case Environment.DEVELOPMENT:
+		
+		String configLocation = neddickHome + "/neddick-dev.properties";
+		println "####################\n######################\nadding configLocation: ${configLocation}\n###################";
+		grails.config.locations << "file:" + configLocation;
+		break;
+		
+	case Environment.PRODUCTION:
+		
+		String configLocation = neddickHome + "/neddick-production.properties";
+		println "####################\n######################\nadding configLocation: ${configLocation}\n###################";
+		grails.config.locations << "file:" + configLocation;
+		break;
+		
+	case Environment.TEST:
+		String configLocation = neddickHome + "/neddick-test.properties";
+		println "####################\n######################\nadding configLocation: ${configLocation}\n###################";
+		grails.config.locations << "file:" + configLocation;
+		break;
+		
+	default:
+		break;
+}
+
+String fogbeamDevMode = System.getProperty( "fogbeam.devmode" );
+if( fogbeamDevMode != null )
+{
+	fogbeam.devmode=true;
+}
+else
+{
+	fogbeam.devmode=false;
+}
+
+
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
 grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
@@ -96,7 +143,7 @@ chat {
     serviceName = "gmail.com"
     host = "talk.google.com"
     port = 5222
-    username = "testuser@example.com"
+    username = "testuser@fogbeam.com"
     password = "password"
 }
 
