@@ -9,6 +9,8 @@ import org.fogbeam.protocol.activitystreams.Image
 import org.fogbeam.protocol.activitystreams.Target
 import org.springframework.http.ResponseEntity
 
+import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH;
+
 class QuoddyShareTriggerAction extends BaseTriggerAction
 {
 	def restTemplate;
@@ -74,9 +76,12 @@ class QuoddyShareTriggerAction extends BaseTriggerAction
 			newEntry.setTarget( target );
 			
 			
+			String quoddyActivityStreamsUrl = CH.config.urls.quoddy.activitystreams.endpoint;
+			println "using quoddyActivityStreamsUrl: ${quoddyActivityStreamsUrl}";
+						
 			ResponseEntity<String> response =
 				restTemplate.postForEntity(
-						"http://localhost:8180/quoddy/api/activitystreamentry",
+						quoddyActivityStreamsUrl,
 						newEntry, String.class );
 			
 			String responseText = response.getBody();
