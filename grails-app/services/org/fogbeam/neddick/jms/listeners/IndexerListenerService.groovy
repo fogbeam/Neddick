@@ -308,7 +308,9 @@ public class IndexerListenerService
 	private void doSemanticEnhancement( TwitterEntry entry, def msg )
 	{
 		// call Stanbol REST API to get enrichment data
-		RESTClient restClient = new RESTClient( "http://localhost:8080" )
+		String stanbolServerUrl = CH.config.urls.stanbol.endpoint;
+		println "using stanbolServerUrl: ${stanbolServerUrl}";
+		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
 		// println "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
@@ -429,7 +431,9 @@ public class IndexerListenerService
 	{
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		RESTClient restClient = new RESTClient( "http://localhost:8080" )
+		String stanbolServerUrl = CH.config.urls.stanbol.endpoint;
+		println "using stanbolServerUrl: ${stanbolServerUrl}";
+		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
 		// println "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
@@ -550,7 +554,9 @@ public class IndexerListenerService
 	{
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		RESTClient restClient = new RESTClient( "http://localhost:8080" )
+		String stanbolServerUrl = CH.config.urls.stanbol.endpoint;
+		println "using stanbolServerUrl: ${stanbolServerUrl}";
+		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
 		// println "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',

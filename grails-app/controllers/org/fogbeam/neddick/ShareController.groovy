@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.mail.MailSender
 import org.springframework.mail.SimpleMailMessage
 
+import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH;
 
 class ShareController 
 {
@@ -158,9 +159,12 @@ class ShareController
 				newEntry.setTarget( target );
 				
 				
+				String quoddyActivityStreamsUrl = CH.config.urls.quoddy.activitystreams.endpoint;
+				println "using quoddyActivityStreamsUrl: ${quoddyActivityStreamsUrl}";
+				
 				ResponseEntity<String> response =
 					restTemplate.postForEntity(
-							"http://localhost:8180/quoddy/api/activitystreamentry",
+							quoddyActivityStreamsUrl,
 							newEntry, String.class );
 				
 				String responseText = response.getBody();

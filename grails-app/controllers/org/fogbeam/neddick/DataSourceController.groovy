@@ -5,17 +5,27 @@ import org.scribe.builder.api.TwitterApi
 import org.scribe.model.Token
 import org.scribe.model.Verifier
 import org.scribe.oauth.OAuthService
+import org.springframework.beans.factory.InitializingBean
 
-class DataSourceController
+import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH;
+
+class DataSourceController implements InitializingBean
 {	
-	OAuthService service = new ServiceBuilder()
-	.provider(TwitterApi.class)
-	// .apiKey("bwUbU865CNQtt2Xdb62FpQ")
-	// .apiSecret("opkW7kQEqJP1YMHE0xYXhxXOD5XOfkVeaw2hTQPY")
-	.apiKey( "orGS7crqDqjS76B5RS2w" )
-	.apiSecret( "GdtSdh6YzrlqusCOJaFUDvelJtZHzUTELi0pn9DHqA" )
-	.callback( "http://localhost:8200/neddick/dataSource/finishTwitter" )
-	.build();
+	OAuthService service;
+	
+	public void afterPropertiesSet() throws Exception
+	{
+		String twitterDatasourceCallbackUrl = CH.config.urls.twitter.datasource.callback;
+		println "using twitterDatasourceCallbackUrl: ${twitterDatasourceCallbackUrl}";
+		service = new ServiceBuilder()
+		.provider(TwitterApi.SSL.class )
+		// .apiKey("bwUbU865CNQtt2Xdb62FpQ")
+		// .apiSecret("opkW7kQEqJP1YMHE0xYXhxXOD5XOfkVeaw2hTQPY")
+		.apiKey( "orGS7crqDqjS76B5RS2w" )
+		.apiSecret( "GdtSdh6YzrlqusCOJaFUDvelJtZHzUTELi0pn9DHqA" )
+		.callback( twitterDatasourceCallbackUrl )
+		.build();
+	} 
 	
 	
 	def index =
