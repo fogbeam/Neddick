@@ -93,7 +93,7 @@ class SparqlController
 		println "Opening TDB triplestore at: ${directory}";
 		Dataset dataset = TDBFactory.createDataset(directory) ;
 		
-		dataset.begin(ReadWrite.READ) ;
+		dataset.begin(ReadWrite.READ);
 
 		// Get model inside the transaction
 		Model tdbModel = dataset.getDefaultModel() ;

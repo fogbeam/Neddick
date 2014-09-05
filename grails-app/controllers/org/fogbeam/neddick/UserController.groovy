@@ -7,6 +7,9 @@ class UserController {
     def entryService;
     def tagService;
     
+	
+	
+	
     def registerUser = { UserRegistrationCommand urc -> 
     	if( urc.hasErrors() )
     	{
