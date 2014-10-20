@@ -1,8 +1,28 @@
 package org.fogbeam.neddick
 
+import org.apache.jena.riot.Lang
+import org.apache.jena.riot.RDFDataMgr
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.fogbeam.neddick.controller.mixins.SidebarPopulatorMixin
 import org.fogbeam.neddick.filters.BaseFilter
+
+import com.hp.hpl.jena.query.Dataset
+import com.hp.hpl.jena.query.DatasetFactory
+import com.hp.hpl.jena.query.Query
+import com.hp.hpl.jena.query.QueryExecution
+import com.hp.hpl.jena.query.QueryExecutionFactory
+import com.hp.hpl.jena.query.QueryFactory
+import com.hp.hpl.jena.query.QuerySolution
+import com.hp.hpl.jena.query.ResultSet
+import com.hp.hpl.jena.rdf.model.InfModel
+import com.hp.hpl.jena.rdf.model.Literal
+import com.hp.hpl.jena.rdf.model.Model
+import com.hp.hpl.jena.rdf.model.ModelFactory
+import com.hp.hpl.jena.rdf.model.Statement
+import com.hp.hpl.jena.rdf.model.StmtIterator
+import com.hp.hpl.jena.reasoner.Reasoner
+import com.hp.hpl.jena.reasoner.ReasonerRegistry
+import com.hp.hpl.jena.vocabulary.ReasonerVocabulary
 
 
 @Mixin(SidebarPopulatorMixin)
@@ -15,6 +35,7 @@ class HomeController {
 	def siteConfigService;	
 	def filterService;
 	def tagService;
+	def restTemplate;
 	
 	int itemsPerPage = -1;
 	
@@ -222,12 +243,51 @@ class HomeController {
 			
 			println "returning ${entries.size()} entries";
 			
+			List quoddyUserNames = new ArrayList();
+
+			String quoddyFoafUrl = ConfigurationHolder.config.urls.quoddy.foaf.endpoint;
+			String foafResponse = restTemplate.getForObject( quoddyFoafUrl, String.class );
+			// println "foafResponse:\n\n${foafResponse}";
+			Dataset dataset = DatasetFactory.createMem();
+			Model foafModel = dataset.getDefaultModel();
+			StringReader foafReader = new StringReader(foafResponse);
+			RDFDataMgr.read(foafModel, foafReader, "", Lang.RDFXML );
+			
+			
+			Reasoner reasoner = ReasonerRegistry.getRDFSReasoner();
+			reasoner.setParameter(ReasonerVocabulary.PROPsetRDFSLevel,
+					ReasonerVocabulary.RDFS_DEFAULT);
+			
+			InfModel infmodel = ModelFactory.createInfModel(reasoner, foafModel );
+			
+			/* Do a SPARQL Query over the data in the model */
+			String queryString = "SELECT ?accountName " + 
+			" WHERE { ?x  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> . " +  
+			"        ?x <http://xmlns.com/foaf/0.1/account> ?account . " + 
+			"         ?account <http://xmlns.com/foaf/0.1/accountName> ?accountName . }" ;
+	
+			/* Now create and execute the query using a Query object */
+			Query query = QueryFactory.create(queryString) ;
+			QueryExecution qexec = QueryExecutionFactory.create(query, infmodel) ;
+			
+			ResultSet rs = qexec.execSelect();
+			
+			while( rs.hasNext())
+			{
+				QuerySolution soln = rs.next();
+				Literal l = soln.getLiteral( "accountName" );
+				String accountName = l.getString();
+				quoddyUserNames.add( accountName );
+			}
+			
+			
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
 			def model = [allEntries: sortedEntries,
 						 channelName: channelName, currentPageNumber: pageNumber, 
 						 availablePages: availablePages,
 						 theChannel:theChannel,
-						 requestType:"index"];
+						 requestType:"index",
+						 quoddyUserNames:quoddyUserNames];
 	
 			model.putAll( sidebarCollections );		 
 					 

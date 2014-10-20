@@ -280,8 +280,11 @@
 							<label id="forShareTargetXmpp" name="forShareTargetXmpp" style="display:none;color:red;" for="shareTargetXmpp">Xmpp:</label>
 								<input style="display:none;" name="shareTargetXmpp" id="shareTargetXmpp" type="text" value="" />
 							<label id="forShareTargetQuoddy" name="forShareTargetQuoddy" style="display:none;color:red;" for="shareTargetQuoddy">Quoddy:</label>
-								<input style="display:none;" name="shareTargetQuoddy" id="shareTargetQuoddy" type="text" value="" />
-						
+								
+								<!-- put the list of available Quoddy usernames here... -->
+								
+								<g:select style="display:none;" name="shareTargetQuoddy" from="${quoddyUserNames}" value="---"/>
+								
 						</div>
 						
 						<!--  text of an (optional) comment -->
