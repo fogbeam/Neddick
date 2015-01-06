@@ -246,40 +246,44 @@ class HomeController {
 			List quoddyUserNames = new ArrayList();
 
 			String quoddyFoafUrl = ConfigurationHolder.config.urls.quoddy.foaf.endpoint;
-			String foafResponse = restTemplate.getForObject( quoddyFoafUrl, String.class );
-			// println "foafResponse:\n\n${foafResponse}";
-			Dataset dataset = DatasetFactory.createMem();
-			Model foafModel = dataset.getDefaultModel();
-			StringReader foafReader = new StringReader(foafResponse);
-			RDFDataMgr.read(foafModel, foafReader, "", Lang.RDFXML );
 			
-			
-			Reasoner reasoner = ReasonerRegistry.getRDFSReasoner();
-			reasoner.setParameter(ReasonerVocabulary.PROPsetRDFSLevel,
-					ReasonerVocabulary.RDFS_DEFAULT);
-			
-			InfModel infmodel = ModelFactory.createInfModel(reasoner, foafModel );
-			
-			/* Do a SPARQL Query over the data in the model */
-			String queryString = "SELECT ?accountName " + 
-			" WHERE { ?x  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> . " +  
-			"        ?x <http://xmlns.com/foaf/0.1/account> ?account . " + 
-			"         ?account <http://xmlns.com/foaf/0.1/accountName> ?accountName . }" ;
-	
-			/* Now create and execute the query using a Query object */
-			Query query = QueryFactory.create(queryString) ;
-			QueryExecution qexec = QueryExecutionFactory.create(query, infmodel) ;
-			
-			ResultSet rs = qexec.execSelect();
-			
-			while( rs.hasNext())
+			if( quoddyFoafUrl )
 			{
-				QuerySolution soln = rs.next();
-				Literal l = soln.getLiteral( "accountName" );
-				String accountName = l.getString();
-				quoddyUserNames.add( accountName );
-			}
+				String foafResponse = restTemplate.getForObject( quoddyFoafUrl, String.class );
+				// println "foafResponse:\n\n${foafResponse}";
+				Dataset dataset = DatasetFactory.createMem();
+				Model foafModel = dataset.getDefaultModel();
+				StringReader foafReader = new StringReader(foafResponse);
+				RDFDataMgr.read(foafModel, foafReader, "", Lang.RDFXML );
+				
+				
+				Reasoner reasoner = ReasonerRegistry.getRDFSReasoner();
+				reasoner.setParameter(ReasonerVocabulary.PROPsetRDFSLevel,
+						ReasonerVocabulary.RDFS_DEFAULT);
+				
+				InfModel infmodel = ModelFactory.createInfModel(reasoner, foafModel );
+				
+				/* Do a SPARQL Query over the data in the model */
+				String queryString = "SELECT ?accountName " + 
+				" WHERE { ?x  <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> . " +  
+				"        ?x <http://xmlns.com/foaf/0.1/account> ?account . " + 
+				"         ?account <http://xmlns.com/foaf/0.1/accountName> ?accountName . }" ;
+		
+				/* Now create and execute the query using a Query object */
+				Query query = QueryFactory.create(queryString) ;
+				QueryExecution qexec = QueryExecutionFactory.create(query, infmodel) ;
+				
+				ResultSet rs = qexec.execSelect();
+				
+				while( rs.hasNext())
+				{
+					QuerySolution soln = rs.next();
+					Literal l = soln.getLiteral( "accountName" );
+					String accountName = l.getString();
+					quoddyUserNames.add( accountName );
+				}
 			
+			}
 			
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
 			def model = [allEntries: sortedEntries,
