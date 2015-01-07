@@ -245,10 +245,12 @@ class HomeController {
 			
 			List quoddyUserNames = new ArrayList();
 
-			String quoddyFoafUrl = ConfigurationHolder.config.urls.quoddy.foaf.endpoint;
+			Object quoddyFoafUrl = ConfigurationHolder.config.urls.quoddy.foaf.endpoint;
 			
 			if( quoddyFoafUrl )
 			{
+				println "quoddyFoafUrl: ${quoddyFoafUrl}";
+				
 				String foafResponse = restTemplate.getForObject( quoddyFoafUrl, String.class );
 				// println "foafResponse:\n\n${foafResponse}";
 				Dataset dataset = DatasetFactory.createMem();
