@@ -74,7 +74,34 @@ class EntryService {
 		}
 
 		// println "committing transaction";
-		sessionFactory.currentSession.connection().commit()
+		// sessionFactory.currentSession.connection().commit()
+		
+		return success;
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	public boolean saveEntry( final Entry entry, final Channel channel )
+	{
+		// println "#############################\nSaving Entry";
+		boolean success = false;
+
+		
+		if( ! ( success = entry.save(validate:false,flush:true)) )
+		{
+			println( "Updating entry: ${entry.id} FAILED");
+			entry.errors.allErrors.each { println it };
+		}
+
+		entry.addToChannels( channel );
+
+		if( ! ( success = entry.save(validate:false,flush:true)) )
+		{
+			println( "Updating entry: ${entry.id} FAILED");
+			entry.errors.allErrors.each { println it };
+		}
+				
+		// println "committing transaction";
+		// sessionFactory.currentSession.connection().commit()
 		
 		return success;
 	}

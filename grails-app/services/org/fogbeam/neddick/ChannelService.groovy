@@ -247,11 +247,12 @@ class ChannelService {
 			
 						Entry newEntry = new WebpageEntry( url: linkUrl, title: linkTitle, submitter: anonymous, theDataSource:rssFeed );
 						
-						boolean success = entryService.saveEntry( newEntry );
+						boolean success = entryService.saveEntry( newEntry, channel );
 					
 						if( success )
 						{
-							newEntry.addToChannels( channel );
+							// TODO: could *this* be what's causing our StaleObjectState problem?
+							// newEntry.addToChannels( channel );
 							
 							good++;
 							log.debug( "saved new Entry with id: ${newEntry.id}" );
