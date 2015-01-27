@@ -35,7 +35,7 @@
 							<option value="AndCriteria">All Of The Following Criteria</option>
 							<option value="OrCriteria">Any Of The Following Criteria</option>
 							-->
-							
+							<option value="NewContentTriggerCriteria">Any New Content</option>
 							<option value="BodyKeywordTriggerCriteria">Body Contains Keyword </option>
 							<option value="TagTriggerCriteria">Entry Has Tag </option>
 							<option value="AboveScoreTriggerCriteria">Score Is Above</option>

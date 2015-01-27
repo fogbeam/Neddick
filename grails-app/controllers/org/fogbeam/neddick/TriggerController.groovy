@@ -10,6 +10,7 @@ import org.fogbeam.neddick.triggers.actions.XmppTriggerAction
 import org.fogbeam.neddick.triggers.criteria.AboveScoreTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.BaseTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.BodyKeywordTriggerCriteria
+import org.fogbeam.neddick.triggers.criteria.NewContentTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TagTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TitleKeywordTriggerCriteria
 
@@ -117,6 +118,10 @@ class TriggerController
 				criteria = new TitleKeywordTriggerCriteria();
 				criteria.titleKeyword = params.get( "criteriaValue-1");
 				
+			case "NewContentTriggerCriteria":
+				println "creating NewContentTriggerCriteria";
+				criteria = new NewContentTriggerCriteria();
+				
 				break;
 				
 			default:
@@ -128,15 +133,6 @@ class TriggerController
 		// attach the criteria to the trigger!
 		newTrigger.addToTriggerCriteria( criteria );
 		
-		/*
-					<option value="EmailAction">Send Entry By Email</option>
-					<option value="XmppAction">Send Entry By XMPP</option>
-					<option value="QuoddyAction">Share Entry To Quoddy</option>
-					<option value="WorkflowAction">Trigger Workflow</option>
-					<option value="HttpAction">POST Entry To HTTP Endpoint</option>
-					<option value="JMSAction">Send Entry By JMS</option>
-					<option value="ScriptAction">Run Script</option>
-		 */
 		
 		
 		/* create trigger action(s) */
@@ -256,6 +252,11 @@ class TriggerController
 				newCriteria = new TitleKeywordTriggerCriteria();
 				newCriteria.titleKeyword = params.get( "criteriaValue-1");
 				
+				break;
+				
+			case "NewContentTriggerCriteria":
+				println "creating NewContentTriggerCriteria";
+				newCriteria = new NewContentTriggerCriteria();
 				break;
 				
 			default:

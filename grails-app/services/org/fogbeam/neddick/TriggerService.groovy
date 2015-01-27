@@ -7,6 +7,7 @@ import org.fogbeam.neddick.triggers.actions.BaseTriggerAction
 import org.fogbeam.neddick.triggers.criteria.AboveScoreTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.BaseTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.BodyKeywordTriggerCriteria
+import org.fogbeam.neddick.triggers.criteria.NewContentTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TagTriggerCriteria
 import org.fogbeam.neddick.triggers.criteria.TitleKeywordTriggerCriteria
 
@@ -300,6 +301,49 @@ class TriggerService
 				}
 			}
 		}
+		
+		
+		// "NewContentTriggerCriteria" which fires the trigger on any
+		// new content
+		// NOTE: we should possibly disallow creating these as global triggers, otherwise
+		// this will fire for *EVERY SINGLE PIECE OF CONTENT* in the entire system.  Not sure
+		// that would ever be desirable. 
+		List<NewContentTriggerCriteria> newContentTriggerCriteria = NewContentTriggerCriteria.findAll();
+		
+		if( newContentTriggerCriteria != null )
+		{
+			
+			for( NewContentTriggerCriteria triggerCrit : newContentTriggerCriteria )
+			{
+				// get the associated Trigger
+				BaseTrigger trigger = triggerCrit.trigger;
+				if( trigger instanceof ChannelTrigger )
+				{
+					println "this is a ChannelTrigger for Channel: ${trigger.channel.name}";
+					Entry tempEntry = entryService.findByUuidAndChannel( entryUuid, trigger.channel );
+					if(  tempEntry == null )
+					{
+						println "but the channel doesn't match, skipping...";
+						continue;
+					}
+					else
+					{
+						println "and the channel does match, proceeding...";
+					}
+				}
+				else
+				{
+					println "this is not a Channel Trigger";
+				}
+				
+	
+				println "firing all actions...";
+				// and fire it's actions
+				trigger.fireAllActions( entryUuid );
+			}
+		}
+		
+		
 	}
 
 	public void deleteTrigger( final Long id )
