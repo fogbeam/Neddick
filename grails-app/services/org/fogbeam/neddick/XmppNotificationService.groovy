@@ -18,6 +18,8 @@ class XmppNotificationService {
                 ConfigurationHolder.config.chat.host,
                 ConfigurationHolder.config.chat.port,
                 ConfigurationHolder.config.chat.serviceName)
+		
+		cc.setSASLAuthenticationEnabled( false );
         XMPPConnection connection = new XMPPConnection(cc)
 
 
