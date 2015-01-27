@@ -60,7 +60,7 @@ import com.hp.hpl.jena.vocabulary.RDF
 
 import de.l3s.boilerpipe.document.TextBlock
 import de.l3s.boilerpipe.document.TextDocument
-
+import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
 public class IndexerListenerService 
 {
@@ -308,7 +308,7 @@ public class IndexerListenerService
 	private void doSemanticEnhancement( TwitterEntry entry, def msg )
 	{
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = CH.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
 		println "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
@@ -431,7 +431,7 @@ public class IndexerListenerService
 	{
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = CH.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
 		println "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
@@ -554,7 +554,7 @@ public class IndexerListenerService
 	{
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = CH.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
 		println "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
@@ -967,7 +967,7 @@ public class IndexerListenerService
 				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 				
 				
-				Thread.sleep( 10000 );
+				Thread.sleep( 30000 );
 				
 				// requery the object from the db
 				

@@ -21,6 +21,7 @@ import org.scribe.model.Response
 import org.scribe.model.Token
 import org.scribe.model.Verb
 import org.scribe.oauth.OAuthService
+import org.springframework.test.annotation.NotTransactional
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
@@ -140,7 +141,6 @@ class ChannelService {
 	
 	
 	// Explicitly NOT transactional, but the nested call to entryService.save() should be
-	@Transactional(propagation=Propagation.REQUIRED)
 	public void updateFromDatasource( Channel channel )
 	{
 	
@@ -171,7 +171,7 @@ class ChannelService {
 		}
 	}
 
-	
+	// Explicitly NOT transactional, but the nested call to entryService.save() should be
 	private void updateFromDataSource( RssFeed rssFeed, Channel channel, User anonymous )
 	{
 		// lookup the feed, and get the FeedUrl
@@ -260,7 +260,7 @@ class ChannelService {
 			
 							log.debug( "sending new entry message to JMS entryQueue");
 							// send a JMS message to our entryQueue
-							sendJMSMessage("entryQueue", newEntryMessage );
+							// sendJMSMessage("entryQueue", newEntryMessage );
 					
 							log.debug( "sending new entry message to JMS searchQueue" );
 							// send a JMS message to our searchQueue
@@ -294,7 +294,8 @@ class ChannelService {
 			}
 		}
 	}
-
+	
+	// Explicitly NOT transactional, but the nested call to entryService.save() should be
 	private void updateFromDataSource( TwitterAccount twitterAccount, Channel channel, User anonymous)
 	{
 		
@@ -484,6 +485,7 @@ class ChannelService {
 		
 	}
 	
+	// Explicitly NOT transactional, but the nested call to entryService.save() should be
 	private void updateFromDataSource( IMAPAccount imapAccount, Channel channel, User anonymous )
 	{
 		println "Updating Channel from IMAPAccount";
@@ -636,7 +638,7 @@ class ChannelService {
 	}		
 	
 	
-	@Transactional(propagation=Propagation.REQUIRED)
+	@Transactional(readOnly=true)
 	public List<Channel> findChannelsWithDatasource()
 	{
 		List<Channel> channels = new ArrayList<Channel>();
