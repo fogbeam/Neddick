@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Neddick by fogbeam</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Neddick</h1>
+          <h2>Neddick: Open Source Information Discovery Platform</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/fogbeam/Neddick/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/fogbeam/Neddick/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/fogbeam/Neddick" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
+<a id="neddick" class="anchor" href="#neddick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Neddick</h1>
+
+<p>Neddick is an Open Source Information Discovery Platform, which shares an approach to information discovery with 
+consumer facing websites like <a href="http://www.reddit.com">Reddit</a>, <a href="http://www.digg.com">Digg</a>, and other aggregator 
+applications.  Neddick makes up one component of the <a href="http://code.google.com/p/fogcutter">Fogcutter Suite</a> and is 
+based on Groovy &amp; Grails.   </p>
+
+<p>Neddick could be termed "Reddit for the Enterprise" but that would be oversimplifying a bit.  Neddick 
+is intended mainly for organizational use and therefore has features that Reddit lacks, but, in turn, 
+lacks certain things that Reddit has.  But Reddit was absolutely our inspiration for Neddick and you'll 
+notice the commonality almost immediately.</p>
+
+<h2>
+<a id="why-neddick" class="anchor" href="#why-neddick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why "Neddick?"</h2>
+
+<p>We like lighthouses, so Neddick is named after the famous Cape Neddick "Nubble" Lighthouse.</p>
+
+<h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<p>Relative to Reddit, Neddick adds features like:</p>
+
+<ul>
+<li>Channels can subscribe to RSS feeds - any "channel" in Neddick (roughly equivalent to a Sub-Reddit on Reddit) can link to 0 or more RSS feeds, and the channel will automatically be populated from those feeds on a scheduled basis.</li>
+<li>Tags - Neddick supports the application of arbitrary tags to entries, and provides each user a view of the tags they have used, to enable rapid access to specific content.</li>
+<li>Channel Filters - Filters allow you to filter your view of a channel based on criteria including: body keyword, title keyword, score, and tags.</li>
+<li>More powerful "sharing" capability - Neddick supports sharing content by email, XMPP, and HTTP POST.</li>
+<li>ActivityStrea.ms support - Neddick can HTTP POST entries to remote endpoints in <a href="http://www.activitystrea.ms">ActivityStrea.ms format</a>.  This is how we built our integration with <a href="http://code.google.com/p/quoddy">Quoddy</a> - the Enterprise Social Network component of the Fogcutter Suite.</li>
+<li>Channel Triggers - Triggers allow a user to specify actions to occur when Entry related events occur which match criteria which may include:  A new Entry is posted which matches a body keyword or title keyword, an Entry is voted up past a specified score threshold, or a specified tag is applied to an Entry.<br>
+</li>
+<li>Trigger actions include sharing via email, XMPP and HTTP post, and in future releases will be extend to include sending JMS messages, launching workflows via BPM integration, and running user provided scripts.</li>
+</ul>
+
+<p>To see Neddick in action, visit <a href="http://demo.fogbeam.org:8080/neddick/">the demo site</a>. (login: testuser1/secret)  </p>
+
+<h2>
+<a id="building--deploying-neddick" class="anchor" href="#building--deploying-neddick" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building &amp; Deploying Neddick</h2>
+
+<p>Instructions for deploying the latest release can be found at:</p>
+
+<p><a href="https://github.com/fogbeam/Neddick/releases/tag/v0.0.0-tpr4">https://github.com/fogbeam/Neddick/releases/tag/v0.0.0-tpr4</a></p>
+
+<p>Once the app is up and running, you can login using testuser1/secret  as the username/password pair.  </p>
+
+<h2>
+<a id="roadmap" class="anchor" href="#roadmap" aria-hidden="true"><span class="octicon octicon-link"></span></a>Roadmap</h2>
+
+<p>See the <a href="http://code.google.com/p/neddick/wiki/Roadmap">Roadmap wiki page</a>.</p>
+
+<h2>
+<a id="commercial-support" class="anchor" href="#commercial-support" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commercial Support</h2>
+
+<p>Commercial support is available from <a href="http://www.fogbeam.com">Fogbeam Labs</a>.  For more information on
+Neddick Enterprise, please visit <a href="http://www.fogbeam.com/neddick_enterprise.html">http://www.fogbeam.com/neddick_enterprise.html</a>.</p>
+        </section>
+
+        <footer>
+          Neddick is maintained by <a href="https://github.com/fogbeam">fogbeam</a><br>
+          This page was generated by <a href="https://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+                  <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-2911364-9");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+      </div>
+    </div>
+  </body>
+</html>
