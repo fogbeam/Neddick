@@ -11,6 +11,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH;
 
 class DataSourceController implements InitializingBean
 {	
+
 	OAuthService service;
 	
 	public void afterPropertiesSet() throws Exception

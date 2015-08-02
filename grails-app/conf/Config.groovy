@@ -82,7 +82,7 @@ grails.enable.native2ascii = true
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
-        grails.serverURL = "http://localhost:8080/${appName}"
+        grails.serverURL = "http://demo.fogbeam.org:8080/${appName}"
     }
 }
 
