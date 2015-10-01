@@ -23,6 +23,7 @@ class Entry
 	static constraints =
 	{
 		enhancementJSON(nullable:true);
+		theDataSource(nullable:true);
 	}
     
     String uuid;
