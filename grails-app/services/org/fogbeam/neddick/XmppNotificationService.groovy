@@ -8,17 +8,25 @@ import org.jivesoftware.smack.packet.Message
 
 class XmppNotificationService {
 
-      def grailsApplication;
+    def grailsApplication;
 
     boolean transactional = false
 
     def sendChat(String to, String msg) {
 
         log.debug( "Sending notification to: [${to}] )");
-        ConnectionConfiguration cc = new ConnectionConfiguration(
-                grailsApplication.config.chat.host,
-                grailsApplication.config.chat.port,
-                grailsApplication.config.chat.serviceName)
+
+		String chatHost = grailsApplication.config.chat.host;
+		String chatPort = grailsApplication.config.chat.port;
+		String chatServiceName = grailsApplication.config.chat.serviceName;
+		        
+		log.debug( "chat configuration. Host: ${chatHost}, port: ${chatPort}, serviceName: ${chatServiceName}.");
+		
+		
+		ConnectionConfiguration cc = new ConnectionConfiguration(
+                chatHost,
+                chatPort,
+                chatServiceName)
 		
 		cc.setSASLAuthenticationEnabled( false );
         XMPPConnection connection = new XMPPConnection(cc)
@@ -27,7 +35,8 @@ class XmppNotificationService {
         try {
 
             connection.connect()
-            connection.login(grailsApplication.config.chat.username,
+            String chatUserName = grailsApplication.config.chat.username; 
+			connection.login( chatUserName,
                     grailsApplication.config.chat.password)
 
             def chatmanager = connection.getChatManager()

@@ -89,6 +89,7 @@ class ShareController
 			{
 				try
 				{
+					log.debug( "Trying to send xmpp message to address: " + address );
 					xmppNotificationService.sendChat( address, "\n" + messageSubject + "\n" + messageText );
 				}
 				catch( Exception e )
