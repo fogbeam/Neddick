@@ -1,6 +1,5 @@
 package org.fogbeam.neddick
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.jivesoftware.smack.Chat
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.Roster
@@ -9,15 +8,17 @@ import org.jivesoftware.smack.packet.Message
 
 class XmppNotificationService {
 
+      def grailsApplication;
+
     boolean transactional = false
 
     def sendChat(String to, String msg) {
 
         log.debug( "Sending notification to: [${to}] )");
         ConnectionConfiguration cc = new ConnectionConfiguration(
-                ConfigurationHolder.config.chat.host,
-                ConfigurationHolder.config.chat.port,
-                ConfigurationHolder.config.chat.serviceName)
+                grailsApplication.config.chat.host,
+                grailsApplication.config.chat.port,
+                grailsApplication.config.chat.serviceName)
 		
 		cc.setSASLAuthenticationEnabled( false );
         XMPPConnection connection = new XMPPConnection(cc)
@@ -26,8 +27,8 @@ class XmppNotificationService {
         try {
 
             connection.connect()
-            connection.login(ConfigurationHolder.config.chat.username,
-                    ConfigurationHolder.config.chat.password)
+            connection.login(grailsApplication.config.chat.username,
+                    grailsApplication.config.chat.password)
 
             def chatmanager = connection.getChatManager()
 

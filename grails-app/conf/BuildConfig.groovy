@@ -1,3 +1,5 @@
+grails.project.dependency.resolver = "maven"
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {
@@ -25,23 +27,45 @@ grails.project.dependency.resolution = {
 
  		// runtime 'mysql:mysql-connector-java:5.1.5'
 	 	
-	 	compile "org.grails:grails-webflow:$grailsVersion"
+	 	// compile "org.grails:grails-webflow:$grailsVersion"
 		compile ("org.apache.tika:tika-core:1.4")
 		compile ("org.apache.tika:tika-parsers:1.4") {excludes "asm-debug-all"}
 		compile "antlr:antlr:2.7.7"
+
 	}
  
  plugins {
-	 
-	 compile ':webflow:2.0.0', {
-		 exclude 'grails-webflow'
-	 	}
-	 
-	 runtime( ":shiro:1.1.4" ){
-		 exclude 'quartz';
-	 	}
 
-	 compile ":jaxrs:0.8"
+ 	 runtime ':webflow:2.1.0'
+
+          runtime ":shiro-cas:0.5.1"
+          runtime( ":shiro:1.2.1" ) {
+                   excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
+          }
+
+        // plugins for the build system only
+        build ":tomcat:7.0.55.2" // or ":tomcat:8.0.20"
+
+        // plugins for the compile step
+        compile ":scaffolding:2.1.2"
+        compile ':cache:1.1.8'
+        compile ":asset-pipeline:2.1.5"
+
+        // plugins needed at runtime but not for compilation
+        runtime ":hibernate4:4.3.8.1" // or ":hibernate:3.6.10.18"
+        runtime ":database-migration:1.4.0"
+        runtime ":jquery:1.11.1"
+
+
+           runtime( ":jaxrs:0.11" )
+           {
+//                exclude group:"org.restlet.gae", name:'org.restlet.ext.json'
+//               exclude group:"org.restlet.gae", name:'org.restlet.ext.servlet'
+//             exclude group:"org.restlet.gae", name:'org.restlet'
+           }
+
+          runtime ":quartz:1.0.2"
+
 
    }
  

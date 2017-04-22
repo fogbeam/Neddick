@@ -21,7 +21,6 @@ import org.scribe.model.Response
 import org.scribe.model.Token
 import org.scribe.model.Verb
 import org.scribe.oauth.OAuthService
-import org.springframework.test.annotation.NotTransactional
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 

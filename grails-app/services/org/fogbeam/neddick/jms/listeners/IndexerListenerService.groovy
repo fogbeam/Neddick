@@ -60,11 +60,11 @@ import com.hp.hpl.jena.vocabulary.RDF
 
 import de.l3s.boilerpipe.document.TextBlock
 import de.l3s.boilerpipe.document.TextDocument
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 
 public class IndexerListenerService 
 {
 
+	def grailsApplication;
 	def siteConfigService;
 	def entryService;
 
@@ -308,7 +308,7 @@ public class IndexerListenerService
 	private void doSemanticEnhancement( TwitterEntry entry, def msg )
 	{
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = grailsApplication.config.urls.stanbol.endpoint;
 		println "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
@@ -431,7 +431,7 @@ public class IndexerListenerService
 	{
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = grailsApplication.config.urls.stanbol.endpoint;
 		println "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
@@ -554,7 +554,7 @@ public class IndexerListenerService
 	{
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = grailsApplication.config.urls.stanbol.endpoint;
 		println "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	

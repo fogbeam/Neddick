@@ -10,16 +10,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.mail.MailSender
 import org.springframework.mail.SimpleMailMessage
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH;
-
 class ShareController 
 {
 	MailSender mailSender;
 	SimpleMailMessage mailMessage;	
 	def xmppNotificationService;
 	def restTemplate;
-	
-	
+	def grailsApplication;
+		
 	def index = {
 		
 		log.debug( "user: ${session.user?.userId} sharing entry with id: ${params.entryId}" );
@@ -159,7 +157,7 @@ class ShareController
 				newEntry.setTarget( target );
 				
 				
-				String quoddyActivityStreamsUrl = CH.config.urls.quoddy.activitystreams.endpoint;
+				String quoddyActivityStreamsUrl = grailsApplication.config.urls.quoddy.activitystreams.endpoint;
 				println "using quoddyActivityStreamsUrl: ${quoddyActivityStreamsUrl}";
 				
 				ResponseEntity<String> response =

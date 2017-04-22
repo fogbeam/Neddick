@@ -7,16 +7,15 @@ import org.scribe.model.Verifier
 import org.scribe.oauth.OAuthService
 import org.springframework.beans.factory.InitializingBean
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH;
 
 class DataSourceController implements InitializingBean
 {	
-
+	def grailsApplication;
 	OAuthService service;
 	
 	public void afterPropertiesSet() throws Exception
 	{
-		String twitterDatasourceCallbackUrl = CH.config.urls.twitter.datasource.callback;
+		String twitterDatasourceCallbackUrl = grailsApplication.config.urls.twitter.datasource.callback;
 		println "using twitterDatasourceCallbackUrl: ${twitterDatasourceCallbackUrl}";
 		service = new ServiceBuilder()
 		.provider(TwitterApi.SSL.class )
