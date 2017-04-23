@@ -1,5 +1,6 @@
 package org.fogbeam.neddick
 
+import org.codehaus.groovy.grails.commons.ConfigurationHolder 
 
 class EntryController {
 
@@ -9,7 +10,6 @@ class EntryController {
 	def channelService;
 	def recommenderService;
 	def siteConfigService;
-	def grailsApplication;
 	
 	def scaffold = true;
 	
@@ -23,7 +23,7 @@ class EntryController {
     	log.debug( "channelName submitted as: ${channelName}" );
     	if( channelName == null || channelName.isEmpty()) 
     	{  		
-    		channelName = grailsApplication.config.channel.defaultChannel;
+    		channelName = ConfigurationHolder.config.channel.defaultChannel;
     		log.debug( "defaulting channelName to: ${channelName}" );
     	}
     	
@@ -210,7 +210,7 @@ class EntryController {
     	log.debug( "channelName submitted as: ${channelName}" );
     	if( channelName == null || channelName.isEmpty()) 
     	{  		
-    		channelName = grailsApplication.config.channel.defaultChannel;
+    		channelName = ConfigurationHolder.config.channel.defaultChannel;
     		log.debug( "defaulting channelName to: ${channelName}" );
     	}
     	

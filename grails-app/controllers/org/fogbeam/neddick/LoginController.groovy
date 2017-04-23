@@ -4,8 +4,7 @@ package org.fogbeam.neddick;
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.UsernamePasswordToken
-// import org.apache.shiro.grails.ConfigUtils
-import org.apache.shiro.cas.grails.ShiroCasPrincipalManager
+import org.apache.shiro.grails.ConfigUtils
 import org.apache.shiro.web.util.WebUtils
 
 class LoginController {
@@ -88,8 +87,7 @@ class LoginController {
 	   }
 			   
    }
-
-   // NOTE: this can't compile, right? Not without the import for ConfigUtils?   
+   
    def logout =
    {
 	   session.user = null;

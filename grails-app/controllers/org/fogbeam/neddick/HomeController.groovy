@@ -2,6 +2,7 @@ package org.fogbeam.neddick
 
 import org.apache.jena.riot.Lang
 import org.apache.jena.riot.RDFDataMgr
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.fogbeam.neddick.controller.mixins.SidebarPopulatorMixin
 import org.fogbeam.neddick.filters.BaseFilter
 
@@ -27,7 +28,6 @@ import com.hp.hpl.jena.vocabulary.ReasonerVocabulary
 @Mixin(SidebarPopulatorMixin)
 class HomeController {
 
-      def grailsApplication;
 	def userService;
 	def entryService;
 	def entryCacheService;
@@ -101,7 +101,7 @@ class HomeController {
 		String channelName = params.channelName;
 		if( channelName == null )
 		{	
-			channelName = grailsApplication.config.channel.defaultChannel;
+			channelName = ConfigurationHolder.config.channel.defaultChannel;
 			defaultChannel = true;
 		}
 		
@@ -245,7 +245,7 @@ class HomeController {
 			
 			List quoddyUserNames = new ArrayList();
 
-			Object quoddyFoafUrl = grailsApplication.config.urls.quoddy.foaf.endpoint;
+			Object quoddyFoafUrl = ConfigurationHolder.config.urls.quoddy.foaf.endpoint;
 			
 			if( quoddyFoafUrl )
 			{
@@ -343,7 +343,7 @@ class HomeController {
     		 * aggregate the Entries associated with those channels
     		 */
     		
-    		channelName = grailsApplication.config.channel.defaultChannel;
+    		channelName = ConfigurationHolder.config.channel.defaultChannel;
     		defaultChannel = true;
     	}
     	
@@ -522,7 +522,7 @@ class HomeController {
     		 * aggregate the Entries associated with those channels
     		 */
     		
-    		channelName = grailsApplication.config.channel.defaultChannel;
+    		channelName = ConfigurationHolder.config.channel.defaultChannel;
     		defaultChannel = true;
     	}
     	
@@ -700,7 +700,7 @@ class HomeController {
     		 * aggregate the Entries associated with those channels
     		 */
     		
-    		channelName = grailsApplication.config.channel.defaultChannel;
+    		channelName = ConfigurationHolder.config.channel.defaultChannel;
     		defaultChannel = true;
     	}
     	
@@ -879,7 +879,7 @@ class HomeController {
 			 * aggregate the Entries associated with those channels
 			 */
 			
-			channelName = grailsApplication.config.channel.defaultChannel;
+			channelName = ConfigurationHolder.config.channel.defaultChannel;
 			defaultChannel = true;
 		}
 		
@@ -1237,7 +1237,7 @@ class HomeController {
     	String channelName = params.channelName;
     	if( channelName == null ) 
     	{
-    		channelName = grailsApplication.config.channel.defaultChannel;
+    		channelName = ConfigurationHolder.config.channel.defaultChannel;
     	}
     	
     	Channel theChannel = channelService.findByName( channelName );    

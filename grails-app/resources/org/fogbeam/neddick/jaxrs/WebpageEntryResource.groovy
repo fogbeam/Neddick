@@ -7,6 +7,7 @@ import javax.ws.rs.POST
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.fogbeam.neddick.Channel
 import org.fogbeam.neddick.Entry
 import org.fogbeam.neddick.User
@@ -23,7 +24,6 @@ class WebpageEntryResource
 	def channelService;
 	def recommenderService;
 	def siteConfigService;
-	def grailsApplication;
 	
 	@POST
 	WebpageEntry insert( WebpageEntry entry )
@@ -33,7 +33,7 @@ class WebpageEntryResource
 		log.debug( "channelName submitted as: ${channelName}" );
 		if( channelName == null || channelName.isEmpty())
 		{
-			channelName = grailsApplication.config.channel.defaultChannel;
+			channelName = ConfigurationHolder.config.channel.defaultChannel;
 			log.debug( "defaulting channelName to: ${channelName}" );
 		}
 		
