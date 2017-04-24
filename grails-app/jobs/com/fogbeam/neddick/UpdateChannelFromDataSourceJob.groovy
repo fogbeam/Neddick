@@ -18,6 +18,8 @@ class UpdateChannelFromDataSourceJob
 	def execute(context)
 	{
 		log.debug( "Updating Channels from DataSources" );
+		println "Updating Channels from DataSources";
+		
 		Date now = new Date();
 		SimpleDateFormat sdf = SimpleDateFormat.getDateTimeInstance();
 		

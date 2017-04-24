@@ -518,9 +518,10 @@ class ChannelService {
 				println "no inboxFolder!!!";
 			}
 
-			if( inboxFolder.hasNewMessages() )
+			if( !inboxFolder.hasNewMessages() )
 			{
-				println "there are new messages!";
+				println "Folder has no new messages!";
+				return;
 			}
 						
 			println "${inboxFolder.getMessageCount()} messages in folder!";
@@ -529,10 +530,13 @@ class ChannelService {
 			// search for messages received since the dateLastPolled
 			Date dateLastPolled = link.dateLastPolled;
 			println "dateLastPolled: ${dateLastPolled}";
+			log.info( "dateLastPolled: ${dateLastPolled}" );
+			
 			ReceivedDateTerm searchTerm = new ReceivedDateTerm( ComparisonTerm.GT, dateLastPolled );
 			Message[] messages = inboxFolder.search( searchTerm );
 			
 			println "found ${messages.length} matching messages";
+			log.info("found ${messages.length} matching messages");
 			
 			// for each Message
 			int good = 0;
@@ -551,7 +555,8 @@ class ChannelService {
 				List<Entry> testForExisting = entryService.findByUrlAndChannel( msg.getMessageID(), channel );
 				if( testForExisting != null && testForExisting.size() > 0 )
 				{
-					println( "An Entry for this message already exists. Skipping" );
+					println( "An Entry for this message [${msg.getMessageID()}] already exists. Skipping" );
+					log.info( "An Entry for this message [${msg.getMessageID()}] already exists. Skipping" );
 				}
 				else
 				{
@@ -629,12 +634,18 @@ class ChannelService {
 			{
 				inboxFolder.close( false );
 			}
+			
+			// update the link between this datasource and this channel to reflect when it
+			// was last polled for entries.
+			link.dateLastPolled = new Date();
+			if( !link.save())
+			{
+				link.errors.allErrors.each  { println it; }
+			}
+			
 		}
 		
-		// update the link between this datasource and this channel to reflect when it
-		// was last polled for entries.
-		link.dateLastPolled = new Date();
-		link.save();
+
 		
 	}		
 	
