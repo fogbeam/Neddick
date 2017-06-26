@@ -247,7 +247,7 @@ class HomeController {
 
 			if( ConfigurationHolder.config.interface.foaf.enabled != null && 
                               !ConfigurationHolder.config.interface.foaf.enabled.isEmpty() &&
-                              Boolean.parseBoolean( ConfigurationHolder.config.interface.foaf.enabled )
+                              Boolean.parseBoolean( ConfigurationHolder.config.interface.foaf.enabled ) )
 			{
 
 			Object quoddyFoafUrl = ConfigurationHolder.config.urls.quoddy.foaf.endpoint;
