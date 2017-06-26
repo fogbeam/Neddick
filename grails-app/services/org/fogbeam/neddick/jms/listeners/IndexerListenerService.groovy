@@ -79,7 +79,7 @@ public class IndexerListenerService
 		 * now we just assume we are the "indexer" job.
 		 */
 
-		log.debug( "GOT MESSAGE: ${msg}" );
+		log.info( "GOT MESSAGE: ${msg}" );
 
 		if( msg instanceof java.lang.String ) {
 			log.info( "Received message: ${msg}" );
@@ -203,6 +203,7 @@ public class IndexerListenerService
 			else if( msgType.equals( "NEW_ENTRY" ))
 			{
 				
+				log.info( "NEW_ENTRY for uuid: ${msg['uuid']}" );
 				Entry entry = entryService.findByUuid( msg['uuid']);
 				
 				if( entry == null )
@@ -1710,6 +1711,9 @@ public class IndexerListenerService
 			//establish a connection within 10 seconds
 			client.getHttpConnectionManager().getParams().setConnectionTimeout(10000);
 			String url = entry.url;
+			
+			log.info("for entry ${entry.uuid} trying to load url: ${url}");
+			
 			method = new GetMethod(url);
 
 			String responseBody = null;
@@ -1741,7 +1745,7 @@ public class IndexerListenerService
 				contentType = contentTypeHeader.toString();
 			}
 			
-			println "Got Content-Type as: ${contentType}";
+			log.info("Got Content-Type as: ${contentType}");
 			
 			org.xml.sax.ContentHandler textHandler = null;
 			
@@ -1828,18 +1832,20 @@ public class IndexerListenerService
 			
 				if( entry.save(flush:true))
 				{
-					println "saved entry with bodyContent, adding to Lucene index";
+					log.info( "saved entry (uuid: ${entry.uuid} ) with bodyContent, adding to Lucene index");
 					
 					doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 					writer.addDocument( doc );
 				}
 				else
 				{
-					entry.errors.allErrors.each {println it;}
+					entry.errors.allErrors.each {log.error( it ); }
 				}
 			}
 			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 			{
+
+				log.warn( "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!");
 				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 				
 				
@@ -1859,7 +1865,7 @@ public class IndexerListenerService
 				{
 					if( entry.save(flush:true))
 					{
-						println "saved entry with bodyContent, adding to Lucene index";
+						log.info( "saved entry with bodyContent, adding to Lucene index" );
 					
 						doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 						writer.addDocument( doc );

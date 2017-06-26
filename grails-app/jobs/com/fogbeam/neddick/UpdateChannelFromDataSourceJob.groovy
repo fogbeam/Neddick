@@ -3,22 +3,66 @@ package com.fogbeam.neddick
 import java.text.SimpleDateFormat
 
 import org.fogbeam.neddick.Channel
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDetail
+import org.quartz.JobExecutionContext
+import org.quartz.Scheduler
 
+@DisallowConcurrentExecution
 class UpdateChannelFromDataSourceJob 
 {
 	def jmsService;
 	def channelService;
 	
+	// disable concurrent execution
+	def concurrent = false;
+	def concurrentExecutionDisallowed = true;
+	
 	def group = "MyGroup";
 	def volatility = false;
 	
 	static triggers = {
+		def volatility = false;	
 	}
-	
-	def execute(context)
+		
+	def execute(def context)
 	{
-		log.debug( "Updating Channels from DataSources" );
+		log.info( "Updating Channels from DataSources" );
 		println "Updating Channels from DataSources";
+		
+		// as an extra hedge against accidental concurrent execution...
+		Scheduler sched = context.getScheduler();
+		JobDetail existingJobDetail = context.getJobDetail();
+
+		log.warn( "Beginning execution of UpdateChannelFromDataSourceJob");
+		log.info( "existingJobDetail: " + existingJobDetail.toString());
+		
+		if (existingJobDetail != null)
+		{
+			List<JobExecutionContext> currentlyExecutingJobs = (List<JobExecutionContext>) sched.getCurrentlyExecutingJobs();
+			for (JobExecutionContext jec : currentlyExecutingJobs)
+			{
+				log.info( "evaluating jec.jobDetail: " + jec.jobDetail.toString());
+				
+				if(jec.jobDetail.key.equals(existingJobDetail.key) && (!(jec.jobDetail == existingJobDetail)))
+				{
+					String message = "another instance for " + existingJobDetail.toString() + " is already running.";
+					log.warn(message);
+					
+					// throw new JobExecutionException(message,false);
+					return;
+				}
+				else
+				{
+					log.info( "not a match, proceed.");
+				}
+			}
+		}
+		else
+		{
+			log.info( "existingJobDetail is NULL");
+		}
+
 		
 		Date now = new Date();
 		SimpleDateFormat sdf = SimpleDateFormat.getDateTimeInstance();
