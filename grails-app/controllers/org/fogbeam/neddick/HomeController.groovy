@@ -245,6 +245,11 @@ class HomeController {
 			
 			List quoddyUserNames = new ArrayList();
 
+			if( ConfigurationHolder.config.interface.foaf.enabled != null && 
+                              !ConfigurationHolder.config.interface.foaf.enabled.isEmpty() &&
+                              Boolean.parseBoolean( ConfigurationHolder.config.interface.foaf.enabled )
+			{
+
 			Object quoddyFoafUrl = ConfigurationHolder.config.urls.quoddy.foaf.endpoint;
 			
 			if( quoddyFoafUrl )
@@ -286,7 +291,9 @@ class HomeController {
 				}
 			
 			}
-			
+			}
+
+
 			def sortedEntries = entries.sort { it.dateCreated }.reverse();
 			def model = [allEntries: sortedEntries,
 						 channelName: channelName, currentPageNumber: pageNumber, 
