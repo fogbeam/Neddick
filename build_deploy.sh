@@ -7,6 +7,8 @@ service tomcat stop
 rm -f /usr/share/tomcat/logs/*
 rm -f /opt/fogcutter/neddick/neddick.log
 
+git pull
+
 grails clean
 
 grails war
