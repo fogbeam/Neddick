@@ -19,7 +19,7 @@ class UpdateChannelFromDatasourceListenerService
 			if( msg instanceof String )
 			{
 				
-				log.info( "received message: ${msg}" );
+				log.info( "UpdateChannelFromDataSourceListenerService: received message: ${msg}" );
 				
 				String[] parts = ((String)msg).split(":");
 				switch( parts[0] )
@@ -31,6 +31,8 @@ class UpdateChannelFromDatasourceListenerService
 						Channel channel = channelService.findByName( channelName );
 						if( channel != null )
 						{
+							log.info( "updating from DataSource for channel: ${channelName}");
+							
 							// use the channelService to update the channel from the datasource
 							channelService.updateFromDatasource( channel );
 						}

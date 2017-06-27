@@ -89,7 +89,7 @@ class EntryService {
 		if( ! ( success = entry.save(validate:false,flush:true)) )
 		{
 			println( "Updating entry: ${entry.id} FAILED");
-			entry.errors.allErrors.each { println it };
+			entry.errors.allErrors.each { log.error( it ) };
 		}
 
 		entry.addToChannels( channel );
@@ -97,7 +97,7 @@ class EntryService {
 		if( ! ( success = entry.save(validate:false,flush:true)) )
 		{
 			println( "Updating entry: ${entry.id} FAILED");
-			entry.errors.allErrors.each { println it };
+			entry.errors.allErrors.each { log.error( it ) };
 		}
 				
 		// println "committing transaction";

@@ -176,7 +176,7 @@ class ChannelService {
 	{
 		// lookup the feed, and get the FeedUrl
 		String url = rssFeed.feedUrl;
-		println( "Loading from url: ${url}, description: ${rssFeed.description}" );
+		log.info( "Loading from url: ${url}, description: ${rssFeed.description}" );
 		
 		// load the feed, and create an Entry for each link in the RssFeed
 		/*
@@ -204,7 +204,7 @@ class ChannelService {
 		{
 			reader = new XmlReader(conn)
 			feed = input.build(reader);
-			log.debug( "Feed: ${feed.getTitle()}" );
+			log.info( "Feed: ${feed.getTitle()}" );
 			
 			List<SyndEntry> entries = feed.getEntries();
 			
@@ -219,16 +219,26 @@ class ChannelService {
 				
 				
 				String linkUrl = entry.getLink();
+				if( linkUrl != null ) 
+				{
+					linkUrl = linkUrl.trim();
+				}
+				
 				String linkTitle = entry.getTitle();
+				if( linkTitle != null )
+				{
+					linkTitle = linkTitle.trim();
+				}
 				
 				List<Entry> testForExisting = entryService.findByUrlAndChannel( linkUrl, channel );
 				if( testForExisting != null && testForExisting.size() > 0 )
 				{
-					log.debug( "An Entry for this link already exists. Skipping" );
+					log.info( "An Entry for this link: linkUrl: ${linkUrl} and channel: ${channel}, already exists. Skipping" );
 					continue;
 				}
 				else
 				{
+					log.info( "Initial test for duplication found no results for linkUrl: ${linkUrl} and channel: ${channel}");
 					
 					// does this link exist elsewhere in the system (eg, linked to another channel)?
 					List<Entry> e2 = entryService.findByUrl( linkUrl );
@@ -243,7 +253,7 @@ class ChannelService {
 					else
 					{
 					
-						log.debug( "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}" );
+						log.info( "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}" );
 			
 						Entry newEntry = new WebpageEntry( url: linkUrl, title: linkTitle, submitter: anonymous, theDataSource:rssFeed );
 						
