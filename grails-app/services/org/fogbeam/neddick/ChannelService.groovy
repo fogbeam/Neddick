@@ -265,15 +265,15 @@ class ChannelService {
 							// newEntry.addToChannels( channel );
 							
 							good++;
-							log.debug( "saved new Entry with id: ${newEntry.id}" );
+							log.info( "saved new Entry with id: ${newEntry.id}" );
 							// send JMS message saying "new entry submitted"
 							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
 			
-							log.debug( "sending new entry message to JMS entryQueue");
+							log.info( "sending new entry message to JMS entryQueue");
 							// send a JMS message to our entryQueue
 							// sendJMSMessage("entryQueue", newEntryMessage );
 					
-							log.debug( "sending new entry message to JMS searchQueue" );
+							log.info( "sending new entry message to JMS searchQueue" );
 							// send a JMS message to our searchQueue
 							sendJMSMessage("searchQueue", newEntryMessage );
 						
@@ -282,18 +282,18 @@ class ChannelService {
 						{
 							bad++;
 							// failed to save newEntry
-							println( "Failed to save newEntry!" );
+							log.error( "Failed to save newEntry!" );
 						}
 					}
 				}
 			}
 			
-			log.debug( "Good entries: ${good}, bad entries:${bad}" );
+			log.info( "Good entries: ${good}, bad entries:${bad}" );
 			
 		}
 		catch( Exception e )
 		{
-			println "Caught Exception in Feed Processing Loop!";
+			log.error( "Caught Exception in Feed Processing Loop!", e );
 			e.printStackTrace();
 			
 		}
