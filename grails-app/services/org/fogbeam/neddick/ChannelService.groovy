@@ -271,8 +271,9 @@ class ChannelService {
 			
 							log.info( "sending new entry message to JMS entryQueue");
 							// send a JMS message to our entryQueue
-							// sendJMSMessage("entryQueue", newEntryMessage );
+							sendJMSMessage("entryQueue", newEntryMessage );
 					
+							
 							log.info( "sending new entry message to JMS searchQueue" );
 							// send a JMS message to our searchQueue
 							sendJMSMessage("searchQueue", newEntryMessage );
