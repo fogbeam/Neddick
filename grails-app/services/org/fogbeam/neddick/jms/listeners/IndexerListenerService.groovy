@@ -430,10 +430,22 @@ public class IndexerListenerService
 		
 	private void doSemanticEnhancement( WebpageEntry entry, def msg )
 	{
+				
+		if( ConfigurationHolder.config.semantic.enhancement.enabled == null || 
+            ConfigurationHolder.config.semantic.enhancement.enabled.isEmpty() ||
+            Boolean.parseBoolean( ConfigurationHolder.config.semantic.enhancement.enabled ) == false )
+		{
+			// semantic enhancement is not enabled, just return
+			return;
+		}
+
+				
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
 		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
-		println "using stanbolServerUrl: ${stanbolServerUrl}";
+
+		
+		log.info( "using stanbolServerUrl: ${stanbolServerUrl}");
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
 		// println "content submitted: ${content}";
