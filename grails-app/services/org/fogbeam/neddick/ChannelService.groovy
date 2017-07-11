@@ -21,7 +21,6 @@ import org.scribe.model.Response
 import org.scribe.model.Token
 import org.scribe.model.Verb
 import org.scribe.oauth.OAuthService
-import org.springframework.test.annotation.NotTransactional
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
@@ -47,6 +46,17 @@ class ChannelService {
 	public Channel findById( final Long id )
 	{
 		Channel channel = Channel.findById( id );
+		return channel;
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRED)
+	public Channel save( final Channel channel ) 
+	{
+		if( !channel.save(flush:true) )
+		{
+			channel.errors.allErrors { log.error( it ); }
+		}
+		
 		return channel;
 	}
 	

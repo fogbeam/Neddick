@@ -1,12 +1,25 @@
 package org.fogbeam.neddick
 
+import javax.xml.bind.annotation.XmlAccessType
+import javax.xml.bind.annotation.XmlAccessorType
+import javax.xml.bind.annotation.XmlElement
+import javax.xml.bind.annotation.XmlRootElement
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 class Channel implements Comparable {
 
+	@XmlElement
 	String uuid;
+	@XmlElement
 	String name;
+	@XmlElement
 	String description;
+	@XmlElement
 	Date dateCreated;
+	@XmlElement
 	boolean privateChannel = false;
+	@XmlElement
 	User owner;
 	
 	public Channel()

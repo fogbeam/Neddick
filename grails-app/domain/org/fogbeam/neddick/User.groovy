@@ -1,7 +1,13 @@
 package org.fogbeam.neddick
 
-import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType
+import javax.xml.bind.annotation.XmlAccessorType
+import javax.xml.bind.annotation.XmlElement
+import javax.xml.bind.annotation.XmlRootElement
 
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 class User {
 
 	public User()
@@ -20,15 +26,23 @@ class User {
         dateCreated()
     }
 
-    
+	@XmlElement
     String uuid;
-    String userId;
+	@XmlElement
+	String userId;
+	@XmlElement
     String password;
+	@XmlElement
     String homepage;
+	@XmlElement
     String fullName;
+	@XmlElement
     String bio;
+	@XmlElement
     String email;
+	@XmlElement
     Date dateCreated;
+	
     UserProfile userProfile;
     
     static mapping = {
