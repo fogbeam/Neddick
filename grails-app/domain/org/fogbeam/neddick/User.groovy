@@ -28,18 +28,24 @@ class User {
 
 	@XmlElement
     String uuid;
+	
 	@XmlElement
 	String userId;
-	@XmlElement
+	
     String password;
+	
 	@XmlElement
     String homepage;
+	
 	@XmlElement
     String fullName;
+	
 	@XmlElement
     String bio;
+	
 	@XmlElement
     String email;
+	
 	@XmlElement
     Date dateCreated;
 	

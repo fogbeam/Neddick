@@ -11,16 +11,27 @@ class Channel implements Comparable {
 
 	@XmlElement
 	String uuid;
+	
 	@XmlElement
 	String name;
+	
 	@XmlElement
 	String description;
+	
 	@XmlElement
 	Date dateCreated;
+
 	@XmlElement
 	boolean privateChannel = false;
-	@XmlElement
+
 	User owner;
+	
+	@XmlElement(name="userId")
+	public String getUserId()
+	{
+		return this.owner.userId;
+	}
+	
 	
 	public Channel()
 	{
