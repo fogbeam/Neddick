@@ -54,7 +54,7 @@ class ChannelService {
 	{
 		if( !channel.save(flush:true) )
 		{
-			channel.errors.allErrors { log.error( it ); }
+			channel.errors.allErrors.each { log.error( it ); }
 		}
 		
 		return channel;

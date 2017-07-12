@@ -65,7 +65,6 @@ class ChannelResource
 		
 		Channel newChannel = new Channel();
 		
-		newChannel.uuid = jsonObject.uuid;
 		newChannel.name = jsonObject.name;
 		newChannel.description = jsonObject.description;
 		
