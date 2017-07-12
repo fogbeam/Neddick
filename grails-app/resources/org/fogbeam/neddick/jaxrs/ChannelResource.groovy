@@ -1,9 +1,7 @@
 package org.fogbeam.neddick.jaxrs
 
 import static org.grails.jaxrs.response.Responses.*
-
-import java.util.Date;
-import java.util.List;
+import groovy.json.JsonSlurper
 
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
@@ -13,10 +11,8 @@ import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 import javax.ws.rs.Produces
 import javax.ws.rs.core.Response
-import javax.xml.bind.annotation.XmlElement;
 
 import org.fogbeam.neddick.Channel
-import org.fogbeam.neddick.User;
 import org.fogbeam.neddick.jaxrs.collection.ChannelCollection
 
 @Path('/api/channel')
@@ -54,9 +50,14 @@ class ChannelResource
 	@PUT
 	@Produces('text/plain')
 	@Consumes('application/json')
-	public Response createChannel( def jsonObject )
+	public Response createChannel( final String inputData )
 	{
-		log.info("received data: \n" + jsonObject);
+		log.info("received data: \n" + inputData );		
+		println "inputData: \n ${inputData}";
+
+		JsonSlurper jsonSlurper = new JsonSlurper();
+		def jsonObject = jsonSlurper.parseText(inputData);
+		
 		
 		Channel newChannel = new Channel();
 		
