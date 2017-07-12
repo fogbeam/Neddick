@@ -21,7 +21,6 @@ import org.fogbeam.neddick.jaxrs.collection.ChannelCollection
 
 @Path('/api/channel')
 @Consumes('application/json')
-@Produces(['text/plain', 'application/json'])
 class ChannelResource 
 {
 	def channelService;
@@ -29,6 +28,7 @@ class ChannelResource
 	
 	
 	@GET
+	@Produces('application/json')
 	public ChannelCollection getChannels()
 	{
 		ChannelCollection collection = new ChannelCollection();
@@ -43,6 +43,7 @@ class ChannelResource
 	
 	@GET
 	@Path('/{id}')
+	@Produces('application/json')
 	public Channel getChannel( @PathParam("id") int id )
 	{
 		Channel channel = channelService.findById( id );
@@ -51,6 +52,7 @@ class ChannelResource
 	
 	
 	@PUT
+	@Produces('text/plain')
 	public Response createChannel( def jsonObject )
 	{
 		log.info("received data: \n" + jsonObject);
@@ -71,6 +73,7 @@ class ChannelResource
 	}
 	
 	@POST
+	@Produces('text/plain')
 	public Response updateChannel( String inputData )
 	{
 		ok( "OK" );
