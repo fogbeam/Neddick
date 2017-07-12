@@ -53,6 +53,7 @@ class ChannelResource
 	
 	@PUT
 	@Produces('text/plain')
+	@Consumes('application/json')
 	public Response createChannel( def jsonObject )
 	{
 		log.info("received data: \n" + jsonObject);
@@ -74,6 +75,7 @@ class ChannelResource
 	
 	@POST
 	@Produces('text/plain')
+	@Consumes('application/json')
 	public Response updateChannel( String inputData )
 	{
 		ok( "OK" );
