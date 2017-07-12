@@ -88,55 +88,37 @@ environments {
 
 // log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console
-    // appender:
-	
-    appenders {
-		console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n'), threshold: org.apache.log4j.Level.WARN
-		rollingFile name: "logfileAppender", maxFileSize: 1000024, file: "logs/neddick.log", threshold: org.apache.log4j.Level.DEBUG
-		rollingFile name: "cacheAppender", maxFileSize: 1000024, file: "/tmp/logs/neddick_cache_instrumentation.log", threshold: org.apache.log4j.Level.INFO
-    }
-		
+	appenders {
+		rollingFile name: "myAppender", maxFileSize: 10000000, file: "/opt/fogcutter/neddick/neddick.log", threshold: org.apache.log4j.Level.DEBUG
+		console name: "stdout", threshold: org.apache.log4j.Level.DEBUG
+	  }
+
 	root {
-		debug 'stdout', 'logfileAppender'
+		   info 'stdout', 'myAppender'
+		 }
 
-	}
-	
-    error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
-	       'org.codehaus.groovy.grails.web.pages', //  GSP
-	       'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-	       'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-		   'org.codehaus.groovy.grails.web.filters',
-	       'org.codehaus.groovy.grails.web.mapping', // URL mapping
-	       'org.codehaus.groovy.grails.commons', // core / classloading
-	       'org.codehaus.groovy.grails.plugins', // plugins
-	       'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-	       'org.springframework',
-	       'org.hibernate',
-		   'org.quartz',
-		   'grails.plugin.jms',
-		   'grails-app.conf.spring',
-		   'grails-app.services.grails.plugin.jms'
+	error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
+		   'org.codehaus.groovy.grails.web.pages', //  GSP
+		   'org.codehaus.groovy.grails.web.sitemesh', //  layouts
+		   'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+		   'org.codehaus.groovy.grails.web.mapping', // URL mapping
+		   'org.codehaus.groovy.grails.commons', // core / classloading
+		   'org.codehaus.groovy.grails.plugins', // plugins
+		   'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
+		   'org.springframework',
+			   'net.sf.ehcache.hibernate',
+		   'org.hibernate',
+		   'net.sf.ehcache',
+			   'org.jboss',
+			   'org.jboss.remoting',
+		   'org.quartz'
 
-    warn   'org',
-		   'net',
-		   'org.mortbay.log',
-		   'org.jboss',
-		   'org.apache',
-		   'org.apache.tomcat',
-		   'org.apache.commons',
-		   'org.apache.commons.digester',
-		   'org.apache.commons.modeler',
-		   'org.apache.catalina'
+	warn   'org.mortbay.log',
+		   'org.hibernate'
 	
-	debug 'grails.app.controller',
-		  'grails.app.service',
-		  'grails.app.domain',
-		  'grails.app.dataSource',
-		  'grails.app.bootstrap'
-		  	   
-		   
-	info cacheAppender: "logger.special", additivity: false
+	debug  'grails.controllers',
+		   'grails.services',
+		   'grails.domain'
 }
 
 chat {
