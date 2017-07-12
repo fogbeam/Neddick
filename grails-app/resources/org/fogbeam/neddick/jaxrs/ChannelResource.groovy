@@ -3,6 +3,8 @@ package org.fogbeam.neddick.jaxrs
 import static org.grails.jaxrs.response.Responses.*
 import groovy.json.JsonSlurper
 
+import java.text.SimpleDateFormat
+
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
 import javax.ws.rs.POST
@@ -21,6 +23,8 @@ class ChannelResource
 {
 	def channelService;
 	def userService;
+												 // 2017-07-12T00:06:54.833Z
+	SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:MM:ss.SSS'Z'" );
 	
 	
 	@GET
@@ -64,7 +68,12 @@ class ChannelResource
 		newChannel.uuid = jsonObject.uuid;
 		newChannel.name = jsonObject.name;
 		newChannel.description = jsonObject.description;
-		newChannel.dateCreated = Date.parse(jsonObject.dateCreated);
+		
+		String dateCreated = jsonObject.dateCreated;
+		log.info( "dateCreated: ${dateCreated}");
+		
+		newChannel.dateCreated = sdf.parse( dateCreated );
+				
 		newChannel.privateChannel = Boolean.parseBoolean(jsonObject.privateChannel);
 		newChannel.owner = userService.findUserByUserId( jsonObject.userId);
 			
