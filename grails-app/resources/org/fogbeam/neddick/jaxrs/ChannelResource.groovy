@@ -44,7 +44,7 @@ class ChannelResource
 	@GET
 	@Path('/{id}')
 	@Produces('application/json')
-	public Channel getChannel( @PathParam("id") int id )
+	public Channel getChannel( @PathParam("id") long id )
 	{
 		Channel channel = channelService.findById( id );
 		return channel;

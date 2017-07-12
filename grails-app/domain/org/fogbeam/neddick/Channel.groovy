@@ -10,6 +10,9 @@ import javax.xml.bind.annotation.XmlRootElement
 class Channel implements Comparable {
 
 	@XmlElement
+	Long id;
+	
+	@XmlElement
 	String uuid;
 	
 	@XmlElement
