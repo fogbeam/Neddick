@@ -52,8 +52,8 @@ class ChannelResource
 	@Consumes('application/json')
 	public Response createChannel( final String inputData )
 	{
-		log.info("received data: \n" + inputData );		
 		println "inputData: \n ${inputData}";
+		log.info("received data: \n" + inputData );		
 
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		def jsonObject = jsonSlurper.parseText(inputData);
