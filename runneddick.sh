@@ -1,3 +1,4 @@
 #!/bin/sh
 
-grails clean; grails -Dserver.port=8200 -Dneddick.home=/opt/fogcutter/neddick run-app
+./grailsw clean; ./grailsw -Dserver.port=8282 -Dspring.config.location=/opt/fogcutter/neddick/ -Drebuild.indexes=false -Dfogbeam.devmode=true run-app $@
+
