@@ -1,2 +1,0 @@
-﻿insert into site_config_entry values( 1, 0, '2013-11-04 00:00:00', 'itemsPerPage', 25 );
-insert into site_config_entry values( 2, 0, '2013-11-04 00:00:00', 'indexDirLocation', '/development/projects/fogbeam/fogcutter/neddick/neddick1/index' );
