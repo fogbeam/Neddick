@@ -1,40 +1,45 @@
 package spring;
 
-// import org.fogbeam.quoddy.jms.NoOpMessageConverter
-// import org.fogbeam.quoddy.security.UserDetailsService;
-// import org.fogbeam.quoddy.spring.factorybean.CustomBeanPostProcessor
-// import org.fogbeam.quoddy.spring.listeners.HttpSessionServletListener
-// import org.fogbeam.quoddy.spring.listeners.LogoutEventListener
-// import org.fogbeam.quoddy.spring.listeners.SuccessfulLoginListener
+import org.fogbeam.neddick.jms.NoOpMessageConverter
+import org.fogbeam.neddick.security.UserDetailsService;
+import org.fogbeam.neddick.spring.factorybean.CustomBeanPostProcessor
+import org.fogbeam.neddick.spring.listeners.HttpSessionServletListener
+import org.fogbeam.neddick.spring.listeners.LogoutEventListener
+import org.fogbeam.neddick.spring.listeners.SuccessfulLoginListener
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 
 
-
 // Place your Spring DSL code here
 beans = {
 	
-	//	httpSessionServletListener(ServletListenerRegistrationBean) {
-	//		listener = bean(HttpSessionServletListener)
-	//	}
+	httpSessionServletListener(ServletListenerRegistrationBean) {
+		listener = bean(HttpSessionServletListener)
+	}
 		
-	// customBeanPostProcessor(CustomBeanPostProcessor)
+	customBeanPostProcessor(CustomBeanPostProcessor)
 
-	// 	successfulLoginListener(SuccessfulLoginListener)
+	successfulLoginListener(SuccessfulLoginListener)
 	
-	// logoutEventListener( LogoutEventListener )
+	logoutEventListener( LogoutEventListener )
 		
-	//	userDetailsService( UserDetailsService )
-	//	{
-	//		userService = ref('userService')
-	//	}
+	userDetailsService( UserDetailsService )
+	{
+		userService = ref('userService')
+	}
 	
 	authenticationEventPublisher( DefaultAuthenticationEventPublisher )
 	
 	authenticationEntryPoint( LoginUrlAuthenticationEntryPoint, "/localLogin/index" );
 
-	// messageConverter( NoOpMessageConverter )
+	messageConverter( NoOpMessageConverter )
+	
+	jenaTemplate( org.fogbeam.neddick.spring.factorybean.JenaTemplateFactoryBean)
+	{
+		tdbDirectory = System.getProperty("neddick.home") + "/jenastore/triples";
+	}
+
 	
 	/* 
 	contextSource(org.springframework.ldap.core.support.LdapContextSource){
@@ -88,7 +93,7 @@ beans = {
 	*/
 	
 	
-	/*
+	/* 
 	userService(org.fogbeam.quoddy.UserService)
 	{
 		accountService = ref("accountService" )
@@ -98,13 +103,7 @@ beans = {
 		userGroupService = ref( "userGroupService" );
 	}
 	*/
-	
-	/* 
-	jenaTemplate( org.fogbeam.quoddy.spring.factorybean.JenaTemplateFactoryBean)
-	{
-		tdbDirectory = System.getProperty("quoddy.home") + "/jenastore/triples";
-	}
-	*/
+		
 	
 	// select the EmailService implementation based on parameter
 	/* 
