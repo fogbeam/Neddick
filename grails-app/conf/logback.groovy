@@ -1,15 +1,43 @@
-import grails.util.BuildSettings
-import grails.util.Environment
+import static ch.qos.logback.classic.Level.DEBUG
+import static ch.qos.logback.classic.Level.INFO
+import static ch.qos.logback.classic.Level.ERROR
+
+import java.nio.charset.Charset
+
 import org.springframework.boot.logging.logback.ColorConverter
 import org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter
 
-import java.nio.charset.Charset
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.classic.filter.ThresholdFilter
+import ch.qos.logback.core.ConsoleAppender
+import ch.qos.logback.core.FileAppender
+import grails.util.BuildSettings
+import grails.util.Environment
 
 conversionRule 'clr', ColorConverter
 conversionRule 'wex', WhitespaceThrowableProxyConverter
 
+
 // See http://logback.qos.ch/manual/groovy.html for details on configuration
+appender("DEBUG_FILE", FileAppender) {
+    
+    filter(ThresholdFilter) {
+        level = DEBUG
+    }
+    
+    file = "${System.getProperty('neddick.home')}/neddick.log"
+    append = true
+    encoder(PatternLayoutEncoder) {
+        pattern = "%level %logger - %msg%n"
+    }
+}
+
 appender('STDOUT', ConsoleAppender) {
+    
+    filter(ThresholdFilter) {
+      level = INFO
+    }
+    
     encoder(PatternLayoutEncoder) {
         charset = Charset.forName('UTF-8')
 
@@ -22,6 +50,24 @@ appender('STDOUT', ConsoleAppender) {
     }
 }
 
+   
+logger( "org.grails", INFO )
+logger( "org.springframework", INFO )
+logger( "org.hibernate", INFO )
+logger( "org.apache", INFO )
+logger( "grails.plugin", INFO )
+logger( "org.quartz", INFO )
+logger( "grails.app", INFO )
+logger( "grails.util", ERROR )
+logger( "grails.boot", INFO )
+logger( "net.sf.ehcache", INFO )
+logger( "org.jasig.cas.client", DEBUG )
+logger( "reactor.spring", INFO )
+logger( "asset.pipeline", INFO )
+logger( "org.fogbeam.neddick", DEBUG )
+logger( "org.springframework.security", DEBUG )
+logger( "grails.plugin.springsecurity.web.access", DEBUG )
+
 def targetDir = BuildSettings.TARGET_DIR
 if (Environment.isDevelopmentMode() && targetDir != null) {
     appender("FULL_STACKTRACE", FileAppender) {
@@ -31,6 +77,8 @@ if (Environment.isDevelopmentMode() && targetDir != null) {
             pattern = "%level %logger - %msg%n"
         }
     }
+    
     logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false)
 }
-root(ERROR, ['STDOUT'])
+
+root(DEBUG, ['STDOUT', 'DEBUG_FILE'])

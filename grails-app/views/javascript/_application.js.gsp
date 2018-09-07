@@ -1,0 +1,8 @@
+$j(document).ready( 
+		 		
+	function()
+	{
+		 	
+		 	
+	});
+	
