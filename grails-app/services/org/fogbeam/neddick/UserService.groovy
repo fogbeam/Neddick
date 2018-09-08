@@ -1,15 +1,36 @@
 package org.fogbeam.neddick
 
-import org.fogbeam.neddick.User;
-import org.fogbeam.neddick.AccountRole;
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 
 
-class UserService {
-
+class UserService 
+{
+	public User getLoggedInUser()
+	{
+		// get the user from the SecurityContext
+		SecurityContext securityContext = SecurityContextHolder.getContext();
+		Authentication authentication = securityContext.getAuthentication();
+		log.trace( "current Authentication: ${authentication}");
+		
+		User user = this.findUserByUserId( ((User)authentication.principal).userId );
+		
+		return user;
+	}
+	
+	
 	public User findUserByUserId( final String userId )
 	{
-		def user = User.executeQuery( "select user from User as user where user.userId = ?", [userId] );
-		return user.get(0);
+		List<User> results = User.executeQuery( "select user from User as user where user.userId = ?", [userId] );
+		if( results != null && !results.isEmpty() )
+		{
+			return results.get(0);
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	public User findUserByUserIdAndPassword( final String userId, final String password )
@@ -18,20 +39,22 @@ class UserService {
 		return user;
 	}
 	
-	public void updateUser( final User user )
+	public User updateUser( final User user )
 	{
-		if( !user.save() )
+		if( !user.save(flush:true) )
 		{
 			log.error( "Updating user: ${user.userId} FAILED");
-			// user.errors.allErrors.each { p rintln it };
+			user.errors.allErrors.each { log.error( it.toString() ) };
 		}
+		
+		return user;
 	}
 
-	public AccountRole findAccountRoleByName( final String name )
+	public AccountRole findAccountRoleByAuthority( final String authority )
 	{
-		println "searching for AccountRole named ${name}";
+		log.debug( "searching for AccountRole with authority: ${authority}");
 		
-		List<AccountRole> roles = AccountRole.executeQuery( "select role from AccountRole as role where role.name = :name", [name:name]);
+		List<AccountRole> roles = AccountRole.executeQuery( "select role from AccountRole as role where role.authority = :authority", [authority:authority]);
 		
 		AccountRole role = null;
 		if( roles.size == 1 )
@@ -39,22 +62,21 @@ class UserService {
 			role = roles[0];
 		}
 
-		println "returning role ${role}";
+		log.debug( "returning role ${role}");
 		return role;
 	}
 	
 	public AccountRole createAccountRole( AccountRole role )
-	{
-		
-		println "UserService.createAccountRole() - about to create role: ${role.toString()}";
+	{		
+		log.debug( "UserService.createAccountRole() - about to create role: ${role.toString()}");
 	
 		if( !role.save(flush: true))
 		{
-			role.errors.each { println it };
+			role.errors.each { log.error( it.toString() ) };
 			throw new RuntimeException( "couldn't create AccountRole: ${role.toString()}" );
 		}
 		
-		println "returning role: ${role}";
+		log.debug( "returning role: ${role}" );
 		return role;
 	}
 	

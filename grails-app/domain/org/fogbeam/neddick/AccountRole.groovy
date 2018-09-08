@@ -1,26 +1,29 @@
 package org.fogbeam.neddick
 
-class AccountRole
+
+import org.springframework.security.core.GrantedAuthority
+
+import grails.compiler.GrailsCompileStatic
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
+
+@GrailsCompileStatic
+@EqualsAndHashCode(includes='authority')
+@ToString(includes='authority', includeNames=true, includePackage=false)
+class AccountRole implements GrantedAuthority
 {
-	String name
-	
-	static hasMany = [ users: User, permissions: String ]
-	static belongsTo = User
-	
-	static constraints = 
+	private static final long serialVersionUID = 1
+
+	String authority
+
+	static constraints =
 	{
-		name(nullable: false, blank: false, unique: true)
+		authority blank: false, unique: true
 	}
 
-	
-	static mapping = {
-		permissions lazy: false;
-	}
-
-	static fetchMode = [permissions:'eager'];
-			
-	public String toString()
+	static mapping =
 	{
-		return "id: ${id}, name: ${name}";
+		cache true
 	}
 }
+

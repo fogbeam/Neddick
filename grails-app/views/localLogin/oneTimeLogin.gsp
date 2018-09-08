@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <meta name="layout" content="main"/>
+    <meta name="layout" content="login"/>
     <title>Welcome to Fogcutter (by Fogbeam Labs)</title>
 
     <asset:link rel="icon" href="favicon.ico" type="image/x-ico" />

@@ -49,7 +49,7 @@ class HomeController
             [action:'controversialEntries', title:'Controversial', order:97, isVisible: {true}],
 			[action:'savedEntries', title:'Saved', order:98, isVisible: {true}]
         
-        ];	
+    ];	
 	
 	@Secured(["ROLE_USER", "ROLE_ADMIN"])
 	def index()
@@ -107,21 +107,12 @@ class HomeController
 			channelName = grailsApplication.config.channel.defaultChannel;
 			defaultChannel = true;
 		}
-		
+		log.info( "Looking up Channel named: ${channelName}" );
 		Channel theChannel = channelService.findByName( channelName );
 		
 		println "theChannel: ${theChannel.name}";
 		
-		User user = null;
-		if( session.user )
-		{
-			user = userService.findUserByUserId( session.user.userId);
-
-		}
-		else 
-		{
-			user = userService.findUserByUserId( "anonymous" );
-		}
+		User user = userService.getLoggedInUser();
 		
 		
 		// check if this is a private channel, and - if it is - if the user
