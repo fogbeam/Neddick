@@ -1,19 +1,25 @@
 <html>
-<head>
-<title><g:layoutTitle default="Quoddy" /></title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<nav:resources />
-<link rel="stylesheet" type="text/css"
-	href="${resource(dir:'css', file:'bootstrap.css')}" />
-<link rel="stylesheet" type="text/css"
-	href="${resource(dir:'css', file:'application.css')}" />
-<link rel="stylesheet" type="text/css"
-	href="${createLinkTo(dir:'css', file:'FontAwesome/css/font-awesome.css')}">
+	<head>
+		<title>
+			<g:layoutTitle default="Neddick - Login" />
+		</title>
 
-    <g:javascript>
-        window.appContext = '${request.contextPath}';
-    </g:javascript>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+     	<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'bootstrap.css')}" />
+		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'bootstrap-dropdown-multilevel.css')}" />
+		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'main.css')}" />
+		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'FontAwesome/css/font-awesome.css')}">
+		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'hopscotch.css')}" />
+		<!--  for "mega menu" using YAMM3 -->
+		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'demo.css')}" />
+		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'yamm.css')}" />         
+         
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+    	<g:javascript>
+        	window.appContext = '${request.contextPath}';
+    	</g:javascript>
 
 <script type="text/javascript"
 	src="${resource(dir:'javascripts', file:'jquery-1.7.1.min.js')}"></script>
