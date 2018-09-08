@@ -12,9 +12,8 @@
           </g:if>
     
           <div class="well allEntries" id="allEntries" style="margin-left:35px;padding-top:10px;min-height:750px;">
-               <!-- <button class="btn btn-primary" style="position:relative;top:10px;left:405px;">Add to My Channels</button> -->
-               <g:remoteLink class="btn btn-primary" style="position:relative;top:10px;left:405px;width:125px;" controller="channel" action="addChannelToFavorites" params='[channelId:"${theChannel.id}"]' >Favorite Channel</g:remoteLink>
                
+               <g:remoteLink class="btn btn-primary" style="position:absolute;right:50px;width:125px;" controller="channel" action="addChannelToFavorites" params='[channelId:"${theChannel.id}"]' >Favorite Channel</g:remoteLink>
                
                <g:each in="${allEntries}" var="entry">
                     <div style="padding:10px;">

@@ -12,7 +12,7 @@ class XmppTriggerAction extends BaseTriggerAction
 	
 	public void doAction( final String entryUuid )
 	{
-		println "performing xmpp action for uuid: ${entryUuid}";
+		log.debug "performing xmpp action for uuid: ${entryUuid}";
 		
 		def entryToSend = Entry.findByUuid( entryUuid );
 		

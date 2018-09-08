@@ -85,7 +85,7 @@ beans = {
 			break;
 			
 		default:
-			println "No AccountService implementation specified!!!"
+			log.debug "No AccountService implementation specified!!!"
 			throw new RuntimeException( "Config missing 'created.accounts.backingStore' setting!" );
 			// ???
 			break;
@@ -110,22 +110,22 @@ beans = {
 	switch( application.config.emailservice.backend )
 	{
 		case 'direct_smtp':
-				println "direct_smtp"
+				log.debug "direct_smtp"
 			log.info( "direct_smtp")
 			emailService(org.fogbeam.quoddy.email.DirectSmtpEmailService);
 			break;
 		case 'gmail_api':
-				println "gmail_api"
+				log.debug "gmail_api"
 			log.info( "gmail_api")
 			emailService(org.fogbeam.quoddy.email.GMailApiEmailService)
 			break;
 		case 'amazon_ses':
-				println "amazon_ses"
+				log.debug "amazon_ses"
 			log.info( "amazon_ses")
 			emailService(org.fogbeam.quoddy.email.AmazonSesEmailService)
 			break;
 		default:
-			println "default (direct_smtp)"
+			log.debug "default (direct_smtp)"
 			log.info( "default (direct_smtp)" );
 			emailService(org.fogbeam.quoddy.email.DirectSmtpEmailService);
 			break;

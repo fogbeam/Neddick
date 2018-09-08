@@ -14,6 +14,6 @@ public class BaseTriggerAction
 	
 	public void doAction( final String entryUuid )
 	{
-		println "performing action for uuid: ${entryUuid}";
+		log.debug "performing action for uuid: ${entryUuid}";
 	}
 }

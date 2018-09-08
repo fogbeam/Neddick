@@ -16,7 +16,7 @@ class TagEntryLink
 	/* static utility methods for managing the linking of tags and entries */
 	 static TagEntryLink link(Tag tag, Entry entry, User user ) 
 	{ 
-		println "linking...";
+		TagEntryLink.log.debug "linking...";
 		 
 		List<TagEntryLink> tels = TagEntryLink.executeQuery( "select tel from TagEntryLink as tel where tel.tag = ? and tel.entry = ? and tel.creator = ?", [tag, entry, user] );
 		

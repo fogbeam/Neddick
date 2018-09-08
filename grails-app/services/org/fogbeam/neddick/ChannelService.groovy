@@ -154,7 +154,7 @@ class ChannelService {
 	public void updateFromDatasource( Channel channel )
 	{
 	
-		println( "Updating from DataSource for channel: ${channel.name}" );	
+		log.debug( "Updating from DataSource for channel: ${channel.name}" );	
 		User anonymous = User.findByUserId( "anonymous" );
 		
 		// if the specified channel has an RssFeed associated with it...
@@ -163,7 +163,7 @@ class ChannelService {
 		
 		if( dataSources != null && dataSources.size() > 0 )
 		{
-			println( "There are DataSources!" );
+			log.debug( "There are DataSources!" );
 			
 			for( DataSource dataSource in dataSources )
 			{
@@ -200,7 +200,7 @@ class ChannelService {
 			dummyResult+=dummyLine;
 		}
 		
-		println ("url content: " + dummyResult );
+		log.debug ("url content: " + dummyResult );
 		*/
 		
 		URL feedUrl = new URL(url);
@@ -321,7 +321,7 @@ class ChannelService {
 	private void updateFromDataSource( TwitterAccount twitterAccount, Channel channel, User anonymous)
 	{
 		
-		println "Updating Channel from TwitterAccount";
+		log.debug "Updating Channel from TwitterAccount";
 						
 		OAuthService service = new ServiceBuilder()
 		.provider(TwitterApi.class)
@@ -334,7 +334,7 @@ class ChannelService {
 		// for proper timeline managment using since_id and max_id, blah..
 		ChannelDataSourceLink link = ChannelDataSourceLink.getLink( channel, twitterAccount );
 		String sinceId = link.sinceId;
-		println "initial sinceId: ${sinceId}";
+		log.debug "initial sinceId: ${sinceId}";
 		
 		String maxId = null; // no maxId for first iteration
 		
@@ -346,7 +346,7 @@ class ChannelService {
 		{
 			if( loopCount > 3 )
 			{ 
-				println "looped too many times, forced break";
+				log.debug "looped too many times, forced break";
 				break; 
 			}
 			
@@ -356,28 +356,28 @@ class ChannelService {
 			oauthRequest.addQuerystringParameter( "count", "200" );
 			if( Long.parseLong( sinceId ) > 0 )
 			{
-				println "setting sinceId for request to: ${sinceId}";
+				log.debug "setting sinceId for request to: ${sinceId}";
 				oauthRequest.addQuerystringParameter( "since_id", sinceId );
 			}
 			if( maxId != null )
 			{
-				println "setting maxId for request to: ${maxId}";
+				log.debug "setting maxId for request to: ${maxId}";
 				oauthRequest.addQuerystringParameter( "max_id", maxId );
 			}
 		
 		
 			Token accessToken = new Token(twitterAccount.accessToken, twitterAccount.tokenSecret);
-			// println "got access token";
+			// log.debug "got access token";
 			
 			service.signRequest(accessToken, oauthRequest);
 			
-			// println "signed request";
+			// log.debug "signed request";
 			
 			Response oauthResponse = oauthRequest.send();
 		
 			String responseJSON = oauthResponse.getBody();
 			
-			// println "JSON response: \n ${responseJSON}";
+			// log.debug "JSON response: \n ${responseJSON}";
 			
 			def slurper = new JsonSlurper();
 			def result = slurper.parseText( responseJSON );
@@ -396,14 +396,14 @@ class ChannelService {
 			 */
 			if( result.size > 0 )
 			{
-				println "got results to process, beginning Tweet processing loop";
+				log.debug "got results to process, beginning Tweet processing loop";
 				
 				result.each 
 				{ 
 				
 					Long tweetId = Long.parseLong( it.id_str );
 	
-					println "current tweet id: ${tweetId}";
+					log.debug "current tweet id: ${tweetId}";
 	
 					// test if we already have this Tweet.  If we do, just return and let the each() iterator carry
 					// on to the next record.
@@ -463,18 +463,18 @@ class ChannelService {
 					{
 						// bad++;
 						// failed to save newEntry
-						println( "Failed to save newEntry!" );
+						log.debug( "Failed to save newEntry!" );
 					}
 
 				};
 		
-				println "finished Tweet processing loop";
+				log.debug "finished Tweet processing loop";
 			
 				if( lowTweetId != null )
 				{
 					maxId = Long.toString( lowTweetId -1  ); // minus one because this is done
 													     // on an inclusive basis and we don't want the duplicated entry
-					println "lowTweetId was: ${maxId}";
+					log.debug "lowTweetId was: ${maxId}";
 				}
 				else
 				{
@@ -483,13 +483,13 @@ class ChannelService {
 				
 				if( highTweetId > newSinceId )
 				{
-					println "highTweetId = ${highTweetId}, replacing old value of newSinceId: ${newSinceId}";
+					log.debug "highTweetId = ${highTweetId}, replacing old value of newSinceId: ${newSinceId}";
 					newSinceId = new Long( highTweetId );
 				}
 			}
 			else
 			{
-				println "got no tweets, nothing to do";
+				log.debug "got no tweets, nothing to do";
 				// we didn't get any results, so we've paged all the way down through
 				// everything new since the sinceId.  Stop this loop now.
 				keepLooping = false;
@@ -500,7 +500,7 @@ class ChannelService {
 		// update sinceId if we got a new one 
 		if( newSinceId > Long.parseLong( sinceId ) )
 		{
-			println "Persisting new value for link.since_id: ${newSinceId}";
+			log.debug "Persisting new value for link.since_id: ${newSinceId}";
 			link.sinceId = Long.toString( newSinceId );
 			link.save();
 		}
@@ -510,7 +510,7 @@ class ChannelService {
 	// Explicitly NOT transactional, but the nested call to entryService.save() should be
 	private void updateFromDataSource( IMAPAccount imapAccount, Channel channel, User anonymous )
 	{
-		println "Updating Channel from IMAPAccount";
+		log.debug "Updating Channel from IMAPAccount";
 		
 		
 		ChannelDataSourceLink link = ChannelDataSourceLink.getLink( channel, imapAccount );
@@ -532,31 +532,31 @@ class ChannelService {
 			if( inboxFolder != null )
 			{
 				inboxFolder.open(Folder.READ_ONLY);
-				println "Folder: ${inboxFolder.fullName}";
+				log.debug "Folder: ${inboxFolder.fullName}";
 			}
 			else
 			{
-				println "no inboxFolder!!!";
+				log.debug "no inboxFolder!!!";
 			}
 
 			if( !inboxFolder.hasNewMessages() )
 			{
-				println "Folder has no new messages!";
+				log.debug "Folder has no new messages!";
 				return;
 			}
 						
-			println "${inboxFolder.getMessageCount()} messages in folder!";
+			log.debug "${inboxFolder.getMessageCount()} messages in folder!";
 						
 			
 			// search for messages received since the dateLastPolled
 			Date dateLastPolled = link.dateLastPolled;
-			println "dateLastPolled: ${dateLastPolled}";
+			log.debug "dateLastPolled: ${dateLastPolled}";
 			log.info( "dateLastPolled: ${dateLastPolled}" );
 			
 			ReceivedDateTerm searchTerm = new ReceivedDateTerm( ComparisonTerm.GT, dateLastPolled );
 			Message[] messages = inboxFolder.search( searchTerm );
 			
-			println "found ${messages.length} matching messages";
+			log.debug "found ${messages.length} matching messages";
 			log.info("found ${messages.length} matching messages");
 			
 			// for each Message
@@ -569,14 +569,14 @@ class ChannelService {
 				// if not, construct an entry from this Message
 			
 				MimeMessage msg = it;
-				println "from: ${msg.getFrom()[0].toString()}";
-				println( "messageId: ${msg.getMessageID()}");
+				log.debug "from: ${msg.getFrom()[0].toString()}";
+				log.debug( "messageId: ${msg.getMessageID()}");
 				
 				
 				List<Entry> testForExisting = entryService.findByUrlAndChannel( msg.getMessageID(), channel );
 				if( testForExisting != null && testForExisting.size() > 0 )
 				{
-					println( "An Entry for this message [${msg.getMessageID()}] already exists. Skipping" );
+					log.debug( "An Entry for this message [${msg.getMessageID()}] already exists. Skipping" );
 					log.info( "An Entry for this message [${msg.getMessageID()}] already exists. Skipping" );
 				}
 				else
@@ -613,11 +613,11 @@ class ChannelService {
 							newEntry.addToChannels( channel );
 							good++;
 							
-							println( "saved new Entry with id: ${newEntry.id}" );
+							log.debug( "saved new Entry with id: ${newEntry.id}" );
 							// send JMS message saying "new entry submitted"
 							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, messageId:newEntry.messageId, title:newEntry.title ];
 			
-							println( "sending new entry message to JMS entryQueue");
+							log.debug( "sending new entry message to JMS entryQueue");
 							// send a JMS message to our entryQueue
 							sendJMSMessage("entryQueue", newEntryMessage );
 					
@@ -628,7 +628,7 @@ class ChannelService {
 						}
 						else
 						{
-							println "failed to save Entry!";
+							log.debug "failed to save Entry!";
 							bad++;
 						}
 						
@@ -637,7 +637,7 @@ class ChannelService {
 				
 			}
 
-			println "done";
+			log.debug "done";
 			
 		}
 		catch (NoSuchProviderException e)
@@ -661,7 +661,7 @@ class ChannelService {
 			link.dateLastPolled = new Date();
 			if( !link.save())
 			{
-				link.errors.allErrors.each  { println it; }
+				link.errors.allErrors.each  { log.debug it; }
 			}
 			
 		}

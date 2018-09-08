@@ -223,7 +223,7 @@ public class IndexerListenerService
 				
 				if( entry == null )
 				{
-					println "WARN: No such entry: ${msg['uuid']}";
+					log.debug "WARN: No such entry: ${msg['uuid']}";
 					return;
 				}
 				
@@ -325,21 +325,21 @@ public class IndexerListenerService
 	{
 		// call Stanbol REST API to get enrichment data
 		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
-		println "using stanbolServerUrl: ${stanbolServerUrl}";
+		log.debug "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
-		// println "content submitted: ${content}";
+		// log.debug "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
 										body: entry.tweetContent,
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
-		// println "restResponseText.class.name = ${restResponseText.class.name}";
+		// log.debug "restResponseText.class.name = ${restResponseText.class.name}";
 		
 		entry.refresh();
 		entry.enhancementJSON = restResponseText;
 		
-		println "restResponseText: \n${restResponseText}\n\n";
+		log.debug "restResponseText: \n${restResponseText}\n\n";
 		
 		if( restResponseText != null && !restResponseText.isEmpty())
 		{
@@ -355,7 +355,7 @@ public class IndexerListenerService
 			// Make a TDB-backed dataset
 			String neddickHome = System.getProperty( "neddick.home" );
 			String directory = "${neddickHome}/jenastore/triples" ;
-			println "Opening TDB triplestore at: ${directory}";
+			log.debug "Opening TDB triplestore at: ${directory}";
 			Dataset dataset = TDBFactory.createDataset(directory) ;
 			
 			dataset.begin(ReadWrite.WRITE);
@@ -371,7 +371,7 @@ public class IndexerListenerService
 	
 				Resource anEntity = iter.nextResource();
 			
-				println "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
+				log.debug "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
 				
 				Resource newResource = model.createResource( "neddick:${entry.uuid}" );
 				newResource.addProperty( DCTerms.references, anEntity);
@@ -388,7 +388,7 @@ public class IndexerListenerService
 		}
 		else
 		{
-			println "Can't process JSON -> TDB operation!";
+			log.debug "Can't process JSON -> TDB operation!";
 		}
 		
 		
@@ -396,12 +396,12 @@ public class IndexerListenerService
 		{
 			if( !entry.save(flush:true))
 			{
-				entry.errors.allErrors.each{ println it;}
+				entry.errors.allErrors.each{ log.debug it;}
 			}
 		}
 		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 		{
-			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+			log.debug "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 			
 			Thread.sleep(15000 );
 			
@@ -414,12 +414,12 @@ public class IndexerListenerService
 			{
 				if( !entry.save(flush:true))
 				{
-					entry.errors.allErrors.each{ println it;}
+					entry.errors.allErrors.each{ log.debug it;}
 				}
 			}
 			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
 			{
-				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
+				log.debug "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
 				
 				Thread.sleep( 60000 );
 				
@@ -431,7 +431,7 @@ public class IndexerListenerService
 				{
 					if( !entry.save(flush:true))
 					{
-						entry.errors.allErrors.each{ println it;}
+						entry.errors.allErrors.each{ log.debug it;}
 					}
 				}
 				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose3 )
@@ -463,19 +463,19 @@ public class IndexerListenerService
 		log.info( "using stanbolServerUrl: ${stanbolServerUrl}");
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
-		// println "content submitted: ${content}";
+		// log.debug "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
 										body: entry.pageContent,
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
-		// println "restResponseText.class.name = ${restResponseText.class.name}";
+		// log.debug "restResponseText.class.name = ${restResponseText.class.name}";
 		
 			
 		entry.refresh();
 		entry.enhancementJSON = restResponseText;
 		
-		println "restResponseText: \n${restResponseText}\n\n";
+		log.debug "restResponseText: \n${restResponseText}\n\n";
 		
 		if( restResponseText != null && !restResponseText.isEmpty())
 		{
@@ -491,7 +491,7 @@ public class IndexerListenerService
 			// Make a TDB-backed dataset
 			String neddickHome = System.getProperty( "neddick.home" );
 			String directory = "${neddickHome}/jenastore/triples" ;
-			println "Opening TDB triplestore at: ${directory}";
+			log.debug "Opening TDB triplestore at: ${directory}";
 			Dataset dataset = TDBFactory.createDataset(directory) ;
 			
 			dataset.begin(ReadWrite.WRITE);
@@ -507,7 +507,7 @@ public class IndexerListenerService
 	
 				Resource anEntity = iter.nextResource();
 			
-				println "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
+				log.debug "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
 				
 				Resource newResource = model.createResource( "neddick:${entry.uuid}" );
 				newResource.addProperty( DCTerms.references, anEntity);
@@ -524,7 +524,7 @@ public class IndexerListenerService
 		}
 		else
 		{
-			println "Can't process JSON -> TDB operation!";
+			log.debug "Can't process JSON -> TDB operation!";
 		}
 		
 		
@@ -532,12 +532,12 @@ public class IndexerListenerService
 		{
 			if( !entry.save(flush:true))
 			{
-				entry.errors.allErrors.each{ println it;}
+				entry.errors.allErrors.each{ log.debug it;}
 			}
 		}
 		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 		{
-			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+			log.debug "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 			
 			Thread.sleep( 15000 );
 			
@@ -549,12 +549,12 @@ public class IndexerListenerService
 			{
 				if( !entry.save(flush:true))
 				{
-					entry.errors.allErrors.each{ println it;}
+					entry.errors.allErrors.each{ log.debug it;}
 				}
 			}
 			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
 			{
-				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
+				log.debug "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";
 						
 				Thread.sleep( 60000 );
 				
@@ -566,7 +566,7 @@ public class IndexerListenerService
 				{
 					if( !entry.save(flush:true))
 					{
-						entry.errors.allErrors.each{ println it;}
+						entry.errors.allErrors.each{ log.debug it;}
 					}
 				}
 				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose3 )
@@ -583,22 +583,22 @@ public class IndexerListenerService
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
 		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
-		println "using stanbolServerUrl: ${stanbolServerUrl}";
+		log.debug "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
-		// println "content submitted: ${content}";
+		// log.debug "content submitted: ${content}";
 		def restResponse = restClient.post(	path:'enhancer',
 										body: entry.bodyContent,
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
 		
-		// println "restResponseText.class.name = ${restResponseText.class.name}";
+		// log.debug "restResponseText.class.name = ${restResponseText.class.name}";
 		
 		entry.refresh();
 		entry.enhancementJSON = restResponseText;
 		
-		println "restResponseText: \n${restResponseText}\n\n";
+		log.debug "restResponseText: \n${restResponseText}\n\n";
 		
 		if( restResponseText != null && !restResponseText.isEmpty())
 		{
@@ -614,7 +614,7 @@ public class IndexerListenerService
 			// Make a TDB-backed dataset
 			String neddickHome = System.getProperty( "neddick.home" );
 			String directory = "${neddickHome}/jenastore/triples" ;
-			println "Opening TDB triplestore at: ${directory}";
+			log.debug "Opening TDB triplestore at: ${directory}";
 			Dataset dataset = TDBFactory.createDataset(directory) ;
 			
 			dataset.begin(ReadWrite.WRITE);
@@ -630,7 +630,7 @@ public class IndexerListenerService
 	
 				Resource anEntity = iter.nextResource();
 			
-				println "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
+				log.debug "adding resource \"neddick:${entry.uuid}\" dc:references entity: ${anEntity.toString()}";
 				
 				Resource newResource = model.createResource( "neddick:${entry.uuid}" );
 				newResource.addProperty( DCTerms.references, anEntity);
@@ -647,7 +647,7 @@ public class IndexerListenerService
 		}
 		else
 		{
-			println "Can't process JSON -> TDB operation!";
+			log.debug "Can't process JSON -> TDB operation!";
 		}
 		
 				
@@ -655,13 +655,13 @@ public class IndexerListenerService
 		{
 			if( !entry.save(flush:true))
 			{
-				entry.errors.allErrors.each{ println it;}
+				entry.errors.allErrors.each{ log.debug it;}
 			}
 		}
 		catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 		{
 			
-			println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+			log.debug "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 
 			Thread.sleep( 15000 );
 			
@@ -673,12 +673,12 @@ public class IndexerListenerService
 			{
 				if( !entry.save(flush:true))
 				{
-					entry.errors.allErrors.each{ println it;}
+					entry.errors.allErrors.each{ log.debug it;}
 				}
 			}
 			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2 )
 			{
-				println "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";				
+				log.debug "!!\nFailed Second Attempt To Persist Stale Object Instance!\n!!";				
 				
 				Thread.sleep( 60000 );
 				
@@ -690,7 +690,7 @@ public class IndexerListenerService
 				{
 					if( !entry.save(flush:true))
 					{
-						entry.errors.allErrors.each{ println it;}
+						entry.errors.allErrors.each{ log.debug it;}
 					}
 				}
 				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose3 )
@@ -703,7 +703,7 @@ public class IndexerListenerService
 	
 	private void extractAndIndexContent( TwitterEntry entry, def msg )
 	{
-		// println "extractAndIndexContent for TwitterEntry!";
+		// log.debug "extractAndIndexContent for TwitterEntry!";
 		
 		
 		// add document to index
@@ -911,7 +911,7 @@ public class IndexerListenerService
 				contentType = contentTypeHeader.toString();
 			}
 			
-			println "Got Content-Type as: ${contentType}";
+			log.debug "Got Content-Type as: ${contentType}";
 			
 			org.xml.sax.ContentHandler textHandler = null;
 			
@@ -938,7 +938,7 @@ public class IndexerListenerService
 				{
 					
 					
-					println "**********************************\n ${block.getText()}\n**************************";
+					log.debug "**********************************\n ${block.getText()}\n**************************";
 					
 					if( block.isContent())
 					{
@@ -954,11 +954,11 @@ public class IndexerListenerService
 				
 				if( bodyContent != null && !bodyContent.isEmpty())
 				{
-				   println "bodyContent: ${bodyContent}";
+				   log.debug "bodyContent: ${bodyContent}";
 				}
 				else
 				{
-				   println "No BodyContent!!! WTF???";
+				   log.debug "No BodyContent!!! WTF???";
 				}
 			   
 				entry.pageContent = bodyContent;
@@ -978,11 +978,11 @@ public class IndexerListenerService
 				bodyContent = bodyContentHandler.toString();
 				if( bodyContent != null && !bodyContent.isEmpty())
 				{
-				   println "bodyContent: ${bodyContent}";
+				   log.debug "bodyContent: ${bodyContent}";
 				}
 				else
 				{
-				   println "No BodyContent!!! WTF???";
+				   log.debug "No BodyContent!!! WTF???";
 				}
 			   
 				entry.pageContent = bodyContent;
@@ -998,7 +998,7 @@ public class IndexerListenerService
 			
 				if( entry.save(flush:true))
 				{
-					println "saved entry with bodyContent, adding to Lucene index";
+					log.debug "saved entry with bodyContent, adding to Lucene index";
 					
 					doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 					writer.addDocument( doc );
@@ -1006,12 +1006,12 @@ public class IndexerListenerService
 				}
 				else
 				{
-					entry.errors.allErrors.each {println it;}
+					entry.errors.allErrors.each {log.debug it;}
 				}
 			}
 			catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 			{
-				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+				log.debug "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 				
 				
 				Thread.sleep( 30000 );
@@ -1032,7 +1032,7 @@ public class IndexerListenerService
 				{
 					if( entry.save(flush:true))
 					{
-						println "saved entry with bodyContent, adding to Lucene index";
+						log.debug "saved entry with bodyContent, adding to Lucene index";
 					
 						doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 						writer.addDocument( doc );
@@ -1040,7 +1040,7 @@ public class IndexerListenerService
 					}
 					else
 					{
-						entry.errors.allErrors.each {println it;}
+						entry.errors.allErrors.each {log.debug it;}
 					}
 				}
 				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
@@ -1119,7 +1119,7 @@ public class IndexerListenerService
 	
 	private void extractAndIndexContent( EMailEntry entry, def msg )
 	{
-		println "INDEXING EMAIL ENTRY HERE!!!!!!!!!!!!!!!!!!";
+		log.debug "INDEXING EMAIL ENTRY HERE!!!!!!!!!!!!!!!!!!";
 		
 		// we need to look up the datasource used to generate this
 		// entry, so we can connect and download the content
@@ -1202,18 +1202,18 @@ public class IndexerListenerService
 				if( inboxFolder != null )
 				{
 					inboxFolder.open(Folder.READ_ONLY);
-					println "Folder: ${inboxFolder.fullName}";
+					log.debug "Folder: ${inboxFolder.fullName}";
 				}
 				else
 				{
-					println "no inboxFolder!!!";
+					log.debug "no inboxFolder!!!";
 				}
 				
 				// search on message id
 				MessageIDTerm searchTerm = new MessageIDTerm( entry.messageId );
 				Message[] messages = inboxFolder.search( searchTerm );
 				
-				println "found ${messages.length} matching messages";
+				log.debug "found ${messages.length} matching messages";
 				
 				if( messages.length == 1 )
 				{
@@ -1244,7 +1244,7 @@ public class IndexerListenerService
 							}
 							else
 							{
-								println "part had type: ${part.getContentType()}";
+								log.debug "part had type: ${part.getContentType()}";
 							}
 						}
 					
@@ -1262,7 +1262,7 @@ public class IndexerListenerService
 						else
 						{
 							// nothing here we can process...
-							println "Multipart Message had nothing we could process!";
+							log.debug "Multipart Message had nothing we could process!";
 							bodyContent = "Multipart Message had nothing we could process!";
 						}
 					}
@@ -1271,12 +1271,12 @@ public class IndexerListenerService
 						// should probably be String.  If it's anything else, we don't know how to handle that yet.
 						if( ! ( bodyContent instanceof String ) )
 						{
-							println "message content was of class: ${bodyContent.class}";	
+							log.debug "message content was of class: ${bodyContent.class}";	
 						}
 					}
 					
 					
-					// println "Email bodyContent: \n ${bodyContent}";
+					// log.debug "Email bodyContent: \n ${bodyContent}";
 					
 					/* NOTE: What follows is really formatting / presentational logic and
 					 * ultimately needs to be moved elsewhere.  Whether or not we even
@@ -1290,7 +1290,7 @@ public class IndexerListenerService
 						formattedContent += "</p>";
 					}
 										
-					println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
+					log.debug "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
 					
 					entry.bodyContent = formattedContent;
 					
@@ -1303,7 +1303,7 @@ public class IndexerListenerService
 					
 						if( entry.save(flush:true))
 						{
-							println "saved entry with bodyContent, adding to Lucene index";
+							log.debug "saved entry with bodyContent, adding to Lucene index";
 							
 							doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 							writer.addDocument( doc );
@@ -1313,14 +1313,14 @@ public class IndexerListenerService
 						else
 						{
 							
-							println "failed to save EMailEntry with updated bodyContent";
-							entry.errors.allErrors.each {println it}
+							log.debug "failed to save EMailEntry with updated bodyContent";
+							entry.errors.allErrors.each {log.debug it}
 						}
 						
 					}
 					catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 					{
-						println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+						log.debug "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 						
 						Thread.sleep( 10000 );
 						
@@ -1340,7 +1340,7 @@ public class IndexerListenerService
 						{
 							if( entry.save(flush:true))
 							{
-								println "saved entry with bodyContent, adding to Lucene index";
+								log.debug "saved entry with bodyContent, adding to Lucene index";
 							
 								doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 								writer.addDocument( doc );
@@ -1348,7 +1348,7 @@ public class IndexerListenerService
 							}
 							else
 							{
-								entry.errors.allErrors.each {println it;}
+								entry.errors.allErrors.each {log.debug it;}
 							}
 						}
 						catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
@@ -1361,7 +1361,7 @@ public class IndexerListenerService
 				}
 				else
 				{
-					println "Message not found, or too many matching messages found!";
+					log.debug "Message not found, or too many matching messages found!";
 				}
 			
 			}
@@ -1609,7 +1609,7 @@ public class IndexerListenerService
 	private void rebuildIndex()
 	{
 
-		println( "doing rebuildIndex" );
+		log.debug( "doing rebuildIndex" );
 		List<Entry> allEntries = entryService.getAllEntries();
 
 		// add document to index
@@ -1621,7 +1621,7 @@ public class IndexerListenerService
 			indexDirLocation = neddickHome + "/index";
 		}
 		
-		println "using indexDirLocation: ${indexDirLocation}";
+		log.debug "using indexDirLocation: ${indexDirLocation}";
 		
 		// check if there's an initialized index yet.  If not, initialize empty index
 		File indexFile = new java.io.File( indexDirLocation );
@@ -1629,7 +1629,7 @@ public class IndexerListenerService
 		boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
 		if( ! indexIsInitialized )
 		{
-			println( "Index not previously initialized, creating empty index" );
+			log.debug( "Index not previously initialized, creating empty index" );
 			/* initialize empty index */
 			Directory indexDir = new NIOFSDirectory( indexFile );
 			IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
@@ -1639,11 +1639,11 @@ public class IndexerListenerService
 		}
 		else
 		{   
-		   println( "Index already initialized..." );
-		   println "indexFileChildren.length = ${indexFileChildren.length}";
+		   log.debug( "Index already initialized..." );
+		   log.debug "indexFileChildren.length = ${indexFileChildren.length}";
 		   
-		   indexFileChildren.each { println it; }
-		   println "********";
+		   indexFileChildren.each { log.debug it; }
+		   log.debug "********";
 		}
 		
 		
@@ -1713,7 +1713,7 @@ public class IndexerListenerService
 	
 	private void extractAndIndexContent( TwitterEntry entry, Writer writer )
 	{
-		println "extractAndIndexContent for TwitterEntry!";
+		log.debug "extractAndIndexContent for TwitterEntry!";
 		
 		try
 		{
@@ -1850,7 +1850,7 @@ public class IndexerListenerService
 				{
 					
 					
-					println "**********************************\n ${block.getText()}\n**************************";
+					log.debug "**********************************\n ${block.getText()}\n**************************";
 					
 					if( block.isContent())
 					{
@@ -1866,11 +1866,11 @@ public class IndexerListenerService
 				
 				if( bodyContent != null && !bodyContent.isEmpty())
 				{
-				   println "bodyContent: ${bodyContent}";
+				   log.debug "bodyContent: ${bodyContent}";
 				}
 				else
 				{
-				   println "No BodyContent!!! WTF???";
+				   log.debug "No BodyContent!!! WTF???";
 				}
 			   
 				entry.pageContent = bodyContent;
@@ -1890,11 +1890,11 @@ public class IndexerListenerService
 				bodyContent = bodyContentHandler.toString();
 				if( bodyContent != null && !bodyContent.isEmpty())
 				{
-				   println "bodyContent: ${bodyContent}";
+				   log.debug "bodyContent: ${bodyContent}";
 				}
 				else
 				{
-				   println "No BodyContent!!! WTF???";
+				   log.debug "No BodyContent!!! WTF???";
 				}
 			   
 				entry.pageContent = bodyContent;
@@ -1924,7 +1924,7 @@ public class IndexerListenerService
 			{
 
 				log.warn( "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!");
-				println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+				log.debug "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 				
 				
 				Thread.sleep( 2000 );
@@ -1950,7 +1950,7 @@ public class IndexerListenerService
 					}
 					else
 					{
-						entry.errors.allErrors.each {println it;}
+						entry.errors.allErrors.each {log.debug it;}
 					}
 				}
 				catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
@@ -1995,7 +1995,7 @@ public class IndexerListenerService
 	
 	private void extractAndIndexContent( EMailEntry entry, Writer writer )
 	{
-		println "INDEXING EMAIL ENTRY HERE!!!!!!!!!!!!!!!!!!";
+		log.debug "INDEXING EMAIL ENTRY HERE!!!!!!!!!!!!!!!!!!";
 		
 		// we need to look up the datasource used to generate this
 		// entry, so we can connect and download the content
@@ -2042,18 +2042,18 @@ public class IndexerListenerService
 				if( inboxFolder != null )
 				{
 					inboxFolder.open(Folder.READ_ONLY);
-					println "Folder: ${inboxFolder.fullName}";
+					log.debug "Folder: ${inboxFolder.fullName}";
 				}
 				else
 				{
-					println "no inboxFolder!!!";
+					log.debug "no inboxFolder!!!";
 				}
 				
 				// search on message id
 				MessageIDTerm searchTerm = new MessageIDTerm( entry.messageId );
 				Message[] messages = inboxFolder.search( searchTerm );
 				
-				println "found ${messages.length} matching messages";
+				log.debug "found ${messages.length} matching messages";
 				
 				if( messages.length == 1 )
 				{
@@ -2085,7 +2085,7 @@ public class IndexerListenerService
 							}
 							else
 							{
-								println "part had type: ${part.getContentType()}";
+								log.debug "part had type: ${part.getContentType()}";
 							}
 						}
 					
@@ -2103,7 +2103,7 @@ public class IndexerListenerService
 						else
 						{
 							// nothing here we can process...
-							println "Multipart Message had nothing we could process!";
+							log.debug "Multipart Message had nothing we could process!";
 							bodyContent = "Multipart Message had nothing we could process!";
 						}
 					}
@@ -2120,7 +2120,7 @@ public class IndexerListenerService
 						formattedContent += "</p>";
 					}
 										
-					println "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
+					log.debug "####### FORMATTED EMAIL CONTENT\n${formattedContent}\n###########################";
 					
 					entry.bodyContent = formattedContent;
 					
@@ -2133,7 +2133,7 @@ public class IndexerListenerService
 					
 						if( entry.save())
 						{
-							println "saved entry with bodyContent, adding to Lucene index";
+							log.debug "saved entry with bodyContent, adding to Lucene index";
 							
 							doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 							writer.addDocument( doc );
@@ -2142,14 +2142,14 @@ public class IndexerListenerService
 						else
 						{
 							
-							entry.errors.allErrors.each{ println it }
-							println "failed to save EMailEntry with updated bodyContent";
+							entry.errors.allErrors.each{ log.debug it }
+							log.debug "failed to save EMailEntry with updated bodyContent";
 						}
 						
 					}
 					catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose )
 					{
-						println "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
+						log.debug "!!!!!!!!\nCaught HibernateOptimisticLockingFailureException, reloading object and trying again\n!!!!!!!!!";
 						
 						Thread.sleep( 2000 );
 						
@@ -2167,14 +2167,14 @@ public class IndexerListenerService
 						{
 							if( entry.save(flush:true))
 							{
-								println "saved entry with bodyContent, adding to Lucene index";
+								log.debug "saved entry with bodyContent, adding to Lucene index";
 							
 								doc.add( new Field( "content", bodyContent, Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 								writer.addDocument( doc );
 							}
 							else
 							{
-								entry.errors.allErrors.each {println it;}
+								entry.errors.allErrors.each {log.debug it;}
 							}
 						}
 						catch( HibernateOptimisticLockingFailureException | StaleObjectStateException sose2)
@@ -2187,7 +2187,7 @@ public class IndexerListenerService
 				}
 				else
 				{
-					println "Message not found, or too many matching messages found!";
+					log.debug "Message not found, or too many matching messages found!";
 				}
 			
 			}

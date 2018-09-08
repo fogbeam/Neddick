@@ -15,7 +15,7 @@ class SidebarPopulatorMixin
 {
 	Map populateSidebarCollections( def controller, User user )
 	{ 
-		println "called populateSidebarCollections!";
+		log.debug "called populateSidebarCollections!";
 		
 		/**************** MY TAGS ******************/
 		// get a list of the distinct tags that I have used
@@ -130,7 +130,7 @@ class AlphanumericChannelComparator<T> extends AlphanumericComparator
 	
 	int compare( T arg0,  T arg1)
 	{
-		// println "arg0: ${arg0.name}, arg1: ${arg1.name}";
+		// log.debug "arg0: ${arg0.name}, arg1: ${arg1.name}";
 		return super.compare( arg0.name, arg1.name );
 	};
 }
@@ -149,7 +149,7 @@ class AlphanumericTagComparator<T> extends AlphanumericComparator
 	
 	int compare( T arg0,  T arg1)
 	{
-		// println "arg0: ${arg0.name}, arg1: ${arg1.name}";
+		// log.debug "arg0: ${arg0.name}, arg1: ${arg1.name}";
 		return super.compare( arg0.name, arg1.name );
 	};
 }

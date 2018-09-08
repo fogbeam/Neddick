@@ -42,7 +42,7 @@ class TriggerListenerService
 				break;
 						
 			default:
-				println "Remote sent bad msgType";
+				log.debug "Remote sent bad msgType";
 				break;
 		}
 		

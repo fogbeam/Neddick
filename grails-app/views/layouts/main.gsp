@@ -106,7 +106,6 @@
 			<div>
 				<ul class="nav navbar-nav">		
 
-
 					<!-- bringing in the old Neddick nav bar items -->
 				
 					<li class="todo">
@@ -149,8 +148,6 @@
         				<!-- <g:link controller="entry" action="createQuestion">Ask a Question</g:link>
       				</li> -->				
 				
-				
-				
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Settings<b class="caret"></b></a>
 						<ul class="dropdown-menu">		
@@ -184,34 +181,8 @@
 			            		<g:link controller="admin" action="index">Admin</g:link>
 			            	</li>
 						
-						
-						
-						
-						
-						
-						
-						
-						
 						</ul>
-					</li>				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				<!-- end old Neddick nav bar items -->
-		
+				</li>						
 							
 				<li>
 				<div class="searchBoxContainer">
@@ -295,30 +266,36 @@
 		
 	</nav>
     
-  	<!-- the main body content area -->  	
-    <div class="row">   
-    <div class="span8" style="margin-top:10px;">     
-    	<!-- layout main content area -->
-        <g:layoutBody />             
+    <div id="page-body" role="main" class="container-fluid">
+    
+  		<!-- the main body content area -->  	
+    	<div class="row">
+    	   
+    		<div class="col-md-8" style="margin-top:10px;">     
+    			
+    			<!-- layout main content area -->
+        		<g:layoutBody />             
                                     
-    </div>
-	<div class="span4" style="margin-top:10px;">
+    		</div>
+			<div class="col-md-4" style="margin-top:10px;">
 	
-		<g:render template="/rightSidebar" />
+				<g:render template="/rightSidebar" />
 		
-	</div>                     
-    </div>
-    <div class="row">
-    <div class="span12" id="ft">
+			</div>                     
+	    </div>
+    
+    	<div class="row">
+	    	<div class="span12" id="ft">
          
-         <!-- TODO: replace this with a template gsp -->
+    	    	 <!-- TODO: replace this with a template gsp -->
          
-         <!-- footer -->
-         <div>
-              <center>Footer for Neddick</center>
-         </div>
-    </div> 
-    </div>      
+    	    	 <!-- footer -->
+    	     	<div>
+    	          	<center>Footer for Neddick</center>
+    	     	</div>
+    		</div> 
+    	</div>      
+	</div>
           
           		 <!--  hidden div, not shown until somebody clicks the "share" button -->
 				 <div id="shareDialog" title="Share this Item">

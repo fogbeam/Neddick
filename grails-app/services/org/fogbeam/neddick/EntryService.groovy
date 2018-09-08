@@ -63,17 +63,17 @@ class EntryService {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean saveEntry( final Entry entry )
 	{
-		// println "#############################\nSaving Entry";
+		// log.debug "#############################\nSaving Entry";
 		boolean success = false;
 
 		
 		if( ! ( success = entry.save(validate:false,flush:true)) )
 		{
-			println( "Updating entry: ${entry.id} FAILED");
-			entry.errors.allErrors.each { println it };
+			log.debug( "Updating entry: ${entry.id} FAILED");
+			entry.errors.allErrors.each { log.debug it };
 		}
 
-		// println "committing transaction";
+		// log.debug "committing transaction";
 		// sessionFactory.currentSession.connection().commit()
 		
 		return success;
@@ -82,13 +82,13 @@ class EntryService {
 	@Transactional(propagation=Propagation.REQUIRED)
 	public boolean saveEntry( final Entry entry, final Channel channel )
 	{
-		// println "#############################\nSaving Entry";
+		// log.debug "#############################\nSaving Entry";
 		boolean success = false;
 
 		
 		if( ! ( success = entry.save(validate:false,flush:true)) )
 		{
-			println( "Updating entry: ${entry.id} FAILED");
+			log.debug( "Updating entry: ${entry.id} FAILED");
 			entry.errors.allErrors.each { log.error( it ) };
 		}
 
@@ -96,11 +96,11 @@ class EntryService {
 
 		if( ! ( success = entry.save(validate:false,flush:true)) )
 		{
-			println( "Updating entry: ${entry.id} FAILED");
+			log.debug( "Updating entry: ${entry.id} FAILED");
 			entry.errors.allErrors.each { log.error( it ) };
 		}
 				
-		// println "committing transaction";
+		// log.debug "committing transaction";
 		// sessionFactory.currentSession.connection().commit()
 		
 		return success;
@@ -181,8 +181,8 @@ class EntryService {
 	public List<Entry> getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults, final int offset )
 	{
 		List<Entry> entries = new ArrayList<Entry>();
-		println( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
-		println "called with channel: ${channel}, user: ${user}, maxResults: ${maxResults}, offset: ${offset}";
+		log.debug( "called getAllNonHiddenEntriesForUser( final Channel channel, final User user, final int maxResults )");
+		log.debug "called with channel: ${channel}, user: ${user}, maxResults: ${maxResults}, offset: ${offset}";
 
 		List<Object> temp = Entry.executeQuery( "select distinct entry, link from Entry as entry, User as user, UserEntryScoreLink as link, "
 				+ "Channel as channel, ChannelEntryLink as clink where user.userId = ? and clink.entry = entry "

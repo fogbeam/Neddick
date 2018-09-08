@@ -19,67 +19,67 @@ public class TriggerEvaluator
 		
 		boolean retVal = evaluateCriteria( entry, criteria );
 		
-		println "returning retVal: ${retVal}";
+		log.debug "returning retVal: ${retVal}";
 		return retVal;
 	}
 
 	private boolean evaluateCriteria( Entry entry, OrCriteria or )
 	{
-		println "in OrCriteria";
+		log.debug "in OrCriteria";
 		
 		boolean lhsResult = evaluateCriteria( entry, or.leftHandSide );
 		if( lhsResult == true )
 		{
-			println "OrCriteria returning true";
+			log.debug "OrCriteria returning true";
 			return true;
 		}
 		
 		boolean rhsResult = evaluateCriteria( entry, or.rightHandSide );
 		if( rhsResult == true )
 		{
-			println "OrCriteria returning true";
+			log.debug "OrCriteria returning true";
 			return true;
 		}
 		
-		println "OrCriteria returning false";
+		log.debug "OrCriteria returning false";
 		return false;
 	}
 	
 	private boolean evaluateCriteria( Entry entry, AndCriteria and )
 	{
-		println "in AndCriteria";
+		log.debug "in AndCriteria";
 		
 		boolean lhsResult = evaluateCriteria( entry, and.leftHandSide );
 		if( lhsResult == false )
 		{
-			println "AndCriteria returning false";
+			log.debug "AndCriteria returning false";
 			return false;
 		}
 		
 		boolean rhsResult = evaluateCriteria( entry, and.rightHandSide );
 		if( rhsResult == false )
 		{
-			println "AndCriteria returning false";
+			log.debug "AndCriteria returning false";
 			return false;
 		}
 		
-		println "AndCriteria returning true";
+		log.debug "AndCriteria returning true";
 		return true;
 	}	
 	
 	private boolean evaluateCriteria( Entry entry, BodyKeywordTriggerCriteria criteria )
 	{
-		println "BodyKeywordTriggerCriteria";
+		log.debug "BodyKeywordTriggerCriteria";
 		
 		/*
 		if( entry.bodyKeywords.contains( criteria.bodyKeyword ))
 		{
-			println "BodyKeywordTriggerCriteria return true for keyword: ${criteria.bodyKeyword}";
+			log.debug "BodyKeywordTriggerCriteria return true for keyword: ${criteria.bodyKeyword}";
 			return true;
 		}
 		else
 		{
-			println "BodyKeywordTriggerCriteria return false for keyword: ${criteria.bodyKeyword}";
+			log.debug "BodyKeywordTriggerCriteria return false for keyword: ${criteria.bodyKeyword}";
 			return false;
 		}
 		*/
@@ -89,13 +89,13 @@ public class TriggerEvaluator
 	
 	private boolean evaluateCriteria( Entry entry, TagTriggerCriteria criteria )
 	{
-		println "TagTriggerCriteria";
+		log.debug "TagTriggerCriteria";
 		return false;
 	}
 
 	private boolean evaluateCriteria( Entry entry, TitleKeywordTriggerCriteria criteria )
 	{
-		println "TitleKeywordTriggerCriteria";
+		log.debug "TitleKeywordTriggerCriteria";
 		return false;
 	}
 
@@ -105,22 +105,22 @@ public class TriggerEvaluator
 		{
 			case "raw":
 				
-				println "raw";
+				log.debug "raw";
 				int entryScore = entry.score;
-				println "found score as: ${entryScore}";
+				log.debug "found score as: ${entryScore}";
 				
 				if( entryScore > criteria.aboveScoreThreshold )
 				{
-					println "returning true";
+					log.debug "returning true";
 					return true;
 				}
 				else
 				{
-					println "returning false";
+					log.debug "returning false";
 					return false;
 				}
 			default:
-				println "Why are we here?";
+				log.debug "Why are we here?";
 				break;
 		}
 	}

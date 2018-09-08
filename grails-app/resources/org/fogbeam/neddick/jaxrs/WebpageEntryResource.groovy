@@ -68,17 +68,8 @@ class WebpageEntryResource
 			else
 			{
 				// TODO: get the user from params and authenticate using OAuth
-				
-				if( session.user )
-				{
-					def user = User.findByUserId(session.user.userId);
-					entry.submitter = user;
-				}
-				else
-				{
-					def anonymous = User.findByUserId( "anonymous" );
-					entry.submitter = anonymous;
-				}
+				User user = userService.getLoggedInUser();
+				entry.submitter = user;
 				
 				// TODO: deal with transactionality
 				if( entryService.saveEntry( entry ) )

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
+<g:set var="userService" bean="userService"/>
 <html>
     <head>
         <title>
           <g:layoutTitle default="Neddick" />
         </title>
-        <nav:resources />
         <link rel="stylesheet" type="text/css" href="${createLinkTo(dir:'css', file:'main.css')}" />
         <link rel="stylesheet" type="text/css" href="${createLinkTo(dir:'css', file:'bootstrap.min.css')}" />
         <link rel="stylesheet" type="text/css" href="${createLinkTo(dir:'css/FontAwesome/css', file:'font-awesome.css')}">
@@ -145,36 +145,34 @@
 	            					<g:link controller="channel" action="list">Channels</g:link>
 	            				</li>
 	            
-					            <g:if test="${session.user}">
-					            	<li>
-					            		<a href="${resource(dir:'home', file:'savedEntries')}">Saved Entries</a></li>
-					            	<li>
-					            		<g:link controller="tag" action="list">Tags</g:link>
-					            	</li>
-					            	<li>
-					            		<g:link controller="trigger" action="index">Triggers</g:link>
-					            	</li>
-					            	
-					            	<li>
-					            		<g:link controller="filter" action="index">Filters</g:link>
-					            	</li>            	
-					            	    
-					            </g:if>
-					            <g:if test="${session.user}">
-					            	<li>
-					              		<g:link controller="channel" action="create">Create New Channel</g:link>
-					            	</li>
-					            
-					            	<li>
-					              		<g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
-					            	</li>
-					            	
-					            	<!--  TODO: hide this if user does not have "admin" role -->
-					            	<li>
-					            		<g:link controller="admin" action="index">Admin</g:link>
-					            	</li>
-					            	
-					            </g:if>
+
+				            	<li>
+				            		<a href="${resource(dir:'home', file:'savedEntries')}">Saved Entries</a></li>
+				            	<li>
+				            		<g:link controller="tag" action="list">Tags</g:link>
+				            	</li>
+				            	<li>
+				            		<g:link controller="trigger" action="index">Triggers</g:link>
+				            	</li>
+				            	
+				            	<li>
+				            		<g:link controller="filter" action="index">Filters</g:link>
+				            	</li>            	
+				            	    
+				            	<li>
+				              		<g:link controller="channel" action="create">Create New Channel</g:link>
+				            	</li>
+				            
+				            	<li>
+				              		<g:link controller="channel" action="edit" id="${channelName}">Edit Channel Properties</g:link>
+				            	</li>
+				            	
+				            	<!--  TODO: hide this if user does not have "admin" role -->
+				            	<li>
+				            		<g:link controller="admin" action="index">Admin</g:link>
+				            	</li>
+				            	
+
 	          				</ul>
 	      				</div> <!-- end <div class="dropdown"> -->
 	    			</li>
@@ -183,10 +181,10 @@
             		
             		<li>
               			<div class="dropdown">
-	        				<a class="dropdown-toggle" data-toggle="dropdown" href="#">${session.user.userId} <i class="icon-sort-down"></i></a>
+	        				<a class="dropdown-toggle" data-toggle="dropdown" href="#">${userService.getLoggedInUser().userId} <i class="icon-sort-down"></i></a>
 	          				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
     		          			<li>
-	        		      			<g:link controller="userHome" action="index" id="${session.user.userId}">Profile</g:link>	
+	        		      			<g:link controller="userHome" action="index" id="${userService.getLoggedInUser().userId}">Profile</g:link>	
               					</li>
             	 				<li>
               						<g:link controller="login" action="logout">Logout</g:link>

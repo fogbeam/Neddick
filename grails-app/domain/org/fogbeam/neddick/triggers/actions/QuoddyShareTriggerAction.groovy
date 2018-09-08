@@ -28,7 +28,7 @@ class QuoddyShareTriggerAction extends BaseTriggerAction
 	
 	public void doAction( final String entryUuid )
 	{
-		println "performing quoddy_share action for uuid: ${entryUuid}";
+		log.debug "performing quoddy_share action for uuid: ${entryUuid}";
 		
 
 		def entryToSend = Entry.findByUuid( entryUuid );
@@ -86,7 +86,7 @@ class QuoddyShareTriggerAction extends BaseTriggerAction
 			
 			
 			String quoddyActivityStreamsUrl = grailsApplication.config.urls.quoddy.activitystreams.endpoint;
-			println "using quoddyActivityStreamsUrl: ${quoddyActivityStreamsUrl}";
+			log.debug "using quoddyActivityStreamsUrl: ${quoddyActivityStreamsUrl}";
 						
 			ResponseEntity<String> response =
 				restTemplate.postForEntity(
@@ -95,7 +95,7 @@ class QuoddyShareTriggerAction extends BaseTriggerAction
 			
 			String responseText = response.getBody();
 			
-			System.out.println( "done with response: " + responseText );
+			System.out.log.debug( "done with response: " + responseText );
 		
 		
 		} // end quoddy address processing loop

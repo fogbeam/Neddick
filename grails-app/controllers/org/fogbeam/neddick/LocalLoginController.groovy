@@ -62,7 +62,7 @@ class LocalLoginController
     		HttpResponse response = httpClient.execute(post);
     		
     		log.info( "Response Code : " + response.getStatusLine().getStatusCode() );
-    		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+    		System.out.log.debug("Response Code : " + response.getStatusLine().getStatusCode());
     		
     		
     		Header[] headers = response.getAllHeaders();
@@ -70,7 +70,7 @@ class LocalLoginController
     		String ticketLocation = "";
     		for( Header header : headers )
     		{
-    			// System.out.println( "header: " + header );
+    			// System.out.log.debug( "header: " + header );
     			if( header.getName().equalsIgnoreCase( "Location" ))
     			{
     				ticketLocation = header.getValue();
@@ -99,20 +99,20 @@ class LocalLoginController
     		
     		response = httpClient.execute(post);
     		log.info("Response Code : " + response.getStatusLine().getStatusCode());
-    		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+    		System.out.log.debug("Response Code : " + response.getStatusLine().getStatusCode());
     		
     		headers = response.getAllHeaders();
     		
     		for( Header header : headers )
     		{
-    			System.out.println( "header: " + header );
+    			System.out.log.debug( "header: " + header );
     		}
     		
     		String responseStr = EntityUtils.toString( response.getEntity() );
     			
     		
     		log.info( "responseStr: " + responseStr );
-    		System.out.println( "responseStr: " + responseStr );
+    		System.out.log.debug( "responseStr: " + responseStr );
     		
     		def returnUrl = params.returnUrl;
     		// SavedRequest savedRequest = new MySavedRequest(request, returnUrl);

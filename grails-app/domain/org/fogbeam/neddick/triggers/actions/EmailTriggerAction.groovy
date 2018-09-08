@@ -16,7 +16,7 @@ class EmailTriggerAction extends BaseTriggerAction
 	
 	public void doAction( final String entryUuid )
 	{
-		println "performing email action for uuid: ${entryUuid}";
+		log.debug "performing email action for uuid: ${entryUuid}";
 		
 		def entryToSend = Entry.findByUuid( entryUuid );
 		

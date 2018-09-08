@@ -36,22 +36,22 @@ public class ChannelDataSourceLink
 	   def newlink = null;
 	   if( links == null || links.size() == 0 )
 	   {
-		   // println "creating new link";
+		   // log.debug "creating new link";
 		   newlink = new ChannelDataSourceLink();
-		   // println "setting channel";
+		   // log.debug "setting channel";
 		   newlink.channel = channel;
-		   // println "setting datasource";
+		   // log.debug "setting datasource";
 		   newlink.channelDataSource = dataSource;
 
 		   newlink.sinceId = "0";
 		   
-		   // println "saving...";
+		   // log.debug "saving...";
 		   newlink.dateLastPolled = new Date(0);
 		   
 		   if( !newlink.save() )
 		   {
-			   println "Failed to create new ChannelDataSourceLink!";
-			   newlink.errors.allErrors.each{println it;}
+			   ChannelDataSourceLink.log.debug "Failed to create new ChannelDataSourceLink!";
+			   newlink.errors.allErrors.each{log.debug it;}
 		   }
 		   
 		   channel.addToDataSourceLinks(newlink);

@@ -21,7 +21,7 @@ class UserFavoriteChannelLink
 	/* static utility methods for managing the linking of channels and users */
 	static UserFavoriteChannelLink link(Channel channel, User user )
    {
-	   println "linking...";
+	   UserFavoriteChannelLink.log.debug "linking...";
 		
 	   // look for an existing matching link
 	   List<UserFavoriteChannelLink> links = UserFavoriteChannelLink.executeQuery( "select link from UserFavoriteChannelLink as link where link.channel = ? and link.user = ?", [channel, user] );

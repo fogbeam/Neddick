@@ -40,21 +40,11 @@ class HomeController
 	def restTemplate;
 	
 	int itemsPerPage = -1;
-	
-    static navigation =
-        [
-            [group:'tabs', action:'index', title:'New', order:90],
-            [action:'hotEntries', title:'Hot', order:94, isVisible:{true}],
-            [action:'topEntries', title:'Top', order:96, isVisible: {true}],
-            [action:'controversialEntries', title:'Controversial', order:97, isVisible: {true}],
-			[action:'savedEntries', title:'Saved', order:98, isVisible: {true}]
-        
-    ];	
-	
+		
 	@Secured(["ROLE_USER", "ROLE_ADMIN"])
 	def index()
 	{
-		println( "index" );
+		log.debug( "index" );
 		log.info( "index() called" );
 		
 		if( itemsPerPage == -1 )
@@ -72,7 +62,7 @@ class HomeController
 			}
 		}
 		
-		println( "itemsPerPage: ${itemsPerPage}");
+		log.debug( "itemsPerPage: ${itemsPerPage}");
 		
 		String requestedPageNumber = params.pageNumber;
 		
@@ -110,7 +100,7 @@ class HomeController
 		log.info( "Looking up Channel named: ${channelName}" );
 		Channel theChannel = channelService.findByName( channelName );
 		
-		println "theChannel: ${theChannel.name}";
+		log.debug "theChannel: ${theChannel.name}";
 		
 		User user = userService.getLoggedInUser();
 		
@@ -136,7 +126,7 @@ class HomeController
 		
 		if( filter )
 		{
-			println "there is a filter in effect for this channel";
+			log.debug "there is a filter in effect for this channel";
 			
 			// select count Entries for this channel
 			int dataSize = filterService.getCountNonHiddenEntriesForFilter( filter );
@@ -183,7 +173,7 @@ class HomeController
 		}
 		else
 		{
-			println "no filter for this channel";
+			log.debug "no filter for this channel";
 			
 			// select count Entries for this channel
 			int dataSize = 0;
@@ -197,12 +187,12 @@ class HomeController
 				
 			}
 	
-			println "dataSize: ${dataSize}";
+			log.debug "dataSize: ${dataSize}";
 					
 			int pages = dataSize / itemsPerPage;
 			pages = Math.max( pages, 1 );
 			
-			println( "calculated available pages as: ${pages}");
+			log.debug( "calculated available pages as: ${pages}");
 			
 			if( dataSize > (pages*itemsPerPage) )
 			{
@@ -226,16 +216,16 @@ class HomeController
 			List<Entry> entries = null;
 			if( user != null ) 
 			{
-				println( "calling getAllNonHiddenEntriesForUser" );
+				log.debug( "calling getAllNonHiddenEntriesForUser" );
 				entries = entryService.getAllNonHiddenEntriesForUser(theChannel, user, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 			}
 			else 
 			{
-				println( "calling getAllEntries" );
+				log.debug( "calling getAllEntries" );
 				entries = entryService.getAllEntries( theChannel, itemsPerPage, ( pageNumber * itemsPerPage ) - itemsPerPage );
 			}
 			
-			println "returning ${entries.size()} entries";
+			log.debug "returning ${entries.size()} entries";
 			
 			List quoddyUserNames = new ArrayList();
 
@@ -248,10 +238,10 @@ class HomeController
 			
 			if( quoddyFoafUrl )
 			{
-				println "quoddyFoafUrl: ${quoddyFoafUrl}";
+				log.debug "quoddyFoafUrl: ${quoddyFoafUrl}";
 				
 				String foafResponse = restTemplate.getForObject( quoddyFoafUrl, String.class );
-				// println "foafResponse:\n\n${foafResponse}";
+				// log.debug "foafResponse:\n\n${foafResponse}";
 				Dataset dataset = DatasetFactory.createMem();
 				Model foafModel = dataset.getDefaultModel();
 				StringReader foafReader = new StringReader(foafResponse);
@@ -351,16 +341,7 @@ class HomeController
     	
     	Channel theChannel = channelService.findByName( channelName );    
 		 
-		User user = null;
-    	if( session.user ) 
-        {
-			user = userService.findUserByUserId( session.user.userId);
-        }
-		else
-		{
-			user = userService.findUserByUserId( "anonymous" );
-		}    	
-		
+		User user = userService.getLoggedInUser();
 		
 		// check if this is a private channel, and - if it is - if the user
 		// is the owner
@@ -530,16 +511,7 @@ class HomeController
     	
     	Channel theChannel = channelService.findByName( channelName );
     	
-		User user = null;
-    	if( session.user ) 
-        {
-			user = userService.findUserByUserId( session.user.userId);
-        }
-		else
-		{
-			user = userService.findUserByUserId( "anonymous" );
-		}
-		
+		User user = userService.getLoggedInUser();
 			
 		// check if this is a private channel, and - if it is - if the user
 		// is the owner
@@ -708,16 +680,7 @@ class HomeController
     	
     	Channel theChannel = channelService.findByName( channelName );
     	
-		User user = null;
-		if( session.user ) 
-        {
-			user = userService.findUserByUserId( session.user.userId);
-        }
-		else
-		{
-			user = userService.findUserByUserId( "anonymous" );
-		}
-		
+		User user = userService.getLoggedInUser();	
 				
 		// check if this is a private channel, and - if it is - if the user
 		// is the owner
@@ -887,17 +850,7 @@ class HomeController
 		
 		Channel theChannel = channelService.findByName( channelName );
 		
-		User user = null;
-		if( session.user )
-		{
-			user = userService.findUserByUserId( session.user.userId);
-		}
-		else
-		{
-			user = userService.findUserByUserId( "anonymous" );
-		}
-
-		
+		User user = userService.getLoggedInUser();
 		
 		// check if this is a private channel, and - if it is - if the user
 		// is the owner
@@ -1056,16 +1009,8 @@ class HomeController
     	
     	
     	def savedEntries = null;
-		User user = null;
-		if( session.user ) 
-    	{
-    		user = userService.findUserByUserId( session.user.userId);
-    		savedEntries = entryService.getSavedEntriesForUser( user );
-    	}	
-    	else
-    	{
-    		savedEntries = new ArrayList();
-    	}
+		User user = userService.getLoggedInUser();
+    	savedEntries = entryService.getSavedEntriesForUser( user );
     	
     	int dataSize = savedEntries.size();
     	log.debug( "dataSize: ${dataSize}" );
@@ -1156,20 +1101,9 @@ class HomeController
     	log.debug( "requested pageNumber: ${pageNumber}" );
     	
     	
-    	def hiddenEntries = null;
-		User user = null;
-    	if( session.user ) 
-    	{   
-    		user = userService.findUserByUserId( session.user.userId);
-    		hiddenEntries = entryService.getHiddenEntriesForUser( user );
-    		
-    	}
-    	else
-    	{
-			log.debug( "not logged in" );
-    		hiddenEntries = new ArrayList();
-    	}
-   
+		User user = userService.getLoggedInUser();
+    	def hiddenEntries = entryService.getHiddenEntriesForUser( user );
+ 
     	
     	int dataSize = hiddenEntries.size();
     	log.debug( "dataSize: ${dataSize}" );

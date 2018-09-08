@@ -15,7 +15,7 @@ class UserDetailsService implements org.springframework.security.core.userdetail
     public UserDetails loadUserByUsername( String username )
             throws UsernameNotFoundException
     {
-        println "username: " + username;
+        log.debug "username: " + username;
         
         
         User ourUser = null;
@@ -29,7 +29,7 @@ class UserDetailsService implements org.springframework.security.core.userdetail
             ourUser = userService.findUserByUserId( "SYS_anonymous" );
         }
         
-        println "returning user: " + ourUser;
+        log.debug "returning user: " + ourUser;
         
         return ourUser;
     }

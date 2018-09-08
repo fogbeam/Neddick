@@ -79,7 +79,7 @@ class VoteService {
 		if( !entry.save() )
 		{
 			log.error( "Failed to save vote!");
-			// entry.errors.allErrors.each { println it };
+			// entry.errors.allErrors.each { log.debug it };
 		}		
 		else
 		{

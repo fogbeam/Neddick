@@ -69,7 +69,7 @@ class BootStrap
 			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
 			 if( ! indexIsInitialized )
 			 {
-				 println( "Index not previously initialized, creating empty index" );
+				 log.debug( "Index not previously initialized, creating empty index" );
 				 /* initialize empty index */
 				 Directory indexDir = new NIOFSDirectory( indexFile );
 				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
@@ -92,7 +92,7 @@ class BootStrap
 			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
 			 if( ! indexIsInitialized )
 			 {
-				 println( "Index not previously initialized, creating empty index" );
+				 log.debug( "Index not previously initialized, creating empty index" );
 				 /* initialize empty index */
 				 Directory indexDir = new NIOFSDirectory( indexFile );
 				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
@@ -137,7 +137,7 @@ class BootStrap
 			 
     		 if( !channel.save(flush:true) )
     		 {
-    			 println( "Saving DEFAULT channel failed!" );
+    			 log.debug( "Saving DEFAULT channel failed!" );
 				 channel.errors.allErrors.each { log.error( it.toString() ) };
     		 }
     	 }
@@ -181,15 +181,15 @@ class BootStrap
 	 void createRoles()
 	 {
 		 
-		 println "Creating roles...";
+		 log.debug "Creating roles...";
 		 AccountRole userRole = userService.findAccountRoleByAuthority( "ROLE_USER" );
 		 if( userRole != null )
 		 {
-			 println "Existing AccountRole ROLE_USER found";
+			 log.debug "Existing AccountRole ROLE_USER found";
 		 }
 		 else
 		 {
-			 println "No existing AccountRole ROLE_USER found, so creating now...";
+			 log.debug "No existing AccountRole ROLE_USER found, so creating now...";
 			 
 			userRole = new AccountRole( authority: "ROLE_USER" );
 			
@@ -197,7 +197,7 @@ class BootStrap
 			
 			if( !userRole )
 			{
-				println "Error creating userRole";
+				log.debug "Error creating userRole";
 			}
 
 		 }
@@ -205,11 +205,11 @@ class BootStrap
 		 AccountRole adminRole = userService.findAccountRoleByAuthority( "ROLE_ADMIN" );
 		 if( adminRole != null )
 		 {
-			 println "Existing AccountRole ROLE_ADMIN found";
+			 log.debug "Existing AccountRole ROLE_ADMIN found";
 		 }
 		 else
 		 {
-			 println "No existing AccountRole ROLE_ADMIN found, so creating now...";
+			 log.debug "No existing AccountRole ROLE_ADMIN found, so creating now...";
 			 
 			 adminRole = new AccountRole( authority: "ROLE_ADMIN" );
 			 
@@ -217,7 +217,7 @@ class BootStrap
 		 
 			 if( !adminRole )
 			 {
-				 println "Error creating role ROLE_ADMIN";
+				 log.debug "Error creating role ROLE_ADMIN";
 			 }
 		 }
 	 }
@@ -227,19 +227,19 @@ class BootStrap
 	{
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         
-		println "Creating some users!";
+		log.debug "Creating some users!";
 	
 		AccountRole userRole = userService.findAccountRoleByAuthority( "ROLE_USER" );
 
 		if( userRole == null )
 		{
-				println "did not locate user role!";
+				log.debug "did not locate user role!";
 		}
 
 		AccountRole adminRole = userService.findAccountRoleByAuthority( "ROLE_ADMIN" );
 		if( adminRole == null )
 		{
-				println "did not locate admin role!";
+				log.debug "did not locate admin role!";
 		}
 
         
@@ -250,13 +250,13 @@ class BootStrap
 
         if( userAnonymous != null )
         {
-             println "Found existing SYS_anonymous user!";
+             log.debug "Found existing SYS_anonymous user!";
 
         }
         else
         {
-            println "Could not find SYS_anonymous";
-            println "Creating new SYS_anonymous user";
+            log.debug "Could not find SYS_anonymous";
+            log.debug "Creating new SYS_anonymous user";
             userAnonymous = new User();
             userAnonymous.uuid = "-1";
             userAnonymous.displayName = "Anonymous User";
@@ -278,13 +278,13 @@ class BootStrap
 
 		if( userPrhodes != null )
 		{
-			 println "Found existing prhodes user!";
+			 log.debug "Found existing prhodes user!";
 
 		}
 		else
 		{
-			println "Could not find prhodes";
-			println "Creating new prhodes user";
+			log.debug "Could not find prhodes";
+			log.debug "Creating new prhodes user";
 			userPrhodes = new User();
 			userPrhodes.uuid = "abc123";
 			userPrhodes.displayName = "Phillip Rhodes";
@@ -309,17 +309,17 @@ class BootStrap
 					prhodesUser_UserRole = new UserAccountRoleMapping( userPrhodes, userRole );
 					if( !prhodesUser_UserRole.save( flush: true ) )
 					{
-						prhodesUser_UserRole.errors.allErrors.each { println it };
+						prhodesUser_UserRole.errors.allErrors.each { log.debug it };
 						throw new RuntimeException( "Failed to create prhodesUser_UserRole" );
 					}
 					else
 					{
-						println "prhodesUser_UserRole created!";
+						log.debug "prhodesUser_UserRole created!";
 					}
 				}
 				else
 				{
-					println "prhodesUser_UserRole already exists!";
+					log.debug "prhodesUser_UserRole already exists!";
 				}
 			}
  
@@ -334,17 +334,17 @@ class BootStrap
 					 prhodesUser_AdminRole = new UserAccountRoleMapping( userPrhodes, adminRole );
 					 if( ! prhodesUser_AdminRole.save( flush: true ) )
 					 {
-						prhodesUser_AdminRole.errors.allErrors.each { println it };
+						prhodesUser_AdminRole.errors.allErrors.each { log.debug it };
 					 	throw new RuntimeException( "Failed to create prhodesUser_AdminRole" );
 					 }
 					 else
 					 {
-						 println "prhodesUser_AdminRole created!";
+						 log.debug "prhodesUser_AdminRole created!";
 					 }
 				 }
 				 else
 				 {
-					 println "prhodesUser_AdminRole already exists!";
+					 log.debug "prhodesUser_AdminRole already exists!";
 				 }
 			 }
 		 }
@@ -354,13 +354,13 @@ class BootStrap
  
 		 if( userSarah != null )
 		 {
-			   println "Found existing sarah user!";
+			   log.debug "Found existing sarah user!";
  
 		 }
 		 else
 		 {
-			 println "Could not find sarah";
-			 println "Creating new sarah user";
+			 log.debug "Could not find sarah";
+			 log.debug "Creating new sarah user";
 			 userSarah = new User();
 			 userSarah.uuid = "abc124";
 			 userSarah.displayName = "Sarah Kahn";
@@ -384,17 +384,17 @@ class BootStrap
 					 sarahUser_UserRole = new UserAccountRoleMapping( userSarah, userRole );
 					 if( ! sarahUser_UserRole.save( flush: true ) )
 					 {
-						 sarahUser_UserRole.errors.allErrors.each { println it };
+						 sarahUser_UserRole.errors.allErrors.each { log.debug it };
 						 throw new RuntimeException( "Failed to create sarahUser_UserRole" );
 					 }
 					 else
 					 {
-						 println "sarahUser_UserRole created!";
+						 log.debug "sarahUser_UserRole created!";
 					 }
 				 }
 				 else
 				 {
-					 println "sarahUser_UserRole already exists!";
+					 log.debug "sarahUser_UserRole already exists!";
 				 }
 			 }
    
@@ -408,17 +408,17 @@ class BootStrap
 					 sarahUser_AdminRole = new UserAccountRoleMapping( userSarah, adminRole );
 					 if( ! sarahUser_AdminRole.save( flush: true ) )
 					 {
-						 sarahUser_AdminRole.errors.allErrors.each { println it };
+						 sarahUser_AdminRole.errors.allErrors.each { log.debug it };
 					 	 throw new RuntimeException( "Failed to create sarahUser_AdminRole" );
 					 }
 					 else
 					 {
-						 println "sarahUser_AdminRole created!";
+						 log.debug "sarahUser_AdminRole created!";
 					 }
 				 }
 				 else
 				 {
-					 println "sarahUser_AdminRole already exists!";
+					 log.debug "sarahUser_AdminRole already exists!";
 				 }
 			 }
 		 }
@@ -428,7 +428,7 @@ class BootStrap
 		 {
 			 if( userService.findUserByUserId( "testuser${i}" ) == null )
 			 {
-				 println "Fresh Database, creating TESTUSER ${i} user";
+				 log.debug "Fresh Database, creating TESTUSER ${i} user";
 				 User testUser = new User(
 								 userId: "testuser${i}",
 							   firstName: "Test",
@@ -441,7 +441,7 @@ class BootStrap
 				  testUser.password = hashedPassword; 
 				  testUser.uuid = "test_user_${i}";
 				
-				  println "about to create user: ${testUser.toString()}";
+				  log.debug "about to create user: ${testUser.toString()}";
 				  testUser = userService.updateUser( testUser );
 				  		   
 				  UserAccountRoleMapping testUser_UserRole = null;
@@ -453,23 +453,23 @@ class BootStrap
 						  testUser_UserRole = new UserAccountRoleMapping( testUser, userRole );
 						  if( ! testUser_UserRole.save( flush: true ) )
 						  {
-							  testUser_UserRole.errors.allErrors.each { println it };
+							  testUser_UserRole.errors.allErrors.each { log.debug it };
                               throw new RuntimeException( "Failed to create testUser_UserRole" );
 						  }
 						  else
 						  {
-							  println "testUser_UserRole created!";
+							  log.debug "testUser_UserRole created!";
 						  }
 					  }
 					  else
 					  {
-						  println "testUser_UserRole already exists!";
+						  log.debug "testUser_UserRole already exists!";
 					  }
 				  }				   
 			 }
 			 else
 			 {
-				 println "Existing TESTUSER ${i} user, skipping...";
+				 log.debug "Existing TESTUSER ${i} user, skipping...";
 			 }
 		 }
 	}     
@@ -480,26 +480,26 @@ class BootStrap
 		 
 		 if( userRole == null )
 		 {
-			 println "did not locate user role!";
+			 log.debug "did not locate user role!";
 		 }
 		 else
 		 {
-			 println "found user role";
+			 log.debug "found user role";
 		 }
 		 
 		 AccountRole adminRole = userService.findAccountRoleByName( "admin" );
 		 if( adminRole == null )
 		 {
-			 println "did not locate admin role!";
+			 log.debug "did not locate admin role!";
 		 }
 		 else
 		 {
-			 println "found admin role";
+			 log.debug "found admin role";
 		 }
 		 
          if( !User.findByUserId( "anonymous" ))
          {
-             println( "Fresh Database, creating ANONYMOUS user" );
+             log.debug( "Fresh Database, creating ANONYMOUS user" );
              def user = new User();
 			 user.userId = "anonymous";
 			 user.password = "secret";
@@ -512,17 +512,17 @@ class BootStrap
 			 
              if( !user.save(flush:true) )
              {
-                 println( "Saving ANONYMOUS user failed!");
-             	 user.errors.allErrors.each { println it; };
+                 log.debug( "Saving ANONYMOUS user failed!");
+             	 user.errors.allErrors.each { log.debug it; };
 			 }
              else
 			 {
-				 println "Successfully created ANONYMOUS user";
+				 log.debug "Successfully created ANONYMOUS user";
 			 }
          }
          else
          {
-             println( "Existing ANONYMOUS user, skipping..." );
+             log.debug( "Existing ANONYMOUS user, skipping..." );
          }    	 
      }
      
@@ -533,14 +533,14 @@ class BootStrap
 		 
 		 if( userRole == null )
 		 {
-			 println "did not locate user role!";
+			 log.debug "did not locate user role!";
 		 }
 		 
 		 
 		 AccountRole adminRole = userService.findAccountRoleByName( "admin" );
 		 if( adminRole == null )
 		 {
-			 println "did not locate admin role!";
+			 log.debug "did not locate admin role!";
 		 }
 		 
          if( !User.findByUserId( "admin" ))

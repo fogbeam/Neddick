@@ -14,7 +14,7 @@ class FilterListenerService
 	def onMessage( msg )
 	{
 		
-		// println "FilterListenerService received message: ${msg}";
+		// log.debug "FilterListenerService received message: ${msg}";
 	
 		String msgType = msg.msgType;
 		
@@ -24,7 +24,7 @@ class FilterListenerService
 				
 				String tagName = msg.tagName;
 				String entryUuid = msg.entry_uuid;
-				println "firing TagFilterCriteria";
+				log.debug "firing TagFilterCriteria";
 				filterService.fireTagFilterCriteria( tagName, entryUuid );
 				break;
 			
@@ -48,7 +48,7 @@ class FilterListenerService
 				break;	
 								
 			default:
-				println "Remote sent bad msgType";
+				log.debug "Remote sent bad msgType";
 				break;
 		}
 		

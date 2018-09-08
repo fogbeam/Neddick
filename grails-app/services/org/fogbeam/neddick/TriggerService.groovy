@@ -62,7 +62,7 @@ class TriggerService
 	{
 		if( !trigger.save())
 		{
-			trigger.errors.allErrors.each { println it; }
+			trigger.errors.allErrors.each { log.debug it; }
 			throw new RuntimeException( "Failed to save trigger!");
 		}
 		
@@ -88,7 +88,7 @@ class TriggerService
 		
 		if( !triggerToEdit.save())
 		{
-			triggerToEdit.errors.allErrors.each { println it; }
+			triggerToEdit.errors.allErrors.each { log.debug it; }
 			throw new RuntimeException( "Failed to update trigger!");
 		}
 		
@@ -101,7 +101,7 @@ class TriggerService
 	// the score of an entry has changed, process "score" triggers
 	public void fireThresholdTriggerCriteria( final String entryUuid, final String strNewScore )
 	{
-		println "processing score threshold triggers...";
+		log.debug "processing score threshold triggers...";
 		
 		List<AboveScoreTriggerCriteria> triggerCriteria = AboveScoreTriggerCriteria.findAll();
 		
@@ -113,8 +113,8 @@ class TriggerService
 		for( AboveScoreTriggerCriteria criteria : triggerCriteria )
 		{
 			
-			println "found an instance of AboveScoreTriggerCriteria";
-			println "newScore: ${newScore}, threshold: ${criteria.aboveScoreThreshold}";
+			log.debug "found an instance of AboveScoreTriggerCriteria";
+			log.debug "newScore: ${newScore}, threshold: ${criteria.aboveScoreThreshold}";
 			
 			
 			/* TODO: this needs to take score personalization into account */
@@ -135,14 +135,14 @@ class TriggerService
 				}
 				
 				
-				println "found a match, firing Trigger: ${trigger.name}";
+				log.debug "found a match, firing Trigger: ${trigger.name}";
 				
 				// and fire it's actions
 				trigger.fireAllActions( entryUuid );
 			}
 			else
 			{
-				println "No match, not firing actions...";	
+				log.debug "No match, not firing actions...";	
 			}
 
 		}			
@@ -151,7 +151,7 @@ class TriggerService
 	// a new tag was added, process "tag" triggers
 	public void fireTagTriggerCriteria( final String tagName, final String entryUuid )
 	{
-		println "processing tag triggers..."
+		log.debug "processing tag triggers..."
 		List<TagTriggerCriteria> triggersCriteria = this.findTagTriggerCriteriaByTagName( tagName );
 		
 		Entry theEntry = entryService.findByUuid( entryUuid );
@@ -180,7 +180,7 @@ class TriggerService
 	
 	public findTagTriggerCriteriaByTagName( final String tagName )
 	{
-		println "seeking TagTriggerCriteria with tagName: ${tagName}";
+		log.debug "seeking TagTriggerCriteria with tagName: ${tagName}";
 		
 		List<TagTriggerCriteria> triggerCriteria = new ArrayList<TagTriggerCriteria>();
 		String canonicalTagName = tagName.trim().toLowerCase();
@@ -192,7 +192,7 @@ class TriggerService
 			triggerCriteria.addAll( queryResults );
 		}	
 			
-		println "Found ${triggerCriteria.size()} matching TagTriggerCriteria!";
+		log.debug "Found ${triggerCriteria.size()} matching TagTriggerCriteria!";
 		
 		return triggerCriteria;
 	}
@@ -200,7 +200,7 @@ class TriggerService
 	// a new piece of content was delivered, process "content" (body and title keyword) triggers
 	public void fireContentTriggerCriteria( final String entryUuid )
 	{
-		// println "processing content triggers..."
+		// log.debug "processing content triggers..."
 			
 		List<BodyKeywordTriggerCriteria> bodyKeywordTriggerCriteria = BodyKeywordTriggerCriteria.findAll();
 		
@@ -208,7 +208,7 @@ class TriggerService
 		
 		if( bodyKeywordTriggerCriteria != null )
 		{
-			// println "bodyKeywordTriggerCriteria object is valid";
+			// log.debug "bodyKeywordTriggerCriteria object is valid";
 			
 			for( BodyKeywordTriggerCriteria triggerCrit : bodyKeywordTriggerCriteria )
 			{
@@ -216,11 +216,11 @@ class TriggerService
 				
 				String keyword = triggerCrit.bodyKeyword;
 				
-				// println "found a triggerCriteria with keyword: ${keyword}";
+				// log.debug "found a triggerCriteria with keyword: ${keyword}";
 				
 				List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND content: ${keyword}" );
 				
-				println "did search for entry_uuid: ${entryUuid}";
+				log.debug "did search for entry_uuid: ${entryUuid}";
 								
 				// does this criteria fire?
 				if( searchResults != null && !searchResults.isEmpty() )
@@ -238,7 +238,7 @@ class TriggerService
 						}
 					}
 										
-					println "found a match, firing Trigger: ${trigger.name}";
+					log.debug "found a match, firing Trigger: ${trigger.name}";
 					
 					// and fire it's actions
 					trigger.fireAllActions( entryUuid );
@@ -258,7 +258,7 @@ class TriggerService
 		{
 			for( TitleKeywordTriggerCriteria triggerCrit : titleKeywordTriggerCriteria )
 			{
-				println "Found valid TitleKeywordTriggerCriteria with keyword: ${triggerCrit.titleKeyword}";
+				log.debug "Found valid TitleKeywordTriggerCriteria with keyword: ${triggerCrit.titleKeyword}";
 				
 				String keyword = triggerCrit.titleKeyword;
 				List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND title: ${keyword}" );
@@ -267,37 +267,37 @@ class TriggerService
 				// does this criteria fire?
 				if( searchResults != null && !searchResults.isEmpty() )
 				{
-					println "found results for entryUuid: ${entryUuid} and title keyword: ${keyword}";
+					log.debug "found results for entryUuid: ${entryUuid} and title keyword: ${keyword}";
 					
 					// get the associated Trigger
 					BaseTrigger trigger = triggerCrit.trigger;
 					if( trigger instanceof ChannelTrigger )
 					{
-						println "this is a ChannelTrigger for Channel: ${trigger.channel.name}";
+						log.debug "this is a ChannelTrigger for Channel: ${trigger.channel.name}";
 						Entry tempEntry = entryService.findByUuidAndChannel( entryUuid, trigger.channel );
 						if(  tempEntry == null )
 						{
-							println "but the channel doesn't match, skipping...";
+							log.debug "but the channel doesn't match, skipping...";
 							continue;
 						}
 						else
 						{
-							println "and the channel does match, proceeding...";
+							log.debug "and the channel does match, proceeding...";
 						}
 					}
 					else
 					{
-						println "this is not a Channel Trigger";
+						log.debug "this is not a Channel Trigger";
 					}
 					
 		
-					println "firing all actions...";			
+					log.debug "firing all actions...";			
 					// and fire it's actions
 					trigger.fireAllActions( entryUuid );
 				}
 				else
 				{
-					println "found NO results for entryUuid: ${entryUuid} and title keyword: ${keyword}";
+					log.debug "found NO results for entryUuid: ${entryUuid} and title keyword: ${keyword}";
 				}
 			}
 		}
@@ -319,25 +319,25 @@ class TriggerService
 				BaseTrigger trigger = triggerCrit.trigger;
 				if( trigger instanceof ChannelTrigger )
 				{
-					println "this is a ChannelTrigger for Channel: ${trigger.channel.name}";
+					log.debug "this is a ChannelTrigger for Channel: ${trigger.channel.name}";
 					Entry tempEntry = entryService.findByUuidAndChannel( entryUuid, trigger.channel );
 					if(  tempEntry == null )
 					{
-						println "but the channel doesn't match, skipping...";
+						log.debug "but the channel doesn't match, skipping...";
 						continue;
 					}
 					else
 					{
-						println "and the channel does match, proceeding...";
+						log.debug "and the channel does match, proceeding...";
 					}
 				}
 				else
 				{
-					println "this is not a Channel Trigger";
+					log.debug "this is not a Channel Trigger";
 				}
 				
 	
-				println "firing all actions...";
+				log.debug "firing all actions...";
 				// and fire it's actions
 				trigger.fireAllActions( entryUuid );
 			}

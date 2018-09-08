@@ -57,7 +57,7 @@ class FilterService
 		}
 		else 
 		{
-			newFilter.errors.allErrors.each { println it };
+			newFilter.errors.allErrors.each { log.debug it };
 			return null;
 		}
 	}
@@ -79,7 +79,7 @@ class FilterService
 		
 		if( !filterToEdit.save())
 		{
-			filterToEdit.errors.allErrors.each { println it; }
+			filterToEdit.errors.allErrors.each { log.debug it; }
 			throw new RuntimeException( "Failed to update filter!");
 		}
 		
@@ -126,7 +126,7 @@ class FilterService
 	
 	public List<Entry> getAllNonHiddenEntriesForFilter(final BaseFilter filter, final int maxResults, final int offset )
 	{
-		println "getAllNonHiddenEntriesForFilter";
+		log.debug "getAllNonHiddenEntriesForFilter";
 		
 		List<Entry> entries = new ArrayList<Entry>();
 		
@@ -156,7 +156,7 @@ class FilterService
 	
 	public List<Entry> getHotNonHiddenEntriesForFilter( final BaseFilter filter, final int maxResults, final int offset )
 	{
-		println "getHotNonHiddenEntriesForFilter";
+		log.debug "getHotNonHiddenEntriesForFilter";
 		
 		List<Entry> entries = new ArrayList<Entry>();
 		
@@ -177,7 +177,7 @@ class FilterService
 				Entry e = o[0];
 				UserEntryScoreLink link = o[1];
 				
-				println "adding UserEntryScoreLink: ${link}";
+				log.debug "adding UserEntryScoreLink: ${link}";
 				
 				e.link = link;
 				entries.add( e );
@@ -190,7 +190,7 @@ class FilterService
 	public List<Entry> getTopNonHiddenEntriesForFilter( final BaseFilter filter, final int maxResults, final int offset )
 	{
 		
-		println "getTopNonHiddenEntriesForFilter";
+		log.debug "getTopNonHiddenEntriesForFilter";
 		
 		List<Entry> entries = new ArrayList<Entry>();
 		
@@ -210,7 +210,7 @@ class FilterService
 				Entry e = o[0];
 				UserEntryScoreLink link = o[1];
 				
-				println "adding UserEntryScoreLink: ${link}";
+				log.debug "adding UserEntryScoreLink: ${link}";
 				
 				e.link = link;
 				entries.add( e );
@@ -222,7 +222,7 @@ class FilterService
 	public List<Entry> getControversialNonHiddenEntriesForFilter( final BaseFilter filter, final int maxResults, final int offset )
 	{
 		
-		println "getControversialNonHiddenEntriesForFilter";
+		log.debug "getControversialNonHiddenEntriesForFilter";
 		
 		List<Entry> entries = new ArrayList<Entry>();
 		
@@ -242,7 +242,7 @@ class FilterService
 				Entry e = o[0];
 				UserEntryScoreLink link = o[1];
 				
-				println "adding UserEntryScoreLink: ${link}";
+				log.debug "adding UserEntryScoreLink: ${link}";
 				
 				e.link = link;
 				entries.add( e );
@@ -255,7 +255,7 @@ class FilterService
 		
 	public void fireTagFilterCriteria( final String tagName, final String entryUuid  )
 	{
-		println "fireTagFilterCriteria";
+		log.debug "fireTagFilterCriteria";
 		
 		// lookup the Entry that was just tagged
 		Entry entry = entryService.findByUuid( entryUuid );
@@ -266,7 +266,7 @@ class FilterService
 		// for each specific criteria, add our entry to the associated filter
 		for( BaseFilterCriteria criteria : filterCriteria )
 		{
-			// println "adding Entry to filter for channel: ${channel.name} and tag: ${tagName}";
+			// log.debug "adding Entry to filter for channel: ${channel.name} and tag: ${tagName}";
 			BaseFilter filter = criteria.filter;
 			Channel targetChannel = filter.channel;
 			
@@ -290,8 +290,8 @@ class FilterService
 	
 	public void fireThresholdFilterCriteria( final String entryUuid, final String strNewScore )
 	{
-		println "fireThresholdFilterCriteria";
-		println "processing score threshold filter criteria...";
+		log.debug "fireThresholdFilterCriteria";
+		log.debug "processing score threshold filter criteria...";
 		
 			
 		int newScore = Integer.parseInt( strNewScore);
@@ -309,8 +309,8 @@ class FilterService
 			for( AboveScoreFilterCriteria criteria : triggerCriteria)
 			{
 				// for each AboveScoreFilterCriteria, test to see if it's Filter should file 
-				println "found an instance of AboveScoreFilterCriteria";
-				println "newScore: ${newScore}, threshold: ${criteria.aboveScoreThreshold}";
+				log.debug "found an instance of AboveScoreFilterCriteria";
+				log.debug "newScore: ${newScore}, threshold: ${criteria.aboveScoreThreshold}";
 				
 				
 				/* TODO: this needs to take score personalization into account */
@@ -321,13 +321,13 @@ class FilterService
 					// get the associated filter
 					BaseFilter filter = criteria.filter;
 					
-					println "found a match, attaching Entry to Filter: ${filter.name}";
+					log.debug "found a match, attaching Entry to Filter: ${filter.name}";
 				
 					filter.addToEntries( theEntry );	
 				}
 				else
 				{
-					println "No match, not firing actions...";
+					log.debug "No match, not firing actions...";
 				}
 				
 			}
@@ -379,7 +379,7 @@ class FilterService
 	
 	public void fireContentFilterCriteria( final String entryUuid )
 	{
-		// println "processing content triggers..."
+		// log.debug "processing content triggers..."
 	
 		Entry theEntry = entryService.findByUuid( entryUuid );
 		List<Channel> entryChannels = theEntry.channels;
@@ -392,18 +392,18 @@ class FilterService
 		
 			if( bodyKeywordFilterCriteria != null )
 			{
-				// println "bodyKeywordFilterCriteria object is valid";
+				// log.debug "bodyKeywordFilterCriteria object is valid";
 			
 				for( BodyKeywordFilterCriteria criteria : bodyKeywordFilterCriteria )
 				{
 					
 					String keyword = criteria.bodyKeyword;
 				
-					// println "found a body filterCriteria with keyword: ${keyword}";
+					// log.debug "found a body filterCriteria with keyword: ${keyword}";
 					
 					List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND content: ${keyword}" );
 					
-					// println "did search for entry_uuid: ${entryUuid}";
+					// log.debug "did search for entry_uuid: ${entryUuid}";
 									
 					// does this criteria fire?
 					if( searchResults != null && !searchResults.isEmpty() )
@@ -413,7 +413,7 @@ class FilterService
 						// get the associated filter
 						BaseFilter filter = criteria.filter;
 						
-						println "found a match, attaching Entry to Filter: ${filter.name}";
+						log.debug "found a match, attaching Entry to Filter: ${filter.name}";
 					
 						filter.addToEntries( theEntry );
 						
@@ -426,18 +426,18 @@ class FilterService
 			List<TitleKeywordFilterCriteria> titleKeywordFilterCriteria = this.findTitleKeywordFilterCriteriaByChannel( channel );
 			if( titleKeywordFilterCriteria != null )
 			{
-				// println "titleKeywordFilterCriteria object is valid";
+				// log.debug "titleKeywordFilterCriteria object is valid";
 			
 				for( TitleKeywordFilterCriteria criteria : titleKeywordFilterCriteria )
 				{
 					
 					String keyword = criteria.titleKeyword;
 				
-					// println "found a title filterCriteria with keyword: ${keyword}";
+					// log.debug "found a title filterCriteria with keyword: ${keyword}";
 					
 					List<Entry> searchResults = searchService.doSearch( "uuid: ${entryUuid} AND title: ${keyword}" );
 					
-					// println "did search for entry_uuid: ${entryUuid}";
+					// log.debug "did search for entry_uuid: ${entryUuid}";
 									
 					// does this criteria fire?
 					if( searchResults != null && !searchResults.isEmpty() )
@@ -447,7 +447,7 @@ class FilterService
 						// get the associated filter
 						BaseFilter filter = criteria.filter;
 						
-						println "found a match, attaching Entry to Filter: ${filter.name}";
+						log.debug "found a match, attaching Entry to Filter: ${filter.name}";
 					
 						filter.addToEntries( theEntry );
 						
@@ -496,11 +496,11 @@ class FilterService
 
 	private void processExistingContentForFilter( final String filterUuid )
 	{
-		println "processing existing content for filter: ${filterUuid}";
+		log.debug "processing existing content for filter: ${filterUuid}";
 		
 		BaseFilter filter = this.findFilterByUuid( filterUuid );
 		
-		println "Found filter: ${filter.name}";
+		log.debug "Found filter: ${filter.name}";
 		
 		// get the Channel this Filter is associated with, so we can grab all
 		// the content for that Channel
