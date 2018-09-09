@@ -2,6 +2,7 @@ package org.fogbeam.neddick
 
 import org.scribe.builder.ServiceBuilder
 import org.scribe.builder.api.TwitterApi
+import static org.scribe.builder.api.TwitterApi.*
 import org.scribe.model.Token
 import org.scribe.model.Verifier
 import org.scribe.oauth.OAuthService
@@ -9,16 +10,14 @@ import org.springframework.beans.factory.InitializingBean
 
 import grails.plugin.springsecurity.annotation.Secured
 
-
 class DataSourceController implements InitializingBean
 {	
-
 	OAuthService service;
 	
 	public void afterPropertiesSet() throws Exception
 	{
 		String twitterDatasourceCallbackUrl = grailsApplication.config.urls.twitter.datasource.callback;
-		log.debug "using twitterDatasourceCallbackUrl: ${twitterDatasourceCallbackUrl}";
+		log.info( "using twitterDatasourceCallbackUrl: ${twitterDatasourceCallbackUrl}");
 		service = new ServiceBuilder()
 		.provider(TwitterApi.SSL.class )
 		// .apiKey("bwUbU865CNQtt2Xdb62FpQ")
@@ -38,194 +37,153 @@ class DataSourceController implements InitializingBean
 		[allDataSources:allDataSources];
 	}
 	
-	/* create wizard */
-
-	def finishTwitterFlow =
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createWizardOne()
 	{
-		start {
-			action {
-				
-				log.debug "finishTwitterFlow: ${params}";
-				
-				/*
-				 finishTwitterFlow: [oauth_token:ygeG7wFvolBlPnIHrCL5VeFtj0xjYbud0NDVDhks, oauth_verifier:4dHR4yCWbnIPLm3R0i7YwOPceq74YfDRAlijdGhHKVQ, action:finishTwitter, controller:dataSource]
-
-				 */
-				
-				Verifier v = new Verifier(params.oauth_verifier);
-				Token accessToken = service.getAccessToken(session.requestToken, v); // the requestToken you had from step 2
-				
-				TwitterAccount accountToCreate = session.accountToCreate;
-				accountToCreate.accessToken = accessToken.token;
-				accountToCreate.tokenSecret = accessToken.secret;
-				
-				if( !accountToCreate.save(flush:true))
-				{
-					accountToCreate.errors.allErrors.each {log.debug it;}
-				}
-			}
-			on("success").to("finishTwitterOne")
-		  }
-		
-		finishTwitterOne {
-			redirect( controller: "dataSource", action:"index");
-		}
-		
+		[:];	
 	}
-		
-	def createWizardFlow =
+	
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createWizardTwo()
 	{
-		start {
-			action {
-				[];
-			}
-			on("success").to("createWizardOne")
-		  }
-		
-		/* a view state to bring up our GSP */
-		createWizardOne {
-			on("stage2") {
+		String subscriptionType = params.datasourceType;
+
+		String nextAction = "";
 				
-			}.to("createWizardTemp")
+		if( subscriptionType.equals( "rssFeed" ) )
+		{
+			log.debug "rssFeed";
+			nextAction = "createRssFeedOne";
+		}
+		else if( subscriptionType.equals( "imapAccount" ) )
+		{
+			log.debug "imapAccount";
+			nextAction = "createImapAccountOne";
+		}
+		else if( subscriptionType.equals( "twitterAccount" ) )
+		{
+			log.debug "twitterAccount";
+			nextAction = "createTwitterAccountOne"
 		}
 		
-		createWizardTemp {
+		redirect( controller:"dataSource", action:nextAction );
+	}
+
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createRssFeedOne()
+	{
+		[:];
+	}
+
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createRssFeedTwo()
+	{
+		log.debug "create using params: ${params}"
+		
+		// create using params: [feedUrl:https://news.ycombinator.com/bigrss,
+		// _eventId_finishWizard:Save, feedDescription:Hacker News (BigRSS),
+		// execution:[e1s2, e1s2], action:createWizard, controller:dataSource]
+		RssFeed newFeed = new RssFeed();
+		newFeed.feedUrl = params.feedUrl;
+		newFeed.description = params.feedDescription;
+		RssFeed.withTransaction { status ->
 			
-		 action {
-			 String subscriptionType = params.datasourceType;
-			 
-			 if( subscriptionType.equals( "rssFeed" ) )
-			 {
-				 log.debug "rssFeed";
-				 createRssFeed();
-			 }
-			 else if( subscriptionType.equals( "imapAccount" ) )
-			 {
-				 log.debug "imapAccount";
-				 createImapAccount();
-			 }
-			 else if( subscriptionType.equals( "twitterAccount" ) )
-			 {
-				 log.debug "twitterAccount";
-				 createTwitterAccount();
-			 }
-		   }
-		   on( "createRssFeed" ).to("createRssFeedWizardOne")
-		   on( "createImapAccount" ).to("createImapAccountWizardOne")
-		   on( "createTwitterAccount" ).to("startTwitterFlow")
-		}
-		
-		
-		startTwitterFlow
-		{
-			action {
-			}
-			on("success").to("createTwitterAccountWizardOne")	
-		}
-		
-		createTwitterAccountWizardOne
-		{
-			on("twitterStage2")
+			if( !newFeed.save(flush:true, validate:true) )
 			{
-				TwitterAccount accountToCreate = new TwitterAccount();
-				accountToCreate.description = params.description;
-				
-				session.accountToCreate = accountToCreate;
-				
-				Token requestToken = service.getRequestToken();
-				session.requestToken = requestToken;
-				
-				String authUrl = service.getAuthorizationUrl(requestToken);
-				
-				[authUrl: authUrl];
-			}.to( "createTwitterAccountWizardTwo")
-		}
-		
-		createTwitterAccountWizardTwo
-		{
-			
-		}
-		
-		
-		createRssFeedWizardOne {
-			
-			on("finishWizard") {
-				log.debug "finishing wizard with params ${params}";
-							
-			   [];
-			}.to("finishRssFeed")
-		}
-		
-		/* an action state to do the final save/update on the object */
-		finishRssFeed {
-			action {
-				log.debug "create using params: ${params}"
-				
-				// create using params: [feedUrl:https://news.ycombinator.com/bigrss, 
-				// _eventId_finishWizard:Save, feedDescription:Hacker News (BigRSS), 
-				// execution:[e1s2, e1s2], action:createWizard, controller:dataSource]
-				RssFeed newFeed = new RssFeed();
-				newFeed.feedUrl = params.feedUrl;
-				newFeed.description = params.feedDescription;
-				RssFeed.withTransaction { status ->
-					
-					if( !newFeed.save(flush:true, validate:true) )
-					{
-						log.error( "Error saving Feed" );
-						newFeed.errors.allErrors.each { log.debug it };
-					}
-				}
-				
+				log.error( "Error saving Feed" );
+				newFeed.errors.allErrors.each { log.debug it };
 			}
-			on("success").to("exitWizard");
-	   }
+		}
+
+		redirect( controller:"dataSource", action:"index");
 		
-		createImapAccountWizardOne {
-			on("finishWizard") {
-				log.debug "finishing wizard with params ${params}";
-							
-			   [];
-			}.to("finishImapAccount")
+	}
+		
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createImapAccountOne()
+	{
+		[:];
+	}
+
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createImapAccountTwo()
+	{
+		log.debug "create using params: ${params}"
+		
+		
+		// create using params: [imapPassword:7400seriesIC,
+		// _eventId_finishWizard:Save, imapUsername:motley.crue.fan@gmail.com,
+		// imapServerPort:993, imapServer:imap.gmail.com, execution:[e1s2, e1s2],
+		// action:createWizard, controller:dataSource]
+		IMAPAccount newAccount = new IMAPAccount();
+		newAccount.server = params.imapServer;
+		newAccount.description = params.description;
+		newAccount.port = params.imapServerPort;
+		newAccount.username = params.imapUsername;
+		newAccount.password = params.imapPassword;
+		newAccount.folder = params.imapFolder;
+		
+		IMAPAccount.withTransaction { status ->
 			
-		}
-		
-		finishImapAccount {
-			action {
-				log.debug "create using params: ${params}"
-				
-				
-				// create using params: [imapPassword:7400seriesIC, 
-				// _eventId_finishWizard:Save, imapUsername:motley.crue.fan@gmail.com, 
-				// imapServerPort:993, imapServer:imap.gmail.com, execution:[e1s2, e1s2],
-				// action:createWizard, controller:dataSource]
-				IMAPAccount newAccount = new IMAPAccount();
-				newAccount.server = params.imapServer;
-				newAccount.description = params.description;
-				newAccount.port = params.imapServerPort;
-				newAccount.username = params.imapUsername;
-				newAccount.password = params.imapPassword;
-				newAccount.folder = params.imapFolder;
-				
-				IMAPAccount.withTransaction { status ->
-					
-					if( !newAccount.save(flush:true, validate:true) )
-					{
-						log.error( "Error saving IMAPAccount" );
-						newAccount.errors.allErrors.each { log.debug it };
-					}
-				}
+			if( !newAccount.save(flush:true, validate:true) )
+			{
+				log.error( "Error saving IMAPAccount" );
+				newAccount.errors.allErrors.each { log.debug it };
 			}
-			on("success").to("exitWizard");
 		}
 		
 		
-	   exitWizard {
-		   log.debug "exiting Wizard!";
-		   redirect(controller:"dataSource", action:"index");
-	   }		
+		redirect( controller:"dataSource", action:"index");	
+	}
+		
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createTwitterAccountOne()
+	{
+		[:];
 	}
 	
-	
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def createTwitterAccountTwo()
+	{
+		TwitterAccount accountToCreate = new TwitterAccount();
+		accountToCreate.description = params.description;
+		
+		session.accountToCreate = accountToCreate;
+		
+		Token requestToken = service.getRequestToken();
+		session.requestToken = requestToken;
+		
+		String authUrl = service.getAuthorizationUrl(requestToken);
+		
+		[authUrl: authUrl];
+	}
+
+	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	def finishTwitter()
+	{
+				
+		log.debug "finishTwitterFlow: ${params}";
+		
+		/*
+		 finishTwitterFlow: [oauth_token:ygeG7wFvolBlPnIHrCL5VeFtj0xjYbud0NDVDhks, oauth_verifier:4dHR4yCWbnIPLm3R0i7YwOPceq74YfDRAlijdGhHKVQ, action:finishTwitter, controller:dataSource]
+
+		 */
+		
+		Verifier v = new Verifier(params.oauth_verifier);
+		Token accessToken = service.getAccessToken(session.requestToken, v); // the requestToken you had from step 2
+		
+		TwitterAccount accountToCreate = session.accountToCreate;
+		accountToCreate.accessToken = accessToken.token;
+		accountToCreate.tokenSecret = accessToken.secret;
+		
+		if( !accountToCreate.save(flush:true))
+		{
+			accountToCreate.errors.allErrors.each {log.error it.toString()}
+		}
+		
+		redirect( controller:"dataSource", action:"index");		
+	}
+
 	
 /*
  action {
@@ -253,19 +211,11 @@ class DataSourceController implements InitializingBean
 		   on( "businessEventSubscription" ).to("createBusinessEventSubscriptionWizardOne")
 		   on( "calendarFeed" ).to("createCalendarFeedSubscriptionWizardOne")
 		   on( "rssFeed" ).to("createRssFeedSubscriptionWizardOne")	
- */
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+ */	
 	
 	/* edit wizard */
 	
 	// TODO: create this wizard...
+	
+	
 }

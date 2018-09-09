@@ -28,7 +28,7 @@ public class ChannelDataSourceLink
 	}
 	
 	/* static utility methods for managing the linking of channels and datasources */
-	static ChannelDataSourceLink link( Channel channel, org.fogbeam.neddick.DataSource dataSource )
+	static ChannelDataSourceLink link( final Channel channel, final org.fogbeam.neddick.DataSource dataSource )
     {
 	
 	   List<ChannelDataSourceLink> links = ChannelDataSourceLink.executeQuery( "select cdsl from ChannelDataSourceLink as cdsl where cdsl.channel = ? and cdsl.channelDataSource = ?", [channel, dataSource] );
@@ -48,20 +48,19 @@ public class ChannelDataSourceLink
 		   // log.debug "saving...";
 		   newlink.dateLastPolled = new Date(0);
 		   
-		   if( !newlink.save() )
+		   if( !newlink.save(flush:true) )
 		   {
 			   ChannelDataSourceLink.log.debug "Failed to create new ChannelDataSourceLink!";
-			   newlink.errors.allErrors.each{log.debug it;}
+			   newlink.errors.allErrors.each{ ChannelDataSourceLink.log.error( it.toString() ) }
 		   }
 		   
 		   channel.addToDataSourceLinks(newlink);
-		   
 	   }
 	   
 	   return newlink;
    }
 
-   static void unlink( Channel channel, org.fogbeam.neddick.DataSource dataSource )
+   static void unlink( final Channel channel, final org.fogbeam.neddick.DataSource dataSource )
    {
 	   List<ChannelDataSourceLink> links = ChannelDataSourceLink.executeQuery( "select cdsl from ChannelDataSourceLink as cdsl where cdsl.channel = ? and cdsl.channelDataSource = ?", [channel, dataSource] );
 	   if ( links != null && links.size() == 1 )
@@ -72,7 +71,7 @@ public class ChannelDataSourceLink
 	   }
    }
 	
-   static getLink( Channel channel, org.fogbeam.neddick.DataSource dataSource )
+   static getLink( final Channel channel, final org.fogbeam.neddick.DataSource dataSource )
    {	   
 	   List<ChannelDataSourceLink> links = ChannelDataSourceLink.executeQuery( "select cdsl from ChannelDataSourceLink as cdsl where cdsl.channel = ? and cdsl.channelDataSource = ?", [channel, dataSource] );
 	   def alink = null;
@@ -82,7 +81,6 @@ public class ChannelDataSourceLink
 	   }
 	   
 	   return alink;
-	   
    }
 		
 }

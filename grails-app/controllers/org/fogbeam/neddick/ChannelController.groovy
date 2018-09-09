@@ -263,12 +263,13 @@ class ChannelController
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def update()
 	{	
-		log.debug( "Update Channel Properties: ${params.channelId}" );
+		log.info( "Update Channel Properties: ${params.channelId}" );
 		
 		log.debug "params: ${params}";
 				
-		Channel theChannel = Channel.findById( params.channelId );
+		Channel theChannel = Channel.findById( Long.parseLong( params.channelId ) );
 		
+		log.info( "Found Channel: ${theChannel}");
 		
 		// deal with private channel test
 		if( theChannel.privateChannel )
@@ -291,15 +292,12 @@ class ChannelController
 		{
 			theChannel.privateChannel = false;
 		}
-		
-		// TODO: change all of the following to work with DataSources, not RssFeed instances
 				
 		def datasourcesToRemove = params.list('datasourcesToRemove');
 		for( String datasourceToRemove : datasourcesToRemove )
 		{
 			
 			log.debug( "removing datasource: ${datasourceToRemove}" );
-			// RssFeed feed = RssFeed.findById( feedToRemove );
 			DataSource datasource = DataSource.findById( Integer.parseInt(datasourceToRemove));
 			if( datasource )
 			{
@@ -313,12 +311,12 @@ class ChannelController
 			}
 		
 			log.debug( "about to theChannel.save()" );
+			
 			if( !theChannel.save(flush:true, validate:true) )
 			{	
 				log.error( "Error saving channel" );
 				theChannel.errors.allErrors.each { log.debug it };
-			}			
-				
+			}				
 		}
 	
 	
@@ -326,27 +324,15 @@ class ChannelController
 		def datasourcesToAdd = params.list( 'datasourcesToAdd');
 		for( String datasourceToAdd : datasourcesToAdd ) 
 		{	
-			log.debug( "adding datasource: ${datasourceToAdd}" );
+			log.info( "adding datasource: ${datasourceToAdd}" );
 			DataSource datasource = DataSource.findById( Integer.parseInt( datasourceToAdd ) );
 			
-			
-			// theChannel.addToDataSources( datasource );
 			ChannelDataSourceLink.link( theChannel, datasource );
-			
-			
 		}
-	
-		if( !theChannel.save() )
-		{
-			log.error( "Error saving channel" );
-			theChannel.errors.allErrors.each { log.debug it };
-		}
-
-		
+			
 		def aggregateChannelsToRemove = params.list('aggregateChannelsToRemove');
 		for( String aggregateChannelToRemove : aggregateChannelsToRemove )
 		{
-			
 			log.debug( "removing channel: ${aggregateChannelToRemove}" );
 
 			Channel channel = theChannel.aggregateChannels.find { it.id == Integer.parseInt(aggregateChannelToRemove) }
@@ -364,7 +350,7 @@ class ChannelController
 			if( !theChannel.save(flush:true, validate:true) )
 			{
 				log.error( "Error saving channel" );
-				// theChannel.errors.allErrors.each { p rintln it };
+				theChannel.errors.allErrors.each { log.error(it.toString() ) };
 			}
 				
 		}
@@ -380,13 +366,13 @@ class ChannelController
 			theChannel.addToAggregateChannels( channel );
 		}
 	
-		if( !theChannel.save() )
+		if( !theChannel.save(flush:true) )
 		{
 			log.error( "Error saving channel" );
 			// theChannel.errors.allErrors.each { p rintln it };
 		}		
 		
-		
+		log.info( "Done updating Channel" );
 		redirect(controller:"channel", action:"list");
 	}
 

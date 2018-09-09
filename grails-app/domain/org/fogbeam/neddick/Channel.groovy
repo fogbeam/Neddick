@@ -7,8 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-class Channel implements Comparable {
-
+class Channel implements Comparable 
+{
 	@XmlElement
 	Long id;
 	
@@ -57,5 +57,10 @@ class Channel implements Comparable {
    		Channel otherChannel = (Channel)o;
    		return ( this.name.compareToIgnoreCase( otherChannel.name ) );
 	}                   
-
+	
+	public String toString()
+	{
+		return "id: ${this.id}, uuid: ${this.uuid}, name: ${this.name}, description: ${this.description}, dateCreated: ${this.dateCreated}, privateChannel: ${this.privateChannel}";
+	}
+	
 }

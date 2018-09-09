@@ -107,7 +107,7 @@ dataSource:
 environments:
     development:
         dataSource:
-            dbCreate: create
+            dbCreate: update
             url: jdbc:postgresql:neddick_dev
     test:
         dataSource:

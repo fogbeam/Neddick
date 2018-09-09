@@ -5,7 +5,7 @@
           <nav:resources />
     </head>
     <body>
-    	<g:link controller="dataSource" action="createWizard" class="btn btn-primary" style="width:110px;">New DataSource</g:link>
+    	<g:link controller="dataSource" action="createWizardOne" class="btn btn-primary" style="width:110px;">New DataSource</g:link>
     	<hr />
     	<ul>
 	    	<g:each in="${allDataSources}" var="dataSource" >

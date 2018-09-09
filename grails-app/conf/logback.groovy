@@ -1,6 +1,7 @@
 import static ch.qos.logback.classic.Level.DEBUG
 import static ch.qos.logback.classic.Level.INFO
 import static ch.qos.logback.classic.Level.ERROR
+import static ch.qos.logback.classic.Level.WARN
 
 import java.nio.charset.Charset
 
@@ -51,22 +52,22 @@ appender('STDOUT', ConsoleAppender) {
 }
 
    
-logger( "org.grails", INFO )
-logger( "org.springframework", INFO )
-logger( "org.hibernate", INFO )
-logger( "org.apache", INFO )
-logger( "grails.plugin", INFO )
-logger( "org.quartz", INFO )
-logger( "grails.app", INFO )
+logger( "org.grails", ERROR )
+logger( "org.springframework", ERROR )
+logger( "org.hibernate", ERROR )
+logger( "org.apache", ERROR )
+logger( "grails.plugin", WARN )
+logger( "org.quartz", WARN )
+logger( "grails.app", ERROR )
 logger( "grails.util", ERROR )
-logger( "grails.boot", INFO )
-logger( "net.sf.ehcache", INFO )
-logger( "org.jasig.cas.client", DEBUG )
-logger( "reactor.spring", INFO )
-logger( "asset.pipeline", INFO )
+logger( "grails.boot", ERROR )
+logger( "net.sf.ehcache", ERROR )
+logger( "org.jasig.cas.client", WARN )
+logger( "reactor.spring", WARN )
+logger( "asset.pipeline", WARN )
 logger( "org.fogbeam.neddick", DEBUG )
-logger( "org.springframework.security", DEBUG )
-logger( "grails.plugin.springsecurity.web.access", DEBUG )
+logger( "org.springframework.security", WARN )
+logger( "grails.plugin.springsecurity.web.access", WARN )
 
 def targetDir = BuildSettings.TARGET_DIR
 if (Environment.isDevelopmentMode() && targetDir != null) {
