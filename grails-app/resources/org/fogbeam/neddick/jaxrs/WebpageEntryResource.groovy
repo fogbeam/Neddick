@@ -24,6 +24,7 @@ class WebpageEntryResource
 	def channelService;
 	def recommenderService;
 	def siteConfigService;
+	def jmsService;
 	
 	@POST
 	WebpageEntry insert( WebpageEntry entry )
@@ -82,10 +83,12 @@ class WebpageEntryResource
 					def newEntryMessage = [msgType:"NEW_ENTRY", id:entry.id, uuid:entry.uuid, url:entry.url, title:entry.title ];
 			
 					// send a JMS message to our entryQueue
-					sendJMSMessage("entryQueue", newEntryMessage );
+					// sendJMSMessage("entryQueue", newEntryMessage );
+					jmsService.send( queue: 'entryQueue', newEntryMessage, 'standard', null );
 					
 					// send a JMS message to our searchQueue
-					sendJMSMessage("searchQueue", newEntryMessage );
+					// sendJMSMessage("searchQueue", newEntryMessage );
+					jmsService.send( queue: 'searchQueue', newEntryMessage, 'standard', null );
 				}
 				else
 				{

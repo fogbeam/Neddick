@@ -15,6 +15,7 @@ class SearchController
 	def userService;
 	def tagService;
 	def channelService;
+	def jmsService;
 	
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def doSearch() 
@@ -47,7 +48,8 @@ class SearchController
 	def reindexAll()
 	{	
 		log.debug( "SearchController: Sending reindexAll message to searchQueue" );
-		sendJMSMessage("searchQueue", "REINDEX_ALL" );		
+		// sendJMSMessage("searchQueue", "REINDEX_ALL" );
+		jmsService.send( queue: 'searchQueue', "REINDEX_ALL", 'standard', null );
 		render( "<h1>DONE</h1>" );
 	}
 }

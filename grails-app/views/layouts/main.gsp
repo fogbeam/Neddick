@@ -2,6 +2,9 @@
 <g:set var="userService" bean="userService"/>
 <html>
     <head>
+             
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
         <title>
           <g:layoutTitle default="Neddick" />
         </title>
@@ -14,8 +17,6 @@
 		<!--  for "mega menu" using YAMM3 -->
 		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'demo.css')}" />
 		<link rel="stylesheet" type="text/css" href="${resource(dir:'css', file:'yamm.css')}" />         
-         
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 		<script type="text/javascript" src="${resource(dir:'javascripts', file:'jquery-ui-1.10.3.custom/js/jquery-1.9.1.js')}" ></script>
         <script type="text/javascript" src="${resource(dir:'javascripts', file:'jquery-ui-1.10.3.custom/js/jquery-ui-1.10.3.custom.js')}" ></script>
@@ -82,6 +83,7 @@
     
     
     <body>
+    
     
     <!-- the new nav bar, borrowed from Quoddy and using Bootstrap 3 -->
 	<nav class="navbar yamm navbar-default headerNavContainer">

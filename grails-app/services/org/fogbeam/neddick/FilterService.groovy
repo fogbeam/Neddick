@@ -12,7 +12,8 @@ class FilterService
 	def searchService;
 	def entryService;
 	def tagService;
-		
+	def jmsService;
+	
 	public BaseFilter findFilterById( final Long id )
 	{
 		
@@ -50,8 +51,8 @@ class FilterService
 			
 			def newFilterMessage = [msgType:'NEW_FILTER_CREATED', filterUuid:newFilter.uuid];
 			
-			sendJMSMessage( "neddickFilterQueue", newFilterMessage );
-			
+			// sendJMSMessage( "neddickFilterQueue", newFilterMessage );
+			jmsService.send( queue: 'neddickFilterQueue', newFilterMessage, 'standard', null );
 			
 			return newFilter;
 		}

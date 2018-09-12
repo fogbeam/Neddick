@@ -6,6 +6,7 @@ class CommentController
 {
 	
 	def entryService;
+	def jmsService;
 	
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def addComment()
@@ -41,7 +42,8 @@ class CommentController
     	                       	comment_id:newComment.id, comment_uuid:newComment.uuid, comment_text:newComment.text ];
     
     	// send a JMS message to our testQueue
-		sendJMSMessage("searchQueue", newCommentMessage );			
+		// sendJMSMessage("searchQueue", newCommentMessage );			
+		jmsService.send( queue: 'searchQueue', newCommentMessage, 'standard', null );
 		
 		log.debug( "saved Comment for user ${user.userId}, entry ${entry.id}" );
 	

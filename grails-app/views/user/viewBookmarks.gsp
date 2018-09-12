@@ -63,7 +63,7 @@
                                         <div id="upVote.${entry.id}">
                                         <g:remoteLink controller="vote" action="submitVoteUp" params="[entryId:entry.id]"
                                         onComplete="afterVote(XMLHttpRequest);">
-                                        <img src="${resource(dir:'images/icons',file:'1uparrow.png')}" />
+                                        <img src="${resource(dir:'images',file:'icons/1uparrow.png')}" />
                                         </g:remoteLink>
                                         </div>
                                         
@@ -74,7 +74,7 @@
                                         <div id="downVote.${entry.id}">
                                         <g:remoteLink controller="vote" action="submitVoteDown" params="[entryId:entry.id]"
                                         onComplete="afterVote(XMLHttpRequest);">
-                                            <img src="${resource(dir:'images/icons',file:'1downarrow.png')}" />narrow.png" />
+                                            <img src="${resource(dir:'images',file:'icons/1downarrow.png')}" />narrow.png" />
                                         </g:remoteLink>
                                         </div>                                                
                                         </dd>

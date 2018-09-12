@@ -30,9 +30,12 @@ import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 
 
-class ChannelService {
+class ChannelService 
+{
 
 	def entryService;
+	def jmsService;
+	
 	static transactional = false;
 	
 	@Transactional(propagation=Propagation.REQUIRED)
@@ -155,7 +158,7 @@ class ChannelService {
 	{
 	
 		log.debug( "Updating from DataSource for channel: ${channel.name}" );	
-		User anonymous = User.findByUserId( "anonymous" );
+		User anonymous = User.findByUserId( "SYS_anonymous" );
 		
 		// if the specified channel has an RssFeed associated with it...
 		List<DataSource> dataSources = 
@@ -281,13 +284,14 @@ class ChannelService {
 			
 							log.info( "sending new entry message to JMS entryQueue");
 							// send a JMS message to our entryQueue
-							sendJMSMessage("entryQueue", newEntryMessage );
-					
+							// sendJMSMessage("entryQueue", newEntryMessage );
+							jmsService.send( queue: 'entryQueue', newEntryMessage, 'standard', null );
 							
 							log.info( "sending new entry message to JMS searchQueue" );
 							// send a JMS message to our searchQueue
-							sendJMSMessage("searchQueue", newEntryMessage );
-						
+							// sendJMSMessage("searchQueue", newEntryMessage );
+							jmsService.send( queue: 'searchQueue', newEntryMessage, 'standard', null );
+							
 						}
 						else
 						{
@@ -452,12 +456,13 @@ class ChannelService {
 	
 						log.debug( "sending new entry message to JMS entryQueue");
 						// send a JMS message to our entryQueue
-						sendJMSMessage("entryQueue", newEntryMessage );
-			
+						// sendJMSMessage("entryQueue", newEntryMessage );
+						jmsService.send( queue: 'entryQueue', newEntryMessage, 'standard', null );
+						
 						log.debug( "sending new entry message to JMS searchQueue" );
 						// send a JMS message to our searchQueue
-						sendJMSMessage("searchQueue", newEntryMessage );
-				
+						// sendJMSMessage("searchQueue", newEntryMessage );
+						jmsService.send( queue: 'searchQueue', newEntryMessage, 'standard', null );
 					}
 					else
 					{
@@ -619,12 +624,13 @@ class ChannelService {
 			
 							log.debug( "sending new entry message to JMS entryQueue");
 							// send a JMS message to our entryQueue
-							sendJMSMessage("entryQueue", newEntryMessage );
-					
+							// sendJMSMessage("entryQueue", newEntryMessage );
+							jmsService.send( queue: 'entryQueue', newEntryMessage, 'standard', null );
+							
 							log.debug( "sending new entry message to JMS searchQueue" );
 							// send a JMS message to our searchQueue
-							sendJMSMessage("searchQueue", newEntryMessage );	
-							
+							// sendJMSMessage("searchQueue", newEntryMessage );	
+							jmsService.send( queue: 'searchQueue', newEntryMessage, 'standard', null );
 						}
 						else
 						{

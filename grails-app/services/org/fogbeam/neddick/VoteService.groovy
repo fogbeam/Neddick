@@ -4,7 +4,8 @@ import org.fogbeam.neddick.Entry;
 import org.fogbeam.neddick.User;
 import org.fogbeam.neddick.Vote;
 
-class VoteService {
+class VoteService 
+{
 	
 	private static final long BEGINNING_OF_TIME = 1230786000000; // 01 01 2009 00:00:00
 	
@@ -13,6 +14,7 @@ class VoteService {
 
 	def sessionFactory;
 	def triggerService;
+	def jmsService;
 	
 	
 	public Entry submitUpVote( Entry entry, Vote upVote, User submitter )
@@ -130,8 +132,11 @@ class VoteService {
 		def scoreChangedMessage = [msgType:"ENTRY_SCORE_CHANGED", entry_uuid:entry.uuid, newScore:entry.score ];
 	
 		// send a JMS message to our testQueue
-		sendJMSMessage( "neddickTriggerQueue", scoreChangedMessage );
-		sendJMSMessage( "neddickFilterQueue", scoreChangedMessage );
+		// sendJMSMessage( "neddickTriggerQueue", scoreChangedMessage );
+		jmsService.send( queue: 'neddickTriggerQueue', scoreChangedMessage, 'standard', null );
+		
+		// sendJMSMessage( "neddickFilterQueue", scoreChangedMessage );
+		jmsService.send( queue: 'neddickFilterQueue', scoreChangedMessage, 'standard', null );
 		
 		return entry;
 		
@@ -239,14 +244,7 @@ class VoteService {
 		
 		/* NOTE: for now, we assume triggers only case about the case "a score is voted UP past a certain
 		 * threshold, so let's skip sending notifications to the triggerQueue for downvotes.
-		 */
-		
-		// send JMS message for triggers, with notification that a score has changed
-		// def scoreChangedMessage = [msgType:"ENTRY_SCORE_CHANGED", entry_uuid:entry.uuid ];
-	
-		// send a JMS message to our testQueue
-		// sendJMSMessage( "neddickTriggerQueue", scoreChangedMessage );
-		
+		 */		
 		
         return entry;
 	}

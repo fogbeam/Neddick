@@ -83,7 +83,8 @@ public class IndexerListenerService
 	def siteConfigService;
 	def entryService;
 	def grailsApplication;
-
+	def jmsService;
+	
 	static expose = ['jms']
 	static destination = "searchQueue"
 
@@ -122,9 +123,13 @@ public class IndexerListenerService
 				def tagIndexedMessage = [msgType:"TAG_INDEXED", entry_uuid:uuid, tagName: tagName ];
 
 				// send notifications
-				sendJMSMessage( "neddickTriggerQueue", tagIndexedMessage );
-				sendJMSMessage( "neddickFilterQueue", tagIndexedMessage );
-
+				// sendJMSMessage( "neddickTriggerQueue", tagIndexedMessage );
+				jmsService.send( queue: 'neddickTriggerQueue', tagIndexedMessage, 'standard', null );
+				
+				// sendJMSMessage( "neddickFilterQueue", tagIndexedMessage );
+				jmsService.send( queue: 'neddickFilterQueue', tagIndexedMessage, 'standard', null );
+				
+				
 				return;
 			}
 			else {
@@ -792,9 +797,12 @@ public class IndexerListenerService
 		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
 
 		// send notifications
-		sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
-		sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
+		// sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
+		jmsService.send( queue: 'neddickTriggerQueue', contentIndexedMessage, 'standard', null );
 		
+		
+		// sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
+		jmsService.send( queue: 'neddickFilterQueue', contentIndexedMessage, 'standard', null );
 		
 		
 	}
@@ -1111,9 +1119,12 @@ public class IndexerListenerService
 		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
 
 		// send notifications
-		sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
-		sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
-
+		// sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
+		jmsService.send( queue: 'neddickTriggerQueue', contentIndexedMessage, 'standard', null );
+		
+		// sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
+		jmsService.send( queue: 'neddickFilterQueue', contentIndexedMessage, 'standard', null );
+		
 	}
 	
 	
@@ -1432,8 +1443,12 @@ public class IndexerListenerService
 		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
 
 		// send notifications
-		sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
-		sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
+		// sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
+		jmsService.send( queue: 'neddickTriggerQueue', contentIndexedMessage, 'standard', null );
+		
+		// sendJMSMessage( "neddickFilterQueue", contentIndexedMessage );
+		jmsService.send( queue: 'neddickFilterQueue', contentIndexedMessage, 'standard', null );
+	
 		
 	}
 

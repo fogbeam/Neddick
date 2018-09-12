@@ -154,8 +154,8 @@ class TagController
 		
 			String newTagMessage = "ADDTAG|${entry.uuid}|${tagName}";
 	    	// send a JMS message to our testQueue
-			sendJMSMessage("searchQueue", newTagMessage );
-			
+			// sendJMSMessage("searchQueue", newTagMessage );
+			jmsService.send( queue: 'searchQueue', newTagMessage, 'standard', null );
 			
 			render("done");
 		}
