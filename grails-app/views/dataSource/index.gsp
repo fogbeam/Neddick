@@ -2,7 +2,6 @@
     <head>
         <title>Welcome to Neddick</title>
           <meta name="layout" content="admin" />
-          <nav:resources />
     </head>
     <body>
     	<g:link controller="dataSource" action="createWizardOne" class="btn btn-primary" style="width:110px;">New DataSource</g:link>

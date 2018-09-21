@@ -32,9 +32,6 @@
        </script>
 
 		<script type="text/javascript" src="${resource(dir:'javascripts', file:'jquery.timers-1.2.js')}" ></script>
-		<script type="text/javascript" src="${resource(dir:'javascripts', file:'prototype.js')}" ></script>
-		<script type="text/javascript" src="${resource(dir:'javascripts', file:'scriptaculous.js')}" ></script>
-        <script type="text/javascript" src="${resource(dir:'javascripts', file:'effects.js')}" ></script>
 		<script type="text/javascript" src="${resource(dir:'javascripts', file:'application.js')}" ></script>
 		<script type="text/javascript" src="${resource(dir:'javascripts', file:'bootstrap.js')}" ></script>
 
@@ -159,7 +156,8 @@
 	            			</li>
 	            
 			            	<li>
-			            		<a href="${resource(dir:'home', file:'savedEntries')}">Saved Entries</a></li>
+			            		<g:link controller="home" action="savedEntries">Saved Entries</g:link>
+			            	</li>
 			            	<li>
 			            		<g:link controller="tag" action="list">Tags</g:link>
 			            	</li>
@@ -337,51 +335,7 @@
     	</div>  <!--end row -->
    </div>  <!-- end container-fluid (#page-body) -->
    
-   
-          		 <!--  hidden div, not shown until somebody clicks the "share" button -->
-				 <div id="shareDialog" title="Share this Item">
-					
-					<g:formRemote name="shareItemForm" url="[controller: 'share', action:'shareItem']">
-					
-						<!--  we need a way to specify who/what you are sharing this item WITH -->
-						<!--  a set of checkboxes could work, or a multi-select select box -->
-						<!--  let's go with checkboxes for now, just because it's the easiest way -->
-						<div>  
-							<input type="checkbox" style="display:inline-block;overflow:hidden;" value="shareEmail" name="shareEmailCheck" id="shareEmailCheck" />
-							<label style="display:inline-block;overflow:hidden;color:red" for="shareEmailCheck">Email</label> 
-							<input type="checkbox" style="display:inline-block;overflow:hidden;" value="shareXmpp" name="shareXmppCheck" id="shareXmppCheck" />
-							<label style="display:inline-block;overflow:hidden;color:red" for="shareXmppCheck">Xmpp</label>
-							<input type="checkbox" style="display:inline-block;overflow:hidden;" value="shareQuoddy" name="shareQuoddyCheck" id="shareQuoddyCheck" />
-							<label style="display:inline-block;overflow:hidden;color:red" for="shareQuoddyCheck">Quoddy</label>
-						</div>
-							
-						<!--  the uuid of the thing being shared -->
-						<input id="shareItemUuid" name="shareItemUuid" type="hidden" value="" />
-						
-						<!-- the permalink of the thing being shared -->
-						<input id="permaLink" name="permaLink" type="hidden" value="" />
-						
-						<div style="margin-top:20px;margin-bottom:30px;">
-							<!--  here we have inputs for the various shareTargets.  We'll need boxes for
-							 "email", "xmpp" and "quoddy" and we'll want all three to start out hidden, then we can
-							  reveal them if/when the user checks the appropriate checkbox above -->	
-							<label id="forShareTargetEmail" name="forShareTargetEmail" style="display:none;color:red;" for="shareTargetEmail">Email:</label>
-								<input style="display:none;" name="shareTargetEmail" id="shareTargetEmail" type="text" value="" />
-							<label id="forShareTargetXmpp" name="forShareTargetXmpp" style="display:none;color:red;" for="shareTargetXmpp">Xmpp:</label>
-								<input style="display:none;" name="shareTargetXmpp" id="shareTargetXmpp" type="text" value="" />
-							<label id="forShareTargetQuoddy" name="forShareTargetQuoddy" style="display:none;color:red;" for="shareTargetQuoddy">Quoddy:</label>
-								<input style="display:none;" name="shareTargetQuoddy" id="shareTargetQuoddy" type="text" value="" />
-						
-						</div>
-						
-						<!--  text of an (optional) comment -->
-						<label style="color:red;" id="forShareItemComment" name="forShareItemComment" for="shareItemComment">Comment: </label>
-							<input id="shareItemComment" name="shareItemComment" type="text" value="" />
-						
-						
-					</g:formRemote>
-				</div>         
-          		<!-- end hidden div, not shown until somebody clicks the "share" button -->
+	<g:render template="/shareDialog" />
                       
     </body>	
 </html>

@@ -2,7 +2,6 @@
     <head>
         <title>Welcome to Neddick</title>
           <meta name="layout" content="main" />
-          <nav:resources />
     </head>
     <body>
           <div class="well allEntries" id="searchResults" style="margin-left:35px;padding-top:10px;min-height:750px;">

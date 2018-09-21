@@ -145,8 +145,15 @@ dependencies {
     compile 'org.grails.plugins:quartz:2.0.13'
 
 	// https://mvnrepository.com/artifact/org.igniterealtime.smack/smack
-	compile group: 'org.igniterealtime.smack', name: 'smack', version: '3.1.0'
+	// compile group: 'org.igniterealtime.smack', name: 'smack', version: '3.1.0'
 	
+	compile group: 'org.igniterealtime.smack', name: 'smack-resolver-javax', version:'4.2.4'
+	compile group: 'org.igniterealtime.smack', name: 'smack-java7', version:'4.2.4'
+	compile group: 'org.igniterealtime.smack', name: 'smack-sasl-provided', version:'4.2.4'
+	compile group: 'org.igniterealtime.smack', name: 'smack-tcp', version:'4.2.4'
+	compile group: 'org.igniterealtime.smack', name: 'smack-extensions', version:'4.2.4'
+	compile group: 'org.igniterealtime.smack', name: 'smack-experimental', version:'4.2.4'
+	compile group: 'org.igniterealtime.smack', name: 'smack-bosh', version:'4.2.4'
 
 // from locallibs
 //    compile name: 'exist'

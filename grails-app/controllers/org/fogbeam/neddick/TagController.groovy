@@ -13,7 +13,8 @@ class TagController
 	def userService;
 	def siteConfigService;
 	def channelService;
-
+	def jmsService;
+	
 	int defaultItemsPerPage = 25;	
 	
 	@Secured(["ROLE_USER","ROLE_ADMIN"])

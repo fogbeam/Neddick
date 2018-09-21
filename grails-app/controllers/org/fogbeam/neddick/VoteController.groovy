@@ -5,7 +5,8 @@ import grails.plugin.springsecurity.annotation.Secured
 class VoteController 
 {	
 	def voteService;
-
+	def userService;
+	
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def submitVoteUp() 
 	{

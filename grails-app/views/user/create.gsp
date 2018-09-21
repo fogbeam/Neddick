@@ -2,7 +2,6 @@
     <head>
         <title>Neddick: Register New User</title>
         <meta name="layout" content="admin"/>
-        <nav:resources />
     </head>
     <body>
            <div style="margin-left:35px;padding-top:30px;">

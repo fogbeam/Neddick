@@ -2,7 +2,6 @@
     <head>
         <title>Welcome to Neddick</title>
           <meta name="layout" content="admin" />
-          <nav:resources />
     </head>
     <body>
           <div style="margin-left:35px;padding-top:20px;">

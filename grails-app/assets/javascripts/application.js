@@ -13,7 +13,7 @@ $j(document).ready(function() {
 	
 	$j('.settings').dropdown()
 	
-
+	/* 
 	$j( "#shareDialog" ).dialog(
 	{
 		autoOpen: false,
@@ -44,6 +44,22 @@ $j(document).ready(function() {
 				 	} 
 				 ]
 	});	
+	*/
+	
+	$j('#submitShareItem').click( function() 
+	{
+		
+		var shareItemUuid = $j('#shareDialog').data('shareItemUuid');
+		var permaLink = $j('#shareDialog').data( 'permaLink');
+				
+		// alert( "about to share item with uuid: " + shareItemUuid );	
+		// find our form object and submit it...
+		$j('#shareItemUuid').val( shareItemUuid );
+		$j('#permaLink').val( permaLink);
+		$j('#shareItemForm').submit();
+
+		$j('#shareDialog').modal('toggle');
+	});
 	
 	
 	$j( ".shareButton" ).click(function() {
@@ -53,9 +69,12 @@ $j(document).ready(function() {
 		var tempName = "#permalink-" + shareItemUuid;
 		var permaLinkNode = $j(tempName);
 		var permaLink = permaLinkNode.val();
-		$j( "#shareDialog" ).data( {'shareItemUuid': shareItemUuid, 'permaLink':permaLink}).dialog( "open" );
+		
+		$j( "#shareDialog" ).data( {'shareItemUuid': shareItemUuid, 'permaLink':permaLink}).modal( { keyboard: false } );
+		return false;
 	});
 
+	
 	$j("#shareEmailCheck").change(function() {
 		// alert( 'shareEmailCheck' );
 		if(this.checked) {
@@ -230,8 +249,10 @@ function afterVote(e) {
     alert( 'hid entry' );
  }
 
-    
+ /*
  function openShareDialog(entryId) {
     window.open( "/neddick1/share/index/?entryId=" + entryId, "Neddick - Share", 
          "status = 1, height = 300, width = 300, resizable = 0"  )
  }
+*/
+ 

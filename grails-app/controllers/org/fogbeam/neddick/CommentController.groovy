@@ -7,6 +7,7 @@ class CommentController
 	
 	def entryService;
 	def jmsService;
+	def userService;
 	
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def addComment()

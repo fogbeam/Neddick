@@ -2,7 +2,6 @@
     <head>
         <title>Welcome to Grails</title>
         <meta name="layout" content="admin" />
-        <nav:resources />
     </head>
     <body>
         <div id="pageBody" style="margin-left:100px;">

@@ -3,7 +3,6 @@
 <head>
 <title>View Entry</title>
 <meta name="layout" content="viewEntry" />
-<nav:resources />
 
 <g:javascript library="enrich_content" />
 

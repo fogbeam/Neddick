@@ -15,10 +15,11 @@ import grails.plugin.springsecurity.annotation.Secured
 
 class ShareController 
 {
-	MailSender mailSender;
-	SimpleMailMessage mailMessage;	
+	def mailSender;
+	def mailMessage;	
 	def xmppNotificationService;
 	def restTemplate;
+	def userService;
 	
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def index()
@@ -43,9 +44,8 @@ class ShareController
 						
 		if( params.shareEmailCheck )
 		{
-
+			log.info( "Share via Email" );
 			def messageText = "${params.shareItemComment} \n ${entryToSend.title} \n ${params.permaLink}\n";
-			
 			
 			// send this entry to this address
 			SimpleMailMessage message = new SimpleMailMessage(mailMessage);
@@ -80,7 +80,8 @@ class ShareController
 		if( params.shareXmppCheck )
 		{
 			// share to xmpp address(es)
-
+			log.info( "Share via XMPP" );
+			
 			def messageText = "${params.shareItemComment} \n ${entryToSend.title} \n ${params.permaLink}\n";
 			
 			
@@ -108,7 +109,8 @@ class ShareController
 		if( params.shareQuoddyCheck )
 		{
 			// share to Quoddy destinations
-
+			log.info( "Share to Quoddy" );
+			
 			def messageText = params.shareItemComment;
 			
 			
