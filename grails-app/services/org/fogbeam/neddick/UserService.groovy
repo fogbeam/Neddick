@@ -12,6 +12,13 @@ class UserService
 		// get the user from the SecurityContext
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		Authentication authentication = securityContext.getAuthentication();
+		
+		if( authentication == null || authentication.principal == null )
+		{
+			log.warn( "No logged in user found!" );
+			return null;
+		}
+		
 		log.trace( "current Authentication: ${authentication}");
 		
 		User user = this.findUserByUserId( ((User)authentication.principal).userId );

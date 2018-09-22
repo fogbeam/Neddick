@@ -1,12 +1,5 @@
 package org.fogbeam.neddick
 
-import org.apache.jena.riot.Lang
-import org.apache.jena.riot.RDFDataMgr
-import org.fogbeam.neddick.controller.mixins.SidebarPopulatorMixin
-import org.fogbeam.neddick.filters.BaseFilter
-
-import grails.plugin.springsecurity.annotation.Secured
-
 import org.apache.jena.query.Dataset
 import org.apache.jena.query.DatasetFactory
 import org.apache.jena.query.Query
@@ -19,17 +12,24 @@ import org.apache.jena.rdf.model.InfModel
 import org.apache.jena.rdf.model.Literal
 import org.apache.jena.rdf.model.Model
 import org.apache.jena.rdf.model.ModelFactory
-import org.apache.jena.rdf.model.Statement
-import org.apache.jena.rdf.model.StmtIterator
 import org.apache.jena.reasoner.Reasoner
 import org.apache.jena.reasoner.ReasonerRegistry
+import org.apache.jena.riot.Lang
+import org.apache.jena.riot.RDFDataMgr
 import org.apache.jena.vocabulary.ReasonerVocabulary
+import org.fogbeam.neddick.controller.mixins.SidebarPopulatorMixin
+import org.fogbeam.neddick.filters.BaseFilter
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+
+import grails.plugin.springsecurity.annotation.Secured
 
 
 @Mixin(SidebarPopulatorMixin)
 class HomeController
 {
-
 	def userService;
 	def entryService;
 	def entryCacheService;
@@ -38,6 +38,10 @@ class HomeController
 	def filterService;
 	def tagService;
 	def restTemplate;
+	
+	@Autowired
+	OAuthService oAuthService;
+	
 	
 	int itemsPerPage = -1;
 		
@@ -238,11 +242,22 @@ class HomeController
 			
 			if( quoddyFoafUrl )
 			{
-				log.info "quoddyFoafUrl: ${quoddyFoafUrl}";
+				log.debug "quoddyFoafUrl: ${quoddyFoafUrl}";
+								
+				HttpHeaders headers = new HttpHeaders();
+				String oAuthToken = oAuthService.getQuoddyOAuthToken();
 				
-				String foafResponse = restTemplate.getForObject( quoddyFoafUrl, String.class );
+				log.debug( "OAuthToken: ${oAuthToken}" );
 				
-				// log.debug "foafResponse:\n\n${foafResponse}";
+				headers.add( "Authorization", "Bearer " + oAuthToken );
+				
+				HttpEntity<String> entity = new HttpEntity<String>( headers);
+				HttpEntity<String> foafResponseEntity = restTemplate.exchange(quoddyFoafUrl, HttpMethod.GET, entity, String.class );
+				
+				String foafResponse = foafResponseEntity.body;
+				
+				log.trace "foafResponse:\n\n${foafResponse}\n\n\n";
+				
 				Dataset dataset = DatasetFactory.createMem();
 				Model foafModel = dataset.getDefaultModel();
 				StringReader foafReader = new StringReader(foafResponse);

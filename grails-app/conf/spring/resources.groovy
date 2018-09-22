@@ -10,6 +10,7 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 
+import org.springframework.web.client.RestTemplate
 
 // Place your Spring DSL code here
 beans = {
@@ -154,15 +155,10 @@ beans = {
 			from = 'neddick@demo.fogbeam.org'
 	}
 
-	jsonConverterBean(org.springframework.http.converter.json.MappingJacksonHttpMessageConverter)
-	stringConverterBean(org.springframework.http.converter.StringHttpMessageConverter)
+	
+	// jsonConverterBean(org.springframework.http.converter.json.MappingJacksonHttpMessageConverter)
+	// stringConverterBean(org.springframework.http.converter.StringHttpMessageConverter)
 
 	restTemplate( org.springframework.web.client.RestTemplate )
-	{
-			messageConverters = [
-								   ref("jsonConverterBean"),
-								   ref("stringConverterBean")
-								]
-	}
 
 }

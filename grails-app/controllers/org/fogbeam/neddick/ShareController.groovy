@@ -6,20 +6,26 @@ import org.fogbeam.protocol.activitystreams.ActivityStreamEntry
 import org.fogbeam.protocol.activitystreams.Actor
 import org.fogbeam.protocol.activitystreams.Image
 import org.fogbeam.protocol.activitystreams.Target
-import org.springframework.http.ResponseEntity
-import org.springframework.mail.MailSender
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
 import org.springframework.mail.SimpleMailMessage
 
 import grails.plugin.springsecurity.annotation.Secured
 
 
-class ShareController 
+public class ShareController 
 {
 	def mailSender;
 	def mailMessage;	
 	def xmppNotificationService;
 	def restTemplate;
 	def userService;
+	
+	@Autowired
+	OAuthService oAuthService;
 	
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def index()
@@ -113,7 +119,6 @@ class ShareController
 			
 			def messageText = params.shareItemComment;
 			
-			
 			String quoddyTargets = params.shareTargetQuoddy;
 			String[] addresses = quoddyTargets.trim().split("\\s+");
 			
@@ -162,16 +167,27 @@ class ShareController
 				
 				
 				String quoddyActivityStreamsUrl = grailsApplication.config.urls.quoddy.activitystreams.endpoint;
-				log.debug "using quoddyActivityStreamsUrl: ${quoddyActivityStreamsUrl}";
+				log.info "using quoddyActivityStreamsUrl: ${quoddyActivityStreamsUrl}";
 				
-				ResponseEntity<String> response =
-					restTemplate.postForEntity(
-							quoddyActivityStreamsUrl,
-							newEntry, String.class );
+				HttpHeaders headers = new HttpHeaders();
+				String oAuthToken = oAuthService.getQuoddyOAuthToken();
 				
-				String responseText = response.getBody();
+				log.debug( "OAuthToken: ${oAuthToken}" );
 				
-				System.out.log.debug( "done with response: " + responseText );
+				headers.add( "Authorization", "Bearer " + oAuthToken );
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				List<MediaType> acceptTypes = new ArrayList<MediaType>();
+				acceptTypes.add( MediaType.APPLICATION_JSON);
+				// acceptTypes.add( MediaType.APPLICATION_XML );
+				headers.setAccept(acceptTypes);
+				
+				HttpEntity<ActivityStreamEntry> entity = new HttpEntity<ActivityStreamEntry>( newEntry, headers);
+				
+				HttpEntity<String> responseEntity = restTemplate.exchange(quoddyActivityStreamsUrl, HttpMethod.POST, entity, String.class );
+				
+				String responseText = responseEntity.getBody();
+				
+				log.info( "done with response: " + responseText );
 			
 			
 			} // end quoddy address processing loop

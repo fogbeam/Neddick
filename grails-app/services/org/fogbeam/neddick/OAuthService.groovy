@@ -13,7 +13,7 @@ import org.apache.http.message.BasicNameValuePair
 import org.apache.http.util.EntityUtils
 import org.fogbeam.common.oauth.client.Insecure
 
-class OAuthService 
+public class OAuthService 
 {
 	
 	def grailsApplication;
