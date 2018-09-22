@@ -238,15 +238,15 @@ class HomeController
 			
 			if( quoddyFoafUrl )
 			{
-				log.debug "quoddyFoafUrl: ${quoddyFoafUrl}";
+				log.info "quoddyFoafUrl: ${quoddyFoafUrl}";
 				
 				String foafResponse = restTemplate.getForObject( quoddyFoafUrl, String.class );
+				
 				// log.debug "foafResponse:\n\n${foafResponse}";
 				Dataset dataset = DatasetFactory.createMem();
 				Model foafModel = dataset.getDefaultModel();
 				StringReader foafReader = new StringReader(foafResponse);
 				RDFDataMgr.read(foafModel, foafReader, "", Lang.RDFXML );
-				
 				
 				Reasoner reasoner = ReasonerRegistry.getRDFSReasoner();
 				reasoner.setParameter(ReasonerVocabulary.PROPsetRDFSLevel,

@@ -2,7 +2,8 @@ package org.fogbeam.neddick
 
 import org.fogbeam.neddick.SiteConfigEntry;
 
-class SiteConfigService {
+class SiteConfigService 
+{
 
 	public String getSiteConfigEntry( final String name )
 	{

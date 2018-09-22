@@ -4,7 +4,8 @@ import org.fogbeam.neddick.Tag;
 import org.fogbeam.neddick.TagEntryLink;
 import org.fogbeam.neddick.User;
 
-class TagService {
+class TagService 
+{
 
 	public Tag findTagByName(final String name) 
 	{

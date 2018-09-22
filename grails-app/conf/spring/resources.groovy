@@ -137,7 +137,7 @@ beans = {
 	   host='smtp.gmail.com'
 	   port='587'
 	   username = "motley.crue.fan@gmail.com"
-	   password = "@790seriesIC"
+	   password = "@7400seriesIC"
 	   javaMailProperties = ['mail.smtp.auth': 'true',
 		  'mail.smtp.starttls.enable':'true',
 		  'mail.smtp.starttls.required':'true',
@@ -152,6 +152,17 @@ beans = {
 	// eg: from/to/subject mailMessage(org.springframework.mail.SimpleMailMessage) { from = 'myapp@maurice.co.uk' }
 	mailMessage(org.springframework.mail.SimpleMailMessage) {
 			from = 'neddick@demo.fogbeam.org'
+	}
+
+	jsonConverterBean(org.springframework.http.converter.json.MappingJacksonHttpMessageConverter)
+	stringConverterBean(org.springframework.http.converter.StringHttpMessageConverter)
+
+	restTemplate( org.springframework.web.client.RestTemplate )
+	{
+			messageConverters = [
+								   ref("jsonConverterBean"),
+								   ref("stringConverterBean")
+								]
 	}
 
 }
