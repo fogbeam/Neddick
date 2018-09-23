@@ -117,4 +117,43 @@ environments:
         dataSource:
             dbCreate: none
             url: jdbc:postgresql:neddick
-            
+quartz:
+  autoStartup: false
+  jdbcStore: true
+  scheduler:
+    instanceName: 'neddick_scheduler'
+    instanceId: 'AUTO'
+  threadPool:
+    class: 'org.quartz.simpl.SimpleThreadPool'
+    threadCount: 25
+    threadPriority: 5
+  jobStore:
+    misfireThreshold: 60000
+    class: 'org.quartz.impl.jdbcjobstore.JobStoreTX'
+    driverDelegateClass: 'org.quartz.impl.jdbcjobstore.PostgreSQLDelegate'    
+    useProperties: false
+    dataSource: 'development'
+    tablePrefix: 'qrtz_'
+    isClustered: true
+    clusterCheckinInterval: 20000
+  dataSource:
+    development:
+      driver: 'org.postgresql.Driver'
+      URL: 'jdbc:postgresql:neddick_dev'
+      user: 'postgres'
+      password: ''
+      maxConnections: 10
+jms:
+    templates:
+        standard:
+           messageConverterBean: "messageConverter"
+    adapters:
+        standard:
+           messageConverterBean: "messageConverter"
+    converters:
+        standard:
+           meta:
+              clazz: org.fogbeam.neddick.jms.NoOpMessageConverter
+    containers:
+        standard:
+           messageConverter: null
