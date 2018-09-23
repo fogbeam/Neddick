@@ -283,13 +283,11 @@ class ChannelService
 							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
 			
 							log.info( "sending new entry message to JMS entryQueue");
+							
 							// send a JMS message to our entryQueue
-							// sendJMSMessage("entryQueue", newEntryMessage );
 							jmsService.send( queue: 'entryQueue', newEntryMessage, 'standard', null );
 							
 							log.info( "sending new entry message to JMS searchQueue" );
-							// send a JMS message to our searchQueue
-							// sendJMSMessage("searchQueue", newEntryMessage );
 							jmsService.send( queue: 'searchQueue', newEntryMessage, 'standard', null );
 							
 						}

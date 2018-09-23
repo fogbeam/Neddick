@@ -1,6 +1,6 @@
 package org.fogbeam.neddick.jms.listeners;
 
-import org.fogbeam.neddick.Entry
+import javax.jms.MapMessage
 
 public class NewEntryListenerService {
 
@@ -9,13 +9,13 @@ public class NewEntryListenerService {
 	static destination = "entryQueue"
 	def sessionFactory;
 
-	def onMessage(msg)
+	def onMessage( MapMessage msg )
 	{
 		count++;
 		log.info( "NewEntryListenerService.onMessage: received message number: ${count}" );
 		
-		String msgType = msg['msgType'];
-		def entryId = msg['id'];
+		String msgType = msg.getString('msgType');
+		def entryId = msg.getString( 'id' );
 		
 		log.info( "got msg as ${msg}" );
 		log.info( "entryId: ${entryId}" );
@@ -23,6 +23,7 @@ public class NewEntryListenerService {
 		if( msgType.equals("NEW_ENTRY"))
 		{
 			log.info( "processing NEW_ENTRY message" );
+			
 			// a new Entry was added to the system.  Populate the user_entry_score_link
 			// table with initial default values
 			def hibSession = sessionFactory.openSession();

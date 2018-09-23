@@ -1,5 +1,7 @@
 package org.fogbeam.neddick.jms.listeners
 
+import javax.jms.TextMessage
+
 import org.fogbeam.neddick.Channel 
 
 class UpdateChannelFromDatasourceListenerService 
@@ -11,39 +13,34 @@ class UpdateChannelFromDatasourceListenerService
 	static expose = ['jms']
 	static destination = "datasourceQueue"
 	
-	def onMessage(msg)
+	def onMessage(TextMessage msg)
 	{
 		try
 		{
-			// receive message saying to update channel
-			if( msg instanceof String )
+			String msgBody = msg.getText();
+			log.info( "UpdateChannelFromDataSourceListenerService: received message: ${msgBody}" );
+			
+			String[] parts = msgBody.split(":");
+			switch( parts[0] )
 			{
+				case "UPDATE_CHANNEL":
 				
-				log.info( "UpdateChannelFromDataSourceListenerService: received message: ${msg}" );
-				
-				String[] parts = ((String)msg).split(":");
-				switch( parts[0] )
-				{
-					case "UPDATE_CHANNEL":
-					
-						String channelName = parts[1];
-						// lookup the Channel object
-						Channel channel = channelService.findByName( channelName );
-						if( channel != null )
-						{
-							log.info( "updating from DataSource for channel: ${channelName}");
-							
-							// use the channelService to update the channel from the datasource
-							channelService.updateFromDatasource( channel );
-						}
-						else
-						{
-							log.error( "Could not locate Channel entry for channel: ${channelName}" );	
-						}
+					String channelName = parts[1];
+					// lookup the Channel object
+					Channel channel = channelService.findByName( channelName );
+					if( channel != null )
+					{
+						log.info( "updating from DataSource for channel: ${channelName}");
 						
-						break;	
-				}
-
+						// use the channelService to update the channel from the datasource
+						channelService.updateFromDatasource( channel );
+					}
+					else
+					{
+						log.error( "Could not locate Channel entry for channel: ${channelName}" );
+					}
+					
+					break;
 			}
 		}
 		catch( Exception e )
@@ -53,5 +50,4 @@ class UpdateChannelFromDatasourceListenerService
 		
 		return null;
 	}
-	
 }

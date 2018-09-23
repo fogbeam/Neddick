@@ -1,8 +1,8 @@
 package org.fogbeam.neddick.jms.listeners
 
 import static groovyx.net.http.ContentType.TEXT
-import groovyx.net.http.RESTClient
 
+import javax.jms.Message as JMSMessage;
 import javax.mail.BodyPart
 import javax.mail.Folder
 import javax.mail.Message
@@ -13,31 +13,27 @@ import javax.mail.Store
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
 import javax.mail.search.MessageIDTerm
+
+import org.apache.commons.io.IOUtils
 import org.apache.http.Header
-import org.apache.http.HttpEntity
-import org.apache.http.HttpHeaders
-import org.apache.http.HttpResponse
-import org.apache.http.NameValuePair
 import org.apache.http.HttpException
-import org.apache.http.client.HttpClient
+import org.apache.http.HttpResponse
 import org.apache.http.client.config.RequestConfig
-import org.apache.http.client.entity.UrlEncodedFormEntity
-import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
-import org.apache.http.message.BasicNameValuePair
-import org.apache.http.params.HttpParams
-import org.apache.http.ssl.SSLContextBuilder
-import org.apache.http.ssl.TrustStrategy
 import org.apache.http.util.EntityUtils
-import org.apache.http.util.EntityUtils
-import org.apache.lucene.index.IndexWriter
-import org.apache.lucene.store.Directory
-import org.apache.lucene.store.NIOFSDirectory
-
+import org.apache.jena.query.Dataset
+import org.apache.jena.query.ReadWrite
+import org.apache.jena.rdf.model.Model
+import org.apache.jena.rdf.model.ModelFactory
+import org.apache.jena.rdf.model.ResIterator
+import org.apache.jena.rdf.model.Resource
 import org.apache.jena.riot.RDFDataMgr
+import org.apache.jena.tdb.TDBFactory
+import org.apache.jena.vocabulary.DCTerms
+import org.apache.jena.vocabulary.OWL
+import org.apache.jena.vocabulary.RDF
 import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.document.Field
@@ -63,19 +59,9 @@ import org.fogbeam.neddick.WebpageEntry
 import org.hibernate.StaleObjectStateException
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException
 
-import org.apache.jena.query.Dataset
-import org.apache.jena.query.ReadWrite
-import org.apache.jena.rdf.model.Model
-import org.apache.jena.rdf.model.ModelFactory
-import org.apache.jena.rdf.model.ResIterator
-import org.apache.jena.rdf.model.Resource
-import org.apache.jena.tdb.TDBFactory
-import org.apache.jena.vocabulary.DCTerms
-import org.apache.jena.vocabulary.OWL
-import org.apache.jena.vocabulary.RDF
-
 import de.l3s.boilerpipe.document.TextBlock
 import de.l3s.boilerpipe.document.TextDocument
+import groovyx.net.http.RESTClient
 
 public class IndexerListenerService 
 {
@@ -88,8 +74,8 @@ public class IndexerListenerService
 	static expose = ['jms']
 	static destination = "searchQueue"
 
-	def onMessage(msg) {
-
+	def onMessage( JMSMessage msg ) 
+	{
 		/* note: what we would ordinarily do where is turn around and copy this message
 		 * to other queue's, topics, etc., or otherwise route it as needed.  But for
 		 * now we just assume we are the "indexer" job.
@@ -97,15 +83,17 @@ public class IndexerListenerService
 
 		log.info( "GOT MESSAGE: ${msg}" );
 
-		if( msg instanceof java.lang.String ) {
+		if( msg instanceof javax.jms.TextMessage ) 
+		{
 			log.info( "Received message: ${msg}" );
 
-
-			if( msg.equals( "REINDEX_ALL" )) {
+			String msgBody = msg.getText();
+			
+			if( msgBody.equals( "REINDEX_ALL" )) {
 				rebuildIndex();
 				return;
 			}
-			else if( msg.startsWith( "ADDTAG" )) {
+			else if( msgBody.startsWith( "ADDTAG" )) {
 				log.debug( "proceeding to addTag" );
 				// parse out the tagname and the uuid
 				String[] msgParts = msg.split( "\\|" );
@@ -132,18 +120,20 @@ public class IndexerListenerService
 				
 				return;
 			}
-			else {
-				log.debug( "BAD STRING" );
+			else 
+			{
+				log.debug( "BAD STRING: ${msgBody}" );
 				return;
 			}
 		}
-		else {
+		else if( msg instanceof javax.jms.MapMessage )
+		{
 			log.info( "Received message: ${msg}" );
+			
+			String msgType = msg.getString( 'msgType' );
 
-			String msgType = msg['msgType'];
-
-			if( msgType.equals( "NEW_COMMENT" )) {
-
+			if( msgType.equals( "NEW_COMMENT" )) 
+			{
 				log.debug( "adding document to index" );
 				String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 				
@@ -190,12 +180,12 @@ public class IndexerListenerService
 
 					doc.add( new Field( "docType", "docType.comment", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
 
-					doc.add( new Field( "entry_id", Long.toString( msg['entry_id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					doc.add( new Field( "entry_uuid", msg['entry_uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "entry_id", Long.toString( msg.getLong('entry_id' ) ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "entry_uuid", msg.getString( 'entry_uuid'), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
-					doc.add( new Field( "id", Long.toString( msg['comment_id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					doc.add( new Field( "uuid", msg['comment_uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					doc.add( new Field( "content", msg['comment_text'], Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
+					doc.add( new Field( "id", Long.toString( msg.getLong('comment_id') ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "uuid", msg.getString( 'comment_uuid'), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "content", msg.getString( 'comment_text'), Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.YES ) );
 					writer.addDocument( doc );
 
 					writer.optimize();
@@ -223,15 +213,15 @@ public class IndexerListenerService
 			else if( msgType.equals( "NEW_ENTRY" ))
 			{
 				
-				log.info( "NEW_ENTRY for uuid: ${msg['uuid']}" );
-				Entry entry = entryService.findByUuid( msg['uuid']);
+				log.info( "NEW_ENTRY for uuid: ${msg.getString( 'uuid' ) }" );
+				
+				Entry entry = entryService.findByUuid( msg.getString( 'uuid' ) );
 				
 				if( entry == null )
 				{
-					log.debug "WARN: No such entry: ${msg['uuid']}";
+					log.debug "WARN: No such entry: ${msg.getString('uuid') }";
 					return;
-				}
-				
+				}	
 				
 				// Now we have to distinguish between the different kinds of Entry's we can receive here.
 				// Webpage (HTTP) entries, Email (IMAP) entries, etc.  We'll have to extract the content, save it
@@ -247,7 +237,6 @@ public class IndexerListenerService
 				// and then a call to the Stanbol Enhancer
 				doSemanticEnhancement( entry, msg );
 				
-
 			}
 			else if( msgType.equals( "NEW_QUESTION" ))
 			{
@@ -282,10 +271,10 @@ public class IndexerListenerService
 					Document doc = new Document();
 
 					doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-					doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					doc.add( new Field( "url", msg['url'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-					doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+					doc.add( new Field( "uuid", msg.getString( 'uuid' ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "id", Long.toString( msg.getLong('id') ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "url", msg.getString( 'url' ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+					doc.add( new Field( "title", msg.getString( 'title' ), Field.Store.YES, Field.Index.ANALYZED ) );
 					doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
 					writer.addDocument( doc );
@@ -317,6 +306,10 @@ public class IndexerListenerService
 			{
 				log.debug( "Bad message type: ${msgType}" );
 			}
+		}
+		else
+		{
+			log.error( "Unknown message type received!!" );
 		}
 	}
 
@@ -712,7 +705,7 @@ public class IndexerListenerService
 		
 		
 		// add document to index
-		log.info( "adding document to index: ${msg['uuid']}" );
+		log.info( "adding document to index: ${msg.getString( 'uuid' ) }" );
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		log.info ( "got indexDirLocation as: ${indexDirLocation}");
 		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
@@ -746,9 +739,9 @@ public class IndexerListenerService
 			Document doc = new Document();
 
 			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-			doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "uuid", msg.getString( 'uuid' ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( msg.getLong('id' ) ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", msg.getString( 'title' ), Field.Store.YES, Field.Index.ANALYZED ) );
 			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
 			// add channels
@@ -794,7 +787,7 @@ public class IndexerListenerService
 		
 		
 		// send JMS message saying "content indexed"
-		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
+		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg.getString( 'uuid' ) ];
 
 		// send notifications
 		// sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
@@ -810,7 +803,8 @@ public class IndexerListenerService
 	private void extractAndIndexContent( WebpageEntry entry, def msg )
 	{
 		// add document to index
-		log.info( "adding document to index: ${msg['uuid']}" );
+		log.info( "WebpageEntry: adding document to index: ${msg.getString('uuid') }" );
+		
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		
 		if( indexDirLocation == null || indexDirLocation.isEmpty())
@@ -820,6 +814,7 @@ public class IndexerListenerService
 		}
 		
 		log.info ( "got indexDirLocation as: ${indexDirLocation}");
+		
 		Directory indexDir = new NIOFSDirectory( new java.io.File( indexDirLocation ) );
 		IndexWriter writer = null;
 
@@ -852,10 +847,10 @@ public class IndexerListenerService
 			Document doc = new Document();
 
 			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-			doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "url", msg['url'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "uuid", msg.getString( 'uuid' ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( msg.getLong('id' ) ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "url", msg.getString( 'url'), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", msg.getString( 'title' ), Field.Store.YES, Field.Index.ANALYZED ) );
 			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
 			// add channels
@@ -876,7 +871,10 @@ public class IndexerListenerService
 				.setDefaultRequestConfig(defaultRequestConfig)
 				.build();
 						
-			String url = msg['url'];
+			String url = msg.getString( 'url' );
+			
+			log.info( "making HTTP GET request for URL: ${url}" );
+			
 			method = new HttpGet(url);
 
 			String responseBody = null;
@@ -931,7 +929,7 @@ public class IndexerListenerService
 				textHandler = new BoilerpipeContentHandler( bodyContentHandler );
 				textHandler.setIncludeMarkup( true );
 				
-				input = response.entity.content;
+				input = IOUtils.toInputStream( responseBody, "UTF-8" );
 				
 				Metadata metadata = new Metadata();
 				HtmlParser parser = new HtmlParser();
@@ -944,18 +942,14 @@ public class IndexerListenerService
 				
 				for( TextBlock block : blocks )
 				{
-					
-					
 					log.debug "**********************************\n ${block.getText()}\n**************************";
 					
 					if( block.isContent())
-					{
-					
+					{	
 						bodyContent += "<p>";
 						bodyContent += block.getText();
 						bodyContent += "</p>";
 					}
-					
 				}
 				
 				// bodyContent = bodyContentHandler.toString(); // tDoc.getContent(); // bodyContentHandler.toString();
@@ -1116,7 +1110,7 @@ public class IndexerListenerService
 
 
 		// send JMS message saying "content indexed"
-		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
+		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg.getString( 'uuid' ) ];
 
 		// send notifications
 		// sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
@@ -1137,7 +1131,7 @@ public class IndexerListenerService
 		// add document to index
 		IMAPAccount imapAccount = entry.theDataSource;
 		
-		log.info( "adding document to index: ${msg['uuid']}" );
+		log.info( "adding document to index: ${ msg.getString( 'uuid' ) }" );
 		String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
 		
 		if( indexDirLocation == null || indexDirLocation.isEmpty())
@@ -1178,13 +1172,13 @@ public class IndexerListenerService
 			Document doc = new Document();
 
 			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-			doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "messageId", msg['messageId'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
-			if( msg['subject'] != null )
+			doc.add( new Field( "uuid", msg.getString( 'uuid'), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( msg.getLong('id' ) ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "messageId", msg.getString( 'messageId' ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", msg.getString( 'title' ), Field.Store.YES, Field.Index.ANALYZED ) );
+			if( msg.getString( 'subject' ) != null )
 			{
-				doc.add( new Field( "subject", msg['subject'], Field.Store.YES, Field.Index.ANALYZED ) );
+				doc.add( new Field( "subject", msg.getString( 'subject' ), Field.Store.YES, Field.Index.ANALYZED ) );
 			}
 			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
@@ -1440,7 +1434,7 @@ public class IndexerListenerService
 				
 		
 		// send JMS message saying "content indexed"
-		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg['uuid'] ];
+		def contentIndexedMessage = [msgType:"NEW_ENTRY_INDEXED", entry_uuid:msg.getString( 'uuid' ) ];
 
 		// send notifications
 		// sendJMSMessage( "neddickTriggerQueue", contentIndexedMessage );
@@ -1735,9 +1729,9 @@ public class IndexerListenerService
 			Document doc = new Document();
 
 			doc.add( new Field( "docType", "docType.entry", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO ));
-			doc.add( new Field( "uuid", msg['uuid'], Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "id", Long.toString( msg['id'] ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-			doc.add( new Field( "title", msg['title'], Field.Store.YES, Field.Index.ANALYZED ) );
+			doc.add( new Field( "uuid", msg.getString( 'uuid' ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "id", Long.toString( msg.getLong('id' ) ), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+			doc.add( new Field( "title", msg.getString( 'title' ), Field.Store.YES, Field.Index.ANALYZED ) );
 			doc.add( new Field( "tags", "", Field.Store.YES, Field.Index.ANALYZED ));
 
 			// add channels
