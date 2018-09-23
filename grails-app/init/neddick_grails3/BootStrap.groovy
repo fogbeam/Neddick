@@ -22,6 +22,8 @@ class BootStrap
 	 def entryCacheService;
 	 def siteConfigService;
 	 def userService;
+	 def quartzScheduler;
+	 
 	 
      def init = { servletContext ->
      
@@ -40,7 +42,8 @@ class BootStrap
 	             createSomeUsers();
 	             // createAnonymousUser();
 				 createDefaultChannel();
-				 createSomeChannels();
+				 createSomeChannels();				 
+				 startQuartz();
 	             break;
 	         case Environment.PRODUCTION:
 	             log.info( "No special configuration required" );
@@ -50,7 +53,8 @@ class BootStrap
 				 // createAnonymousUser();
 				 createDefaultChannel();
 				 createSomeChannels();
-	             break;
+				 startQuartz();
+				 break;
 	     }
 	
 
@@ -61,7 +65,7 @@ class BootStrap
 		 
 		 		 
 		 String indexDirLocation = siteConfigService.getSiteConfigEntry( "indexDirLocation" );
-		 log.debug( "indexDirLocation: ${indexDirLocation}" );
+		 log.info( "indexDirLocation: ${indexDirLocation}" );
 		 if( indexDirLocation )
 		 {
 			 File indexFile = new java.io.File( indexDirLocation );
@@ -69,7 +73,7 @@ class BootStrap
 			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
 			 if( ! indexIsInitialized )
 			 {
-				 log.debug( "Index not previously initialized, creating empty index" );
+				 log.warn( "Index not previously initialized, creating empty index" );
 				 /* initialize empty index */
 				 Directory indexDir = new NIOFSDirectory( indexFile );
 				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
@@ -85,14 +89,15 @@ class BootStrap
 		 }
 		 else
 		 {
-		 	log.warn( "No explicit indexDirLocation configured.  Placing index under neddickHome at: ${neddickHome}/index");
+			 log.warn( "No explicit indexDirLocation configured.  Placing index under neddickHome at: ${neddickHome}/index");
 			 indexDirLocation = neddickHome + "/index";
 			 File indexFile = new java.io.File( indexDirLocation );
 			 String[] indexFileChildren = indexFile.list();
 			 boolean indexIsInitialized = (indexFileChildren != null && indexFileChildren.length > 0 );
 			 if( ! indexIsInitialized )
 			 {
-				 log.debug( "Index not previously initialized, creating empty index" );
+				 log.warn( "Index not previously initialized, creating empty index" );
+				 
 				 /* initialize empty index */
 				 Directory indexDir = new NIOFSDirectory( indexFile );
 				 IndexWriter writer = new IndexWriter( indexDir, new StandardAnalyzer(Version.LUCENE_30), true, MaxFieldLength.UNLIMITED);
@@ -569,5 +574,44 @@ class BootStrap
              log.info( "Existing ADMIN user, skipping..." );
          }
          
-     }     
+     }    
+	 
+	 def startQuartz()
+	 {
+		 log.info( "startQuartz() called" );
+		 final scheduler = quartzScheduler;
+		 
+		 String quartzStartupDelay = System.getProperty( "quartz.startup.delay" );
+		 
+		 int delay = 0;
+		 if( quartzStartupDelay != null )
+		 {
+			 delay = Integer.parseInt( quartzStartupDelay );
+		 }
+		 else
+		 {
+			 delay = 180000;
+		 }
+		 
+		 final int quartzDelay = delay;
+		 
+		 Thread quartzStarterThread = new Thread( new Runnable() {
+			 
+			 public void run()
+			 {
+				 log.warn( "delaying ${quartzDelay} milliseconds before starting Quartz" );
+				 Thread.sleep( quartzDelay );
+				 
+				 log.warn( "Starting Quartz now");
+				 scheduler.start();
+			 }
+		 });
+		 
+	 
+		 quartzStarterThread.start();
+	 
+	 }
+ 
+	 
+	  
 } 
