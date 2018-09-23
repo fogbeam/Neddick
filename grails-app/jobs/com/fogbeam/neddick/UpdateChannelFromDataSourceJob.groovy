@@ -17,13 +17,9 @@ class UpdateChannelFromDataSourceJob
 	// disable concurrent execution
 	static concurrent = false;
 	def concurrentExecutionDisallowed = true;
-	
-	def group = "MyGroup";
 	def volatility = false;
 	
-	static triggers = {
-		def volatility = false;	
-	}
+	static triggers = {}
 		
 	def execute(def context)
 	{
