@@ -1,5 +1,7 @@
 package org.fogbeam.neddick
 
+import javax.jms.Message as JMSMessage;
+
 class CacheQueueInputService 
 {
 	def entryCacheService;
@@ -7,7 +9,7 @@ class CacheQueueInputService
 	static expose = ['jms']
 	static destination = "cacheQueue"
 
-	def onMessage(msg)
+	def onMessage(JMSMessage msg)
 	{
 		
 		log.debug( "CacheQueueInputService: GOT MESSAGE: ${msg}" );

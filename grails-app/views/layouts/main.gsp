@@ -67,19 +67,16 @@
           }
                
           </script>        
-        
-	<script>
-	/* 
-	$j(document).ready(function() {
-		$j('.carousel').carousel({
-			interval : false
-		});
-	});
-	*/ 
+                
+		<script> 
+			$j(document).ready(function() {
+				$j('.carousel').carousel({
+					interval : false
+				});
+			});
 	
-</script>        
-        
-        
+		</script>        
+                                
         <g:layoutHead />
     </head>
     

@@ -90,6 +90,8 @@ class UserService
 	
 	public void addChannelToUserFavorites( final User user, final Channel channel )
 	{
+		log.info( "addChannelToUserFavorites()" );
+		
 		UserFavoriteChannelLink.link( channel, user );
 	}
 		

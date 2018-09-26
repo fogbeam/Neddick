@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity
 
 import grails.core.GrailsApplication
 
-// import org.codehaus.groovy.grails.commons.ConfigurationHolder as CH;
-
 class QuoddyShareTriggerAction extends BaseTriggerAction
 {
 	def restTemplate;

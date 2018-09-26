@@ -190,12 +190,12 @@ class ChannelController
 		// TODO: move this to a call to ChannelService
 		if( channel.save(flush:true) )
 		{
-			
+			log.info( "Saved channel" );
 		}
 		else
 		{
 			flash.message = "Failed to save Channel!";	
-			channel.errors.allErrors.each{ log.debug it };
+			channel.errors.allErrors.each{ log.error( it.toString() ) };
 		}
 		
 		redirect(controller:"channel", action:"list");
@@ -282,6 +282,7 @@ class ChannelController
 			}
 		}
 				
+		theChannel.name = params.channelName;
 		theChannel.description = params.channelDescription;
 		
 		if( params.privateChannel != null && params.privateChannel.equals("on"))
@@ -315,11 +316,10 @@ class ChannelController
 			if( !theChannel.save(flush:true, validate:true) )
 			{	
 				log.error( "Error saving channel" );
-				theChannel.errors.allErrors.each { log.debug it };
+				theChannel.errors.allErrors.each { log.error( it.toString() ) };
 			}				
 		}
-	
-	
+
 		log.debug( "dealing with datasources to add" );
 		def datasourcesToAdd = params.list( 'datasourcesToAdd');
 		for( String datasourceToAdd : datasourcesToAdd ) 
@@ -346,17 +346,17 @@ class ChannelController
 				log.warn( "problem finding channel instance for ${aggregateChannelToRemove}" );
 			}
 		
-			log.debug( "about to theChannel.save()" );
+			log.info( "about to theChannel.save()" );
 			if( !theChannel.save(flush:true, validate:true) )
 			{
 				log.error( "Error saving channel" );
-				theChannel.errors.allErrors.each { log.error(it.toString() ) };
+				theChannel.errors.allErrors.each { log.error( it.toString() ) };
 			}
 				
 		}
 	
 	
-		log.debug( "dealing with aggregate channels to add" );
+		log.info( "dealing with aggregate channels to add" );
 		def aggregateChannelsToAdd = params.list('aggregateChannelsToAdd');
 		
 		for( String aggregateChannelToAdd : aggregateChannelsToAdd )
@@ -366,10 +366,11 @@ class ChannelController
 			theChannel.addToAggregateChannels( channel );
 		}
 	
+		log.info( "About to finish saving Channel" );
 		if( !theChannel.save(flush:true) )
 		{
 			log.error( "Error saving channel" );
-			// theChannel.errors.allErrors.each { p rintln it };
+			theChannel.errors.allErrors.each { log.error( it.toString() ) };
 		}		
 		
 		log.info( "Done updating Channel" );
@@ -385,8 +386,15 @@ class ChannelController
 		
 		User user = userService.getLoggedInUser();
 		
-		userService.addChannelToUserFavorites( user, channel );
-		
+		try
+		{
+			userService.addChannelToUserFavorites( user, channel );
+		}
+		catch( Exception e )
+		{
+			log.error( "Error adding Channel to User favorites", e );	
+		}
+
 		render( status:200, text:"OK" );
 	}
 }

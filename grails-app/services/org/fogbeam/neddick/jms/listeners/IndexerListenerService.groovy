@@ -322,7 +322,7 @@ public class IndexerListenerService
 	private void doSemanticEnhancement( TwitterEntry entry, def msg )
 	{
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = grailsApplication.config.urls.stanbol.endpoint;
 		log.debug "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
@@ -444,9 +444,9 @@ public class IndexerListenerService
 	private void doSemanticEnhancement( WebpageEntry entry, def msg )
 	{
 				
-		if( ConfigurationHolder.config.semantic.enhancement.enabled == null || 
-            ConfigurationHolder.config.semantic.enhancement.enabled.isEmpty() ||
-            Boolean.parseBoolean( ConfigurationHolder.config.semantic.enhancement.enabled ) == false )
+		if( grailsApplication.config.semantic.enhancement.enabled == null || 
+            grailsApplication.config.semantic.enhancement.enabled.isEmpty() ||
+            Boolean.parseBoolean( grailsApplication.config.semantic.enhancement.enabled ) == false )
 		{
 			// semantic enhancement is not enabled, just return
 			return;
@@ -455,7 +455,7 @@ public class IndexerListenerService
 				
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = grailsApplication.config.urls.stanbol.endpoint;
 
 		
 		log.info( "using stanbolServerUrl: ${stanbolServerUrl}");
@@ -580,7 +580,7 @@ public class IndexerListenerService
 	{
 		// Hit Stanbol to get enrichmentData
 		// call Stanbol REST API to get enrichment data
-		String stanbolServerUrl = ConfigurationHolder.config.urls.stanbol.endpoint;
+		String stanbolServerUrl = grailsApplication.config.urls.stanbol.endpoint;
 		log.debug "using stanbolServerUrl: ${stanbolServerUrl}";
 		RESTClient restClient = new RESTClient( stanbolServerUrl )
 	
@@ -590,8 +590,6 @@ public class IndexerListenerService
 										requestContentType : TEXT );
 	
 		def restResponseText = restResponse.getData();
-		
-		// log.debug "restResponseText.class.name = ${restResponseText.class.name}";
 		
 		entry.refresh();
 		entry.enhancementJSON = restResponseText;
