@@ -1,8 +1,6 @@
 package org.fogbeam.neddick
 
 
-import groovy.json.JsonSlurper
-
 import javax.mail.Address
 import javax.mail.Folder
 import javax.mail.Message
@@ -14,6 +12,13 @@ import javax.mail.internet.MimeMessage
 import javax.mail.search.ComparisonTerm
 import javax.mail.search.ReceivedDateTerm
 
+import org.apache.http.HttpResponse
+import org.apache.http.client.config.RequestConfig
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.config.SocketConfig
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.scribe.builder.ServiceBuilder
 import org.scribe.builder.api.TwitterApi
 import org.scribe.model.OAuthRequest
@@ -29,13 +34,17 @@ import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 
+import groovy.json.JsonSlurper
+
 
 class ChannelService 
 {
 
 	def entryService;
 	def jmsService;
-	
+
+	final static String USER_AGENT = "Apache-HttpClient/release (java 1.5)";
+		
 	static transactional = false;
 	
 	@Transactional(propagation=Propagation.REQUIRED)
@@ -176,8 +185,7 @@ class ChannelService
 				}
 				catch( Exception e )
 				{
-					// TODO: clean up the error handling here.
-					e.printStackTrace();
+					log.error( "Error updating from DataSource", e );
 					continue;
 				}	
 			}
@@ -188,116 +196,137 @@ class ChannelService
 	private void updateFromDataSource( RssFeed rssFeed, Channel channel, User anonymous )
 	{
 		// lookup the feed, and get the FeedUrl
-		String url = rssFeed.feedUrl;
-		log.info( "Loading from url: ${url}, description: ${rssFeed.description}" );
+		String url = rssFeed.feedUrl.trim();
+		log.info( "Loading from url: \"${url}\", description: ${rssFeed.description}" );
 		
-		// load the feed, and create an Entry for each link in the RssFeed
-		/*
-		URL dummyUrl = new URL(url);
-		InputStream dummyInStream = dummyUrl.getContent();
-		BufferedReader dummyReader = new BufferedReader(new InputStreamReader(dummyInStream));
-		String dummyResult;
-		String dummyLine = dummyReader.readLine();
-		dummyResult = dummyLine;
-		while((dummyLine=dummyReader.readLine())!=null){
-			dummyResult+=dummyLine;
-		}
-		
-		log.debug ("url content: " + dummyResult );
-		*/
-		
-		URL feedUrl = new URL(url);
+		// load the feed, and create an Entry for each link in the RssFeed		
 		SyndFeedInput input = new SyndFeedInput();
 		SyndFeed feed = null;
-		XmlReader reader = null;
 		
-		HttpURLConnection conn = (HttpURLConnection)feedUrl.openConnection();
-		conn.setRequestProperty( "User-Agent", "Mozilla/5.0 (X11; Linux i686; rv:25.0) Gecko/20100101 Firefox/25.0" );
+    	
+		// Configure the socket timeout for the connection, incl. ssl tunneling
+		PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+		connManager.setMaxTotal(500);
+		connManager.setDefaultMaxPerRoute(10);
+		
+		SocketConfig sc = SocketConfig.custom()
+			.setSoTimeout(60000)
+			.build();
+		
+		connManager.setDefaultSocketConfig(sc);
+		
+		
+		RequestConfig defaultRequestConfig = RequestConfig.custom()
+			.setConnectTimeout(60000)
+			.setSocketTimeout(60000)
+			.setConnectionRequestTimeout(60000)
+			.build();
+		
+		
+		CloseableHttpClient httpClient = HttpClients.custom()
+			.setConnectionManager( connManager )
+			.setDefaultRequestConfig(defaultRequestConfig)
+			.setUserAgent(USER_AGENT)
+			.setConnectionManagerShared(true)
+			.build();
+
+    	HttpGet httpGet = new HttpGet(url);
+    
+    	httpGet.setHeader("User-Agent", USER_AGENT);
+		HttpResponse httpResponse = httpClient.execute( httpGet );
+		
+		BufferedReader reader = new BufferedReader( new InputStreamReader( httpResponse.entity ) );
+		
 		try
 		{
-			reader = new XmlReader(conn)
+			// reader = new XmlReader(conn);
 			feed = input.build(reader);
-			log.info( "Feed: ${feed.getTitle()}" );
+			log.info( "Feed: ${feed?.getTitle()}" );
 			
 			List<SyndEntry> entries = feed.getEntries();
 			
-			log.debug( "processing ${entries.size()} entries!" );
+			log.info( "processing ${entries?.size()} entries!" );
 			int good = 0;
 			int bad = 0;
 			
 			for( SyndEntry entry in entries )
 			{
-				// TODO: wrap this in a try/catch so one bad
-				// link doesn't fail the entire feed.
-				
-				
-				String linkUrl = entry.getLink();
-				if( linkUrl != null ) 
+				try
 				{
-					linkUrl = linkUrl.trim();
-				}
 				
-				String linkTitle = entry.getTitle();
-				if( linkTitle != null )
-				{
-					linkTitle = linkTitle.trim();
-				}
-				
-				List<Entry> testForExisting = entryService.findByUrlAndChannel( linkUrl, channel );
-				if( testForExisting != null && testForExisting.size() > 0 )
-				{
-					log.info( "An Entry for this link: linkUrl: ${linkUrl} and channel: ${channel}, already exists. Skipping" );
-					continue;
-				}
-				else
-				{
-					log.info( "Initial test for duplication found no results for linkUrl: ${linkUrl} and channel: ${channel}");
-					
-					// does this link exist elsewhere in the system (eg, linked to another channel)?
-					List<Entry> e2 = entryService.findByUrl( linkUrl );
-					if( e2 != null && e2.size() > 0 )
+					String linkUrl = entry.getLink();
+					if( linkUrl != null ) 
 					{
-						// we already have this Entry, so instead of creating a new Entry object, we just
-						// need to link this one to this Channel.
-						Entry existingEntry = e2.get(0);
-						existingEntry.addToChannels( channel );
-						existingEntry.save();
+						linkUrl = linkUrl.trim();
+					}
+					
+					String linkTitle = entry.getTitle();
+					if( linkTitle != null )
+					{
+						linkTitle = linkTitle.trim();
+					}
+					
+					List<Entry> testForExisting = entryService.findByUrlAndChannel( linkUrl, channel );
+					if( testForExisting != null && testForExisting.size() > 0 )
+					{
+						log.info( "An Entry for this link: linkUrl: ${linkUrl} and channel: ${channel}, already exists. Skipping" );
+						continue;
 					}
 					else
 					{
-					
-						log.info( "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}" );
-			
-						Entry newEntry = new WebpageEntry( url: linkUrl, title: linkTitle, submitter: anonymous, theDataSource:rssFeed );
+						log.info( "Initial test for duplication found no results for linkUrl: ${linkUrl} and channel: ${channel}");
 						
-						boolean success = entryService.saveEntry( newEntry, channel );
-					
-						if( success )
+						// does this link exist elsewhere in the system (eg, linked to another channel)?
+						List<Entry> e2 = entryService.findByUrl( linkUrl );
+						if( e2 != null && e2.size() > 0 )
 						{
-							// TODO: could *this* be what's causing our StaleObjectState problem?
-							// newEntry.addToChannels( channel );
-							
-							good++;
-							log.info( "saved new Entry with id: ${newEntry.id}" );
-							// send JMS message saying "new entry submitted"
-							def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
-			
-							log.info( "sending new entry message to JMS entryQueue");
-							
-							// send a JMS message to our entryQueue
-							jmsService.send( queue: 'entryQueue', newEntryMessage, 'standard', null );
-							
-							log.info( "sending new entry message to JMS searchQueue" );
-							jmsService.send( queue: 'searchQueue', newEntryMessage, 'standard', null );
-							
+							// we already have this Entry, so instead of creating a new Entry object, we just
+							// need to link this one to this Channel.
+							Entry existingEntry = e2.get(0);
+							existingEntry.addToChannels( channel );
+							existingEntry.save();
 						}
 						else
 						{
-							bad++;
-							// failed to save newEntry
-							log.error( "Failed to save newEntry!" );
+						
+							log.info( "creating and adding entry for link: ${linkUrl} with title: ${linkTitle}" );
+				
+							Entry newEntry = new WebpageEntry( url: linkUrl, title: linkTitle, submitter: anonymous, theDataSource:rssFeed );
+							
+							boolean success = entryService.saveEntry( newEntry, channel );
+						
+							if( success )
+							{
+								// TODO: could *this* be what's causing our StaleObjectState problem?
+								// newEntry.addToChannels( channel );
+								
+								good++;
+								log.info( "saved new Entry with id: ${newEntry.id}" );
+								// send JMS message saying "new entry submitted"
+								def newEntryMessage = [msgType:"NEW_ENTRY", id:newEntry.id, uuid:newEntry.uuid, url:newEntry.url, title:newEntry.title ];
+				
+								log.info( "sending new entry message to JMS entryQueue");
+								
+								// send a JMS message to our entryQueue
+								jmsService.send( queue: 'entryQueue', newEntryMessage, 'standard', null );
+								
+								log.info( "sending new entry message to JMS searchQueue" );
+								jmsService.send( queue: 'searchQueue', newEntryMessage, 'standard', null );
+								
+							}
+							else
+							{
+								bad++;
+								// failed to save newEntry
+								log.error( "Failed to save newEntry!" );
+							}
 						}
 					}
+				}
+				catch( Exception e)
+				{
+					log.error( "Error processing feed: ", e );
+					continue;
 				}
 			}
 			
@@ -307,8 +336,6 @@ class ChannelService
 		catch( Exception e )
 		{
 			log.error( "Caught Exception in Feed Processing Loop!", e );
-			e.printStackTrace();
-			
 		}
 		finally
 		{
