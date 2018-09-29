@@ -1,3 +1,8 @@
+grails.gorm.default.mapping = {
+	autowire true
+}
+
+
 grails.plugin.springsecurity.cas.key = 'cas01.example.org'
 grails.plugin.springsecurity.cas.loginUri = '/login'
 grails.plugin.springsecurity.cas.serviceUrl = 'http://localhost:8080/login/cas'

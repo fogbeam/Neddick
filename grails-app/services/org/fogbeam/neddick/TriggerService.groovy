@@ -60,9 +60,9 @@ class TriggerService
 	
 	public BaseTrigger saveTrigger( final BaseTrigger trigger )
 	{
-		if( !trigger.save())
+		if( !trigger.save(flush:true))
 		{
-			trigger.errors.allErrors.each { log.debug it; }
+			trigger.errors.allErrors.each { log.error( it.toString() ); }
 			throw new RuntimeException( "Failed to save trigger!");
 		}
 		
@@ -86,9 +86,9 @@ class TriggerService
 		triggerToEdit.addToTriggerCriteria( newCriteria );
 		triggerToEdit.addToTriggerActions( newTriggerAction );
 		
-		if( !triggerToEdit.save())
+		if( !triggerToEdit.save(flush:true))
 		{
-			triggerToEdit.errors.allErrors.each { log.debug it; }
+			triggerToEdit.errors.allErrors.each { log.error( it.toString() ); }
 			throw new RuntimeException( "Failed to update trigger!");
 		}
 		
@@ -349,7 +349,7 @@ class TriggerService
 	public void deleteTrigger( final Long id )
 	{
 		BaseTrigger triggerToDelete = BaseTrigger.findById( id );
-		triggerToDelete.delete();
+		triggerToDelete.delete(flush:true);
 	}
 				
 }

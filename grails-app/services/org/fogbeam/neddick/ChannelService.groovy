@@ -235,7 +235,7 @@ class ChannelService
     	httpGet.setHeader("User-Agent", USER_AGENT);
 		HttpResponse httpResponse = httpClient.execute( httpGet );
 		
-		BufferedReader reader = new BufferedReader( new InputStreamReader( httpResponse.entity ) );
+		BufferedReader reader = new BufferedReader( new InputStreamReader( httpResponse.entity.content ) );
 		
 		try
 		{

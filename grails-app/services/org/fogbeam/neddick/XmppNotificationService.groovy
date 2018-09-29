@@ -79,8 +79,8 @@ public class XmppNotificationService
 			
 			// google bounces back the default message types, you must use chat
             Message msgObj = new Message(entity, Message.Type.chat );
-            msgObj.setBody(msg)
-            chat.send(msgObj)
+            msgObj.setBody(msg);
+            chat.send(msgObj);
 			
 			log.info( "message sent!");
         } 

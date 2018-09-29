@@ -28,7 +28,10 @@ class UserToUserLink
 			aLink.boost = boost;
 			parent?.addToChildUserLinks(aLink);
 			child?.addToParentUserLinks(aLink);
-			aLink.save();
+			if( !aLink.save(flush:true) )
+			{
+				aLink.errors.allErrors.each { log.error( it.toString() ) }
+			}
 		}
 		else
 		{
@@ -41,7 +44,11 @@ class UserToUserLink
 			aLink = links.get(0);
 			// log.debug( "found existing link, current boost is ${aLink.boost},  setting boost to ${boost}" );
 			aLink.boost = boost;
-			aLink.save();
+			
+			if( !aLink.save(flush:true) )
+			{
+				aLink.errors.allErrors.each { log.error( it.toString() ) }
+			}
 		}
 		
 		return aLink;
@@ -50,13 +57,12 @@ class UserToUserLink
 	static void unlink(User parent, User child ) 
 	{ 
 	
-		
 		def alink = UserToUserLink.executeQuery( "select link from UserToUserLink as link where link.owner = ? and link.target = ?", [parent, child] );
 		if ( alink )
 		{ 
 			parent?.removeFromChildUserLinks(alink);
 			child?.removeFromParentUserLinks(alink);
-			alink.delete();
+			alink.delete(flush:true);
 		} 
 	} 
 	

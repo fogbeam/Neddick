@@ -66,7 +66,8 @@ class FilterService
 	public void deleteFilterById( final long id)
 	{
 		BaseFilter filterToDelete = BaseFilter.findById( id );
-		filterToDelete.delete();
+		log.info( "Found filterToDelete: ${filterToDelete}" );
+		filterToDelete.delete(flush: true);
 	}
 
 	public BaseFilter updateFilter( final BaseFilter filterToEdit, final BaseFilterCriteria newCriteria )

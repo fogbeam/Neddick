@@ -153,6 +153,9 @@
 			            	<li>
 			            		<g:link controller="filter" action="index">Filters</g:link>
 			            	</li>            	
+							<li>
+								<g:link controller="user" action="list">Users</g:link>
+							</li>
 
 			            	<li>
 			              		<g:link controller="channel" action="create">Create New Channel</g:link>
@@ -200,8 +203,8 @@
 							<li><a href="${createLink(controller:'user', action:'listOpenFriendRequests')}">Pending Friend Requests</a></li>
 							<li class="divider"></li>
 								
-							<li><a href="${createLink(controller:'user', action:'editAccount')}">Edit Account Info</a></li>
-							<li><a href="${createLink(controller:'user', action:'editProfile')}">Edit Profile</a></li>
+							<!-- <li><a href="${createLink(controller:'user', action:'editAccount')}">Edit Account Info</a></li> -->
+							<li><a href="${createLink(controller:'userHome', action:'index')}">My Profile</a></li>
 							
 							<li class="divider"></li>
 							<g:if test="${session.enable_self_registration == true}">

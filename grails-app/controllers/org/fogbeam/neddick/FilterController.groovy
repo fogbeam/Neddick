@@ -189,6 +189,8 @@ class FilterController
 	@Secured(["ROLE_USER","ROLE_ADMIN"])
 	def delete()
 	{
+		log.info( "delete() called with id: ${params.id}");
+		
 		filterService.deleteFilterById( Long.parseLong(params.id));
 		
 		redirect( controller:'filter', action:'index' );

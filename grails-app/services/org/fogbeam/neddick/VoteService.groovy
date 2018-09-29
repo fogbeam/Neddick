@@ -1,8 +1,6 @@
 package org.fogbeam.neddick
 
-import org.fogbeam.neddick.Entry;
-import org.fogbeam.neddick.User;
-import org.fogbeam.neddick.Vote;
+import org.hibernate.SQLQuery
 
 class VoteService 
 {
@@ -35,7 +33,11 @@ class VoteService
             {
             	log.debug( "found an existing upvote, setting disregard flag to TRUE" );
             	vote.enabled = false;
-            	vote.save();
+            	if( !vote.save(flush:true) )
+            	{
+					log.error( "Error saving Vote" );
+					vote.errors.allErrors.each { log.error( it.toString() ) }
+				}
             	disregardThisVote = true;
             	break;
             }             	
@@ -51,7 +53,11 @@ class VoteService
             {
                 log.debug( "found an existing downVote, disabling it" );
                 vote.enabled = false;
-				vote.save();
+				if( !vote.save(flush:true) )
+				{
+					log.error( "Error saving Vote " );
+					vote.errors.allErrors.each { log.error( it.toString() ) }
+				}
 				break;
             }
     	}
@@ -78,10 +84,10 @@ class VoteService
 		entry.score = score;
 		
 		log.debug( "Score just before saving: ${entry.score}" );
-		if( !entry.save() )
+		if( !entry.save(flush:true) )
 		{
 			log.error( "Failed to save vote!");
-			// entry.errors.allErrors.each { log.debug it };
+			entry.errors.allErrors.each { log.error( it.toString() ) };
 		}		
 		else
 		{
@@ -99,17 +105,21 @@ class VoteService
 		
 		log.debug( "we've recorded a vote.  Now update the score for this entry in the user_entry_score_link table" );
 		def hibSession = sessionFactory.getCurrentSession();
-		def query =
+		SQLQuery query =
 			hibSession.createSQLQuery( 
 				"update user_entry_score_link set entry_base_score = ${entry.score}, entry_controversy = ${controversy}, entry_hotness = ${hotness} where " 
 					+ " entry_id = ${entry.id} and user_id not in (select owner_id from user_to_user_link where target_id = ${upVote.submitter.id})" );
 		try
 		{
-			query.executeUpdate();
+			int updated = query.executeUpdate();
+			if( updated < 1 )
+			{
+				log.error( "No entities updated when updating user_entry_score_link" );
+			}
 		}
 		catch( Exception e )
 		{
-			e.printStackTrace();
+			log.error( "Error updating user_entry_score_link", e );
 		}
 		
 		// ok, we've updated scores for all users who do NOT have a personalization link with the submitter of this vote
@@ -124,22 +134,28 @@ class VoteService
 			List<UserEntryScoreLink> uesLinks = UserEntryScoreLink.executeQuery( "select link from UserEntryScoreLink as link where link.user = ? and link.entry = ?", [ownerUser, entry] );
 			UserEntryScoreLink uesLink = uesLinks[0];
 			uesLink.entryBaseScore += ( upVote.weight + boost );
-			uesLink.save();
+			if( !uesLink.save(flush:true) )
+			{
+				log.error( "Error saving UserEntryScoreLink" );
+				uesLink.errors.allErrors.each { println( it.toString() ) }
+			}
 		}		
 		
 		
 		// send JMS message for triggers, with notification that a score has changed
+		log.info( "Sending ScoreChanged JMS Message" );
 		def scoreChangedMessage = [msgType:"ENTRY_SCORE_CHANGED", entry_uuid:entry.uuid, newScore:entry.score ];
 	
 		// send a JMS message to our testQueue
 		// sendJMSMessage( "neddickTriggerQueue", scoreChangedMessage );
+		log.info( "Sending ScoreChanged JMS Message to neddickTriggerQueue" );
 		jmsService.send( queue: 'neddickTriggerQueue', scoreChangedMessage, 'standard', null );
 		
 		// sendJMSMessage( "neddickFilterQueue", scoreChangedMessage );
+		log.info( "Sending ScoreChanged JMS Message to neddickFilterQueue" );
 		jmsService.send( queue: 'neddickFilterQueue', scoreChangedMessage, 'standard', null );
 		
 		return entry;
-		
 	}
 
 	
