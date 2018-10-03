@@ -137,8 +137,8 @@ beans = {
 	mailSender(org.springframework.mail.javamail.JavaMailSenderImpl) {
 	   host='smtp.gmail.com'
 	   port='587'
-	   username = "motley.crue.fan@gmail.com"
-	   password = "@7400seriesIC"
+	   username = "fogcuttertest@gmail.com"
+	   password = "@this_is_really_$3cur3"
 	   javaMailProperties = ['mail.smtp.auth': 'true',
 		  'mail.smtp.starttls.enable':'true',
 		  'mail.smtp.starttls.required':'true',

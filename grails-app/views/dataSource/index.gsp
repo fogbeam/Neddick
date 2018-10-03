@@ -8,7 +8,9 @@
     	<hr />
     	<ul>
 	    	<g:each in="${allDataSources}" var="dataSource" >
-    			<li>${dataSource.description}</li>
+    			<li>
+    				${dataSource.description}<span>&nbsp;</span><span><g:link controller="dataSource" id="${dataSource.id}" action="edit">edit</g:link> </span><span>&nbsp;</span><span><g:link controller="dataSource" id="${dataSource.id}" action="delete">delete</g:link></span>
+    			</li>
     		</g:each>
     	</ul>
     </body>

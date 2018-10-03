@@ -12,7 +12,7 @@
           
           <div class="body" style="margin-left:100px;margin-top:25px;"> 
             
-            <g:form controller="dataSource" action="createWizard" method="POST"> 
+            <g:form controller="dataSource" action="createImapAccountTwo" method="POST"> 
                 <div class="dialog"> 
                     <table> 
                         <tbody> 

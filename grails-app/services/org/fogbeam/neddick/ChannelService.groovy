@@ -320,6 +320,17 @@ class ChannelService
 								// failed to save newEntry
 								log.error( "Failed to save newEntry!" );
 							}
+							
+							try
+							{
+								// delay to throttle processing...
+								Thread.sleep( 13000 ); // TODO: make this configurable, or possibly even learn it dynamically...
+							}
+							catch( Exception e )
+							{
+								log.error( "", e );
+							}
+							
 						}
 					}
 				}

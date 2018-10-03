@@ -104,6 +104,13 @@ dataSource:
     username: postgres
     password: ''
     logSql: false
+    properties: 
+          jmxEnabled: true
+          initialSize: 15
+          maxActive: 300
+          minIdle: 15
+          maxIdle: 50
+          maxWait: 30000
 environments:
     development:
         dataSource:

@@ -1,2 +1,66 @@
 Fix the Queue stuff... we need to get newentrylistenerservice off of searchQueue!
 
+Fix issue with submitter being NULL when the scheduled job tries to update a Channel. -- FIXED
+
+"Saved Entries" menu item isn't working (NOT AUTHORIZED) -- FIXED
+
+Saving comments not working. -- FIXED
+
+Update the XMPP code to use the newer stuff to match the XMPP bot work -- FIXED
+
+"Share" dialog needs to be updated to use the new Bootstrap based Modal stuff -- FIXED
+
+Setup OAuth for making calls to Quoddy APIs -- FIXED
+
+Test / fix the "share to Quoddy" functionality -- FIXED
+
+Fix the Quartz datasource so triggers are persistent across restarts -- FIXED
+
+Fix the Carousel stuff -- FIXED
+
+Test / Verify remaining functionality -
+     - Triggers -- TESTED:WORKS (for simple cases at least)
+     - Filters -- TESTED:WORKS
+     - Amplifiers/Attenuators -- FIXED
+     - AggregateChannels -- TESTED:WORKS
+     - Search -- FIXED
+     - Rename Channel -- FIXED
+     - Favoriting Channel -- FIXED
+
+Implement delete of DataSources -- FIXED
+
+~~~
+
+0. Test / Verify other DataSources
+   a. Twitter - WORKING
+   b. IMAP - working, but doesn't properly handle date searches.
+
+1. Implement edit of DataSources -- IN PROGRESS
+
+2. Add ability to "unfavorite" a Channel -- PENDING
+
+3. Update the EmailService stuff to use the new stuff from Quoddy -- PENDING
+
+4. Setup OAuth for protecting Neddick APIs -- PENDING
+
+5. Don't save same tag twice for same entry -- PENDING
+
+6. Show existing tags when expanding the "tag" menu on an entry -- PENDING
+
+7. Remove entry immediately when using "hide" feature -- PENDING
+
+8. Sort the list of user names in the "Quoddy" section of the Share dialog -- PENDING
+
+9. Sort Channel list -- PENDING
+     
+10. Various layout issues in creating / editing datasources -- PENDING
+(note: and probably lot of other admin pages)
+
+11. Should not display "edit channel properties" menus and
+other non-relevant menus when on the "edit datasource" page -- PENDING
+(note: there will be all sorts of variations of this) 
+
+12. Throttle processing of incoming messages so that we don't overwhelm postgres.
+    Currently we're going over 100 simultaneous connections which is not good. -- SORTA DONE
+
+    

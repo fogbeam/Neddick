@@ -1,8 +1,9 @@
 package org.fogbeam.neddick
 
+import static org.scribe.builder.api.TwitterApi.*
+
 import org.scribe.builder.ServiceBuilder
 import org.scribe.builder.api.TwitterApi
-import static org.scribe.builder.api.TwitterApi.*
 import org.scribe.model.Token
 import org.scribe.model.Verifier
 import org.scribe.oauth.OAuthService
@@ -29,7 +30,7 @@ class DataSourceController implements InitializingBean
 	} 
 	
 	
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def index()
 	{
 		List<DataSource> allDataSources = DataSource.findAll();
@@ -37,13 +38,13 @@ class DataSourceController implements InitializingBean
 		[allDataSources:allDataSources];
 	}
 	
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createWizardOne()
 	{
 		[:];	
 	}
 	
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createWizardTwo()
 	{
 		String subscriptionType = params.datasourceType;
@@ -69,13 +70,13 @@ class DataSourceController implements InitializingBean
 		redirect( controller:"dataSource", action:nextAction );
 	}
 
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createRssFeedOne()
 	{
 		[:];
 	}
 
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createRssFeedTwo()
 	{
 		log.debug "create using params: ${params}"
@@ -99,19 +100,19 @@ class DataSourceController implements InitializingBean
 		
 	}
 		
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createImapAccountOne()
 	{
 		[:];
 	}
 
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createImapAccountTwo()
 	{
 		log.debug "create using params: ${params}"
 		
 		
-		// create using params: [imapPassword:7400seriesIC,
+		// create using params: [imapPassword:@this_is_really_$3cur3,
 		// _eventId_finishWizard:Save, imapUsername:motley.crue.fan@gmail.com,
 		// imapServerPort:993, imapServer:imap.gmail.com, execution:[e1s2, e1s2],
 		// action:createWizard, controller:dataSource]
@@ -128,7 +129,7 @@ class DataSourceController implements InitializingBean
 			if( !newAccount.save(flush:true, validate:true) )
 			{
 				log.error( "Error saving IMAPAccount" );
-				newAccount.errors.allErrors.each { log.debug it };
+				newAccount.errors.allErrors.each { log.error it };
 			}
 		}
 		
@@ -136,13 +137,13 @@ class DataSourceController implements InitializingBean
 		redirect( controller:"dataSource", action:"index");	
 	}
 		
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createTwitterAccountOne()
 	{
 		[:];
 	}
 	
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def createTwitterAccountTwo()
 	{
 		TwitterAccount accountToCreate = new TwitterAccount();
@@ -158,10 +159,9 @@ class DataSourceController implements InitializingBean
 		[authUrl: authUrl];
 	}
 
-	@Secured(["ROLE_USER","ROLE_ADMIN"])
+	@Secured(["ROLE_ADMIN"])
 	def finishTwitter()
 	{
-				
 		log.debug "finishTwitterFlow: ${params}";
 		
 		/*
@@ -214,8 +214,46 @@ class DataSourceController implements InitializingBean
  */	
 	
 	/* edit wizard */
-	
 	// TODO: create this wizard...
+	@Secured(["ROLE_ADMIN"])
+	def edit()
+	{
+		DataSource dsToEdit = DataSource.findById( Long.parseLong(params.id));
+		String nextAction = "";
+		if( dsToEdit instanceof IMAPAccount )
+		{
+			nextAction = "editImapOne";
+		}
+		else if( dsToEdit instanceof RssFeed )
+		{
+			nextAction = "editRssOne";
+		}
+		else if( dsToEdit instanceof TwitterAccount )
+		{
+			nextAction = "editTwitterOne";
+		}
+		
+		
+		redirect( controller: "dataSource", action:nextAction );
+		
+	}
 	
+	
+	@Secured(["ROLE_ADMIN"])
+	def delete()
+	{
+		DataSource dsToDelete = DataSource.findById( Long.parseLong(params.id));
+		
+		List<ChannelDataSourceLink> links = ChannelDataSourceLink.executeQuery( "select link from ChannelDataSourceLink as link where link.channelDataSource = :ds", [ds:dsToDelete] );
+		
+		for( ChannelDataSourceLink link : links )
+		{
+			link.delete( flush:true );	
+		}
+		
+		dsToDelete.delete(flush:true);	
+		
+		redirect( controller: "dataSource", action:"index" );
+	}
 	
 }
