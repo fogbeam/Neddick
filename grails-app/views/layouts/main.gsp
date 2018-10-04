@@ -36,8 +36,10 @@
 		<script type="text/javascript" src="${resource(dir:'javascripts', file:'jquery.timers-1.2.js')}" ></script>
 		<script type="text/javascript" src="${resource(dir:'javascripts', file:'application.js')}" ></script>
 		<script type="text/javascript" src="${resource(dir:'javascripts', file:'bootstrap.js')}" ></script>
-
-
+		<script type="text/javascript" src="${resource(dir:'javascripts', file:'prototype.js')}" ></script>
+		<script type="text/javascript" src="${resource(dir:'javascripts', file:'scriptaculous.js')}" ></script>
+		<script type="text/javascript" src="${resource(dir:'javascripts', file:'effects.js')}" ></script>
+		
 		<script type="text/javascript">
            function addTag(id ) {
                toggleTagbox(id);
