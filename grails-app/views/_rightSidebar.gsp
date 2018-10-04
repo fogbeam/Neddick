@@ -1,12 +1,12 @@
-	<div class="well" style="margin-bottom:20px; min-height:140px; padding-left:35px;">
-		<h5>All Channels</h5>
-		<hr></hr>
+	<div class="well" style="margin-bottom:20px; min-height:300px; padding-left:35px;">
+		<h5 style="margin-top:5px;margin-bottom:5px;">All Channels</h5>
+		<hr style="margin-top:2px;margin-bottom:2px;"></hr>
 		
 		<!--  Carousel - consult the Twitter Bootstrap docs at
 		      http://twitter.github.com/bootstrap/javascript.html#carousel -->
-		<div id="this-carousel-id" class="carousel slide" >
+		<div id="this-carousel-id" class="carousel slide" style="margin-top:0px;">
 		
-			<div class="carousel-inner" style="height:200px;">
+			<div class="carousel-inner" style="margin-top:5px;min-height:210px;">
 				<g:each in="${chunkedChannels}" var="chunkList" status="stat">
 						
 						<g:if test="${stat == 0}">
@@ -43,14 +43,14 @@
 		
 	</div>	
 	
-	<div class="well" style="margin-bottom:20px; min-height:140px; padding-left:35px;">
-		<h5>Favorite Channels</h5>
-		<hr></hr>
+	<div class="well" style="margin-bottom:20px; min-height:290px; padding-left:35px;">
+          <h5 style="margin-top:5px;margin-bottom:5px;">Favorite Channels</h5>
+          <hr style="margin-top:2px;margin-bottom:2px;"></hr>
 		<!--  Carousel - consult the Twitter Bootstrap docs at
 		      http://twitter.github.com/bootstrap/javascript.html#carousel -->
 		<div id="carousel-fav-channels" class="carousel slide" >
 		
-			<div class="carousel-inner" style="height:200px;">
+			<div class="carousel-inner" style="min-height:210px;">
 				<g:each in="${chunkedFavoriteChannels}" var="chunkListFavChannel" status="statFavChannel">
 						
 						<g:if test="${statFavChannel == 0}">
@@ -88,14 +88,14 @@
 	</div>
 	
 	
-	<div class="well" style="margin-top:20px;min-height:140px; padding-left:35px;">
-		<h5>My Tags</h5>
-		<hr></hr>
+	<div class="well" style="margin-top:20px;min-height:290px; padding-left:35px;">
+		<h5 style="margin-top:5px;margin-bottom:5px;">My Tags</h5>
+		<hr style="margin-top:2px;margin-bottom:2px;"></hr>
 		<!--  Carousel - consult the Twitter Bootstrap docs at
 		      http://twitter.github.com/bootstrap/javascript.html#carousel -->
 		<div id="carousel-my-tags" class="carousel slide" >
 		
-			<div class="carousel-inner" style="height:200px;">
+			<div class="carousel-inner" style="min-height:210px;">
 				<g:each in="${chunkedMyTags}" var="chunkListMyTags" status="statMyTags">
 						
 						<g:if test="${statMyTags == 0}">
