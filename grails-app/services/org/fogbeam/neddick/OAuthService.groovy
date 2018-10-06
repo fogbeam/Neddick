@@ -32,18 +32,16 @@ public class OAuthService
 		{
 			httpClient = HttpClients.createDefault();
 		}
-
-		// String clientId = "test_client";
-		// String clientSecret = "clientSecret";
 		
-		String clientId = grailsApplication.config.oauth.clientId.quoddy;
-		String clientSecret = grailsApplication.config.oauth.clientSecret.quoddy;
+		
+		String clientId = grailsApplication.config.oauth.outgoing.clientId.quoddy;
+		String clientSecret = grailsApplication.config.oauth.outgoing.clientSecret.quoddy;
 		
 		
 		String authorizationHeader = "Basic " + new String( Base64.getEncoder().encode( ( clientId + ":"+clientSecret).getBytes() ) );
 		
 		// String accessTokenUrlQuoddy = "https://localhost:8443/cas/oauth2.0/accessToken";
-		String accessTokenUrlQuoddy = grailsApplication.config.oauth.client.accessTokenUrl.quoddy;
+		String accessTokenUrlQuoddy = grailsApplication.config.oauth.outgoing.client.accessTokenUrl.quoddy;
 		
 		
 		HttpPost httpPost = new HttpPost( accessTokenUrlQuoddy );

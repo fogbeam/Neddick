@@ -1,5 +1,6 @@
 package org.fogbeam.neddick
 
+import org.fogbeam.neddick.User
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
@@ -94,5 +95,32 @@ class UserService
 		
 		UserFavoriteChannelLink.link( channel, user );
 	}
+	
+	public User createUser( User user )
+	{
+		log.debug( "UserService.createUser() - about to create user: ${user.toString()}");
+
+				/* save the user into the uzer table, we need that for associations with other
+		* "system things"
+		*/
 		
+		if( user.dateCreated == null )
+		{
+			user.dateCreated = new Date();
+		}
+		
+		log.info( "saving user with id = " + user.id );
+		
+		if( user.save(flush:true) )
+		{
+			log.info( "Saving User object.");		
+		}
+		else
+		{
+			user.errors.allErrors.each { log.error( it.toString() ) };
+			throw new RuntimeException( "couldn't create User record for user: ${user.userId}" );
+		}
+		
+		return user;
+	}
 }
