@@ -56,5 +56,13 @@ class UserResource
 											 // one-time-use password and send it to the user
 		
 		userService.createUser( user );
+		
+		// get user roles from input object
+		String[] roles = jsonObject.roles;
+		
+		for( String roleName : roles )
+		{
+			userService.addUserRole( user, roleName );
+		}
 	}
 }
