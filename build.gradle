@@ -128,7 +128,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client-jetty
     compile group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.24.1'
 
-    compile group: 'org.fogbeam', name:'groovy-activity-streams', version: '1.0-SNAPSHOT'
+    compile group: 'org.fogbeam', name:'groovy-activity-streams', version: '1.0'
 
     // https://mvnrepository.com/artifact/org.codehaus.groovy/http-builder
     // compile group: 'org.codehaus.groovy', name: 'http-builder', version: '0.4.1'
