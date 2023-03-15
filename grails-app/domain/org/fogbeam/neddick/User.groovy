@@ -20,7 +20,7 @@ class User implements Serializable, UserDetails
 	
     static constraints = {
         userProfile(nullable:true)
-	    userId( size:3..20, unique:true )
+	    userId( size:3..1024, unique:true )
         homepage( url:true, nullable:true )
         validator: { passwd, user -> 
             return passwd != user.userId 

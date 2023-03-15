@@ -22,17 +22,23 @@ apply plugin:"org.grails.grails-gsp"
 
 repositories {
     mavenLocal()
-    mavenCentral()
-    jcenter()
+    // mavenCentral()
+    // jcenter()
+
     maven { url "https://repo.grails.org/grails/core" }
-    maven { url "https://maven.springframework.org/release" }			
-    maven { url "https://maven.restlet.com" }
-    maven { url "http://dev.fogbeam.org:8082/artifactory/fogbeam-main/"}
-	maven { url "https://repository.jboss.org/nexus/content/repositories/releases/" }
-	maven { url "https://github.com/amjjd/amjjd-mvn-repo/raw/master/releases/" }
+    maven { url "https://www.datanucleus.org/downloads/maven2" }
+    maven { url "https://repository.jboss.org/nexus/content/repositories/thirdparty-releases" }
+    maven { url "https://maven.repository.redhat.com/ga/" }
+    maven { url "https://repo.maven.apache.org/maven2/" }
+    maven { url "https://repo1.maven.org/maven2/" }
+    // maven { url "https://maven.springframework.org/release" }
+    // maven { url "https://maven.restlet.com" }
+    maven { url "https://artifactory.dev.fogbeam.org:443/artifactory/libs-release/"}
+    maven { url "https://repository.jboss.org/nexus/content/repositories/releases/" }
     flatDir {
         dirs 'locallibs'
     }
+
 }
 
 dependencies {
@@ -92,10 +98,12 @@ dependencies {
 
 	
 	
-	compile group: 'org.fogbeam', name:'jFriendOfAFriend', version:'1.1-SNAPSHOT'
+	// compile group: 'org.fogbeam', name:'jFriendOfAFriend', version:'1.1-SNAPSHOT'
+        compile group: 'org.fogbeam', name:'jFriendOfAFriend', version:'1.1'
     // https://mvnrepository.com/artifact/net.sf.json-lib/json-lib
     compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
     compile "org.grails.plugins.fogbeam:jaxrs-jersey1:3.0.4"
+    compile "org.grails.plugins.fogbeam:jaxrs-core:3.0.4"
 
     // https://mvnrepository.com/artifact/org.apache.lucene/lucene-core
     compile group: 'org.apache.lucene', name: 'lucene-core', version: '3.0.3'
@@ -182,7 +190,7 @@ dependencies {
     // https://mvnrepository.com/artifact/xalan/xalan
     compile group: 'xalan', name: 'xalan', version: '2.7.2'
     
-	compile group: 'com.amjjd', name: 'java-alphanum', version:'0.1'    
+    compile group: 'com.amjjd', name: 'java-alphanum', version:'0.1'    
 
 	
 	// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
